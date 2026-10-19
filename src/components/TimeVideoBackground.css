@@ -1,0 +1,102 @@
+/* Video di bawah konten; efek gradasi dari halaman asli tetap dipakai. */
+
+.mut-time-video.mut-live-landscape,
+.mut-auth-ambient .mut-time-video.mut-login-background,
+.mut-login-page .mut-auth-ambient .mut-time-video.mut-login-background {
+  position: fixed;
+  inset: 0;
+  display: block;
+  overflow: hidden;
+  pointer-events: none;
+  transform: none !important;
+  background-image: none !important;
+  background-color: #dbe9e3;
+}
+
+.mut-time-video-poster,
+.mut-time-video-element {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center center;
+  pointer-events: none;
+}
+
+.mut-time-video-poster {
+  z-index: 0;
+}
+
+.mut-time-video-element {
+  z-index: 1;
+  opacity: 0;
+  transition: opacity 450ms ease;
+}
+
+.mut-time-video-element.is-playing {
+  opacity: 1;
+}
+
+/*
+  Blur hanya pada LATAR BAGIAN BAWAH.
+  Mask memudarkan blur agar tidak muncul
+  garis batas yang terlihat mendadak.
+*/
+
+.mut-time-video-soften {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+
+  -webkit-backdrop-filter: blur(9px);
+  backdrop-filter: blur(9px);
+
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    transparent 34%,
+    rgba(0, 0, 0, .15) 49%,
+    rgba(0, 0, 0, .73) 73%,
+    #000 95%
+  );
+
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    transparent 34%,
+    rgba(0, 0, 0, .15) 49%,
+    rgba(0, 0, 0, .73) 73%,
+    #000 95%
+  );
+}
+
+/* Mode horizontal dengan layar pendek */
+
+@media (orientation: landscape) and (max-height: 490px) {
+  .mut-time-video-soften {
+    -webkit-mask-image: linear-gradient(
+      to right,
+      transparent 0%,
+      transparent 28%,
+      rgba(0, 0, 0, .75) 77%,
+      #000 100%
+    );
+
+    mask-image: linear-gradient(
+      to right,
+      transparent 0%,
+      transparent 28%,
+      rgba(0, 0, 0, .75) 77%,
+      #000 100%
+    );
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mut-time-video-element {
+    display: none;
+  }
+}

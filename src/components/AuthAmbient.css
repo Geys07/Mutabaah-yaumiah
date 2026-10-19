@@ -1,0 +1,118 @@
+
+.mut-login-page {
+  isolation: isolate;
+}
+
+.mut-auth-ambient {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.mut-auth-ambient .mut-login-background {
+  position: absolute;
+  inset: -2%;
+  z-index: 0;
+
+  background-image: var(--mut-scene-desktop);
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+.mut-login-content {
+  position: relative;
+  z-index: 1;
+}
+
+.mut-auth-glow {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+
+  background: radial-gradient(
+    circle at 72% 32%,
+    rgba(255, 242, 171, 0.45),
+    transparent 36%
+  );
+
+  mix-blend-mode: screen;
+}
+
+.mut-auth-stars {
+  display: none;
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  opacity: 0;
+
+  background:
+    radial-gradient(
+      #fff 1px,
+      transparent 2px
+    ) 12px 14px / 87px 79px,
+    radial-gradient(
+      #fff7de 1px,
+      transparent 2px
+    ) 48px 32px / 147px 123px;
+}
+
+.mut-auth-birds {
+  position: absolute;
+  top: 32%;
+  left: 38%;
+  z-index: 2;
+
+  width: clamp(65px, 13vw, 165px);
+  color: #245f6b;
+}
+
+.mut-auth-leaves {
+  position: absolute;
+  top: -4%;
+  left: -4%;
+  z-index: 2;
+
+  width: clamp(110px, 23vw, 245px);
+  transform-origin: 5% 2%;
+  opacity: 0.65;
+}
+
+:root[data-time-theme="malam"] .mut-auth-glow {
+  background: radial-gradient(
+    circle at 65% 22%,
+    rgba(205, 229, 255, 0.4),
+    transparent 30%
+  );
+}
+
+:root[data-time-theme="malam"] .mut-auth-stars {
+  display: block;
+  opacity: 0.4;
+}
+
+:root[data-time-theme="malam"] .mut-auth-birds {
+  display: none;
+}
+
+@media (max-width: 740px) {
+  .mut-auth-ambient .mut-login-background {
+    background-image: var(--mut-scene-mobile);
+  }
+
+  .mut-auth-leaves {
+    width: clamp(100px, 40vw, 200px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mut-auth-glow,
+  .mut-auth-stars,
+  .mut-auth-birds,
+  .mut-auth-leaves,
+  .mut-auth-ambient .mut-login-background {
+    animation: none !important;
+  }
+}

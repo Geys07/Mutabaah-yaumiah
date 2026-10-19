@@ -1,0 +1,254 @@
+
+.family-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(13, 30, 23, 0.58);
+}
+
+.family-dialog {
+  display: flex;
+  flex-direction: column;
+  width: min(100%, 680px);
+  max-height: 92dvh;
+  overflow: hidden;
+  border: 1px solid #e0e7e1;
+  border-radius: 17px;
+  background: #fff;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.18);
+}
+
+.family-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 23px 26px;
+  border-bottom: 1px solid #e5ebe6;
+}
+
+.family-header h2 {
+  margin: 0;
+  color: #203a30;
+  font-size: 19px;
+}
+
+.family-header p {
+  margin: 7px 0 0;
+  color: #75847b;
+  font-size: 13px;
+}
+
+.family-close {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  flex: 0 0 36px;
+  border: 1px solid #dfe8e0;
+  border-radius: 9px;
+  background: #fff;
+  color: #617467;
+  font-size: 23px;
+  cursor: pointer;
+}
+
+.family-form {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.family-body {
+  overflow-y: auto;
+  padding: 23px 26px;
+}
+
+.family-section + .family-section {
+  margin-top: 23px;
+  padding-top: 22px;
+  border-top: 1px solid #edf0ed;
+}
+
+.family-section h3 {
+  margin: 0 0 14px;
+  color: #285440;
+  font-size: 14px;
+}
+
+.family-fields {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+  gap: 15px;
+}
+
+.family-fields label {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+  color: #30483c;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.family-fields input {
+  width: 100%;
+  min-width: 0;
+  height: 44px;
+  padding: 0 12px;
+  border: 1px solid #dce5df;
+  border-radius: 9px;
+  outline: none;
+  background: #fff;
+  color: #203a30;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 400;
+}
+
+.family-fields input:focus {
+  border-color: #2b7658;
+  box-shadow: 0 0 0 3px rgba(43, 118, 88, 0.1);
+}
+
+.family-fields input:disabled {
+  background: #f4f6f4;
+}
+
+.family-activation {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-top: 15px;
+  padding: 13px 15px;
+  border: 1px solid #e3eae5;
+  border-radius: 10px;
+  background: #f8faf8;
+}
+
+.family-activation-info {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  color: #738278;
+  font-size: 12px;
+}
+
+.family-code {
+  color: #205a40;
+  font-size: 23px;
+  font-weight: 800;
+  letter-spacing: 5px;
+  font-family: inherit;
+}
+
+.family-error,
+.family-success {
+  margin: 16px 0 0;
+  padding: 11px 13px;
+  border-radius: 9px;
+  font-size: 12px;
+}
+
+.family-error {
+  background: #fff0f0;
+  color: #ac3838;
+}
+
+.family-success {
+  background: #edf8f0;
+  color: #23734b;
+}
+
+.family-loading {
+  padding: 35px 26px;
+  color: #75847b;
+  font-size: 13px;
+}
+
+.family-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 11px;
+  padding: 17px 26px;
+  border-top: 1px solid #e5ebe6;
+}
+
+.family-primary,
+.family-secondary {
+  min-height: 40px;
+  padding: 10px 17px;
+  border-radius: 9px;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.family-primary {
+  border: 1px solid #164c3b;
+  background: #164c3b;
+  color: #fff;
+}
+
+.family-secondary {
+  border: 1px solid #dce5df;
+  background: #fff;
+  color: #365646;
+}
+
+.family-primary:disabled,
+.family-secondary:disabled,
+.family-close:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+@media (max-width: 600px) {
+  .family-backdrop {
+    align-items: flex-end;
+    padding: 0;
+  }
+
+  .family-dialog {
+    width: 100%;
+    max-height: 94dvh;
+    border-radius: 18px 18px 0 0;
+  }
+
+  .family-header,
+  .family-body {
+    padding: 19px 17px;
+  }
+
+  .family-fields {
+    grid-template-columns: 1fr;
+    gap: 13px;
+  }
+
+  .family-activation {
+    align-items: stretch;
+  }
+
+  .family-activation > button {
+    width: 100%;
+  }
+
+  .family-footer {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    padding: 15px 17px;
+    padding-bottom: max(15px, env(safe-area-inset-bottom));
+  }
+
+  .family-footer button {
+    width: 100%;
+  }
+}

@@ -1,0 +1,10 @@
+project_id = "mutabaah-yaumiah"
+
+[functions.parent-push]
+verify_jwt = true
+
+[functions.admin-push]
+verify_jwt = true
+
+[functions.parent-reminder-send]
+verify_jwt = false

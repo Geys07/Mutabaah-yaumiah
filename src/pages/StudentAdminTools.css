@@ -1,0 +1,207 @@
+
+.sat-panel {
+  padding: 19px;
+  margin-bottom: 15px;
+  border: 1px solid var(--sa-line, #e1e8e4);
+  border-radius: 14px;
+  background: #fff;
+  color: var(--sa-ink, #253e35);
+}
+
+.sat-panel * {
+  box-sizing: border-box;
+}
+
+.sat-heading h2 {
+  margin: 0;
+  font-size: 17px;
+}
+
+.sat-heading p,
+.sat-intake p,
+.sat-dialog p,
+.sat-lifecycle p {
+  margin: 5px 0;
+  color: var(--sa-muted, #6c7f74);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.sat-tabs {
+  display: flex;
+  gap: 5px;
+  overflow: auto;
+  border-bottom: 1px solid var(--sa-line, #e1e8e4);
+  margin: 15px 0;
+}
+
+.sat-tabs button {
+  white-space: nowrap;
+  padding: 10px 12px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  font-size: 12px;
+  cursor: pointer;
+  color: var(--sa-muted, #6c7f74);
+}
+
+.sat-tabs button.is-active {
+  color: var(--sa-accent, #147959);
+  border-bottom-color: var(--sa-accent, #147959);
+  font-weight: 750;
+}
+
+.sat-intake {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.sat-intake strong {
+  font-size: 13px;
+}
+
+.sat-panel button:not(.sat-tabs button) {
+  min-height: 40px;
+  padding: 8px 13px;
+  border: 0;
+  border-radius: 9px;
+  background: var(--sa-accent, #147959);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.sat-panel button:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+}
+
+.sat-lifecycle {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 12px;
+}
+
+.sat-search,
+.sat-dialog > label {
+  display: grid;
+  gap: 7px;
+  font-size: 12px;
+  min-width: min(100%, 210px);
+  flex: 1;
+}
+
+.sat-search input,
+.sat-search select,
+.sat-dialog select {
+  width: 100%;
+  min-height: 42px;
+  padding: 9px 10px;
+  border: 1px solid var(--sa-line, #e1e8e4);
+  border-radius: 9px;
+  background: #fff;
+  color: inherit;
+  font-size: 12px;
+}
+
+.sat-selected {
+  width: 100%;
+  flex-basis: 100%;
+}
+
+.sat-success,
+.sat-error {
+  padding: 10px 12px;
+  border-radius: 9px;
+  font-size: 12px;
+}
+
+.sat-success {
+  background: #e9f6ee;
+  color: #15613d;
+}
+
+.sat-error {
+  background: #fff1f0;
+  color: #a3443a;
+}
+
+.sat-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+  display: grid;
+  place-items: center;
+  padding: 15px;
+  background: #102a20ad;
+}
+
+.sat-dialog {
+  width: min(440px, 100%);
+  background: white;
+  padding: 21px;
+  border-radius: 16px;
+  box-shadow: 0 22px 55px #0003;
+}
+
+.sat-dialog h3 {
+  margin: 0 0 15px;
+  font-size: 16px;
+}
+
+.sat-dialog fieldset {
+  display: grid;
+  gap: 10px;
+  margin: 15px 0;
+  padding: 12px;
+  border: 1px solid var(--sa-line, #e1e8e4);
+  border-radius: 9px;
+}
+
+.sat-dialog legend {
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.sat-dialog fieldset label {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  font-size: 12px;
+}
+
+.sat-dialog input[type="radio"] {
+  accent-color: var(--sa-accent, #147959);
+}
+
+.sat-dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 17px;
+}
+
+.sat-panel .sat-dialog-actions button.is-secondary {
+  background: var(--sa-soft, #e9f5ee);
+  color: var(--sa-accent, #147959);
+}
+
+@media (max-width: 620px) {
+  .sat-panel {
+    padding: 14px;
+  }
+
+  .sat-intake button {
+    width: 100%;
+  }
+
+  .sat-lifecycle > button {
+    width: 100%;
+  }
+}

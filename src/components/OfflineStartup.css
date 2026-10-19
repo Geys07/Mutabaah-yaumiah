@@ -1,0 +1,8 @@
+.offline-startup { min-height: 100dvh; display: grid; place-items: center; padding: 24px 16px 120px; box-sizing: border-box; background: #f7faf8; color: #26463a; }
+.offline-startup section { width: 100%; max-width: 460px; padding: 28px 22px; box-sizing: border-box; border: 1px solid #dce8e0; border-radius: 18px; background: #fff; text-align: center; overflow-wrap: anywhere; }
+.offline-startup img { object-fit: contain; }
+.offline-startup h1 { color: #176b4e; font-size: 22px; line-height: 1.4; }
+.offline-startup p { font-size: 14px; line-height: 1.7; }
+.offline-startup .offline-brand { font-weight: 700; }
+.offline-startup .offline-note { margin-top: 22px; font-size: 12px; color: #63796c; }
+.offline-startup button { min-height: 44px; padding: 11px 22px; border: 0; border-radius: 10px; background: #176b4e; color: #fff; font: inherit; cursor: pointer; }

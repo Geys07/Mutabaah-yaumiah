@@ -1,0 +1,156 @@
+
+.account-security {
+  min-width: 0;
+  padding: 24px;
+  border: 1px solid #e0e9e2;
+  border-radius: 15px;
+  background: #fff;
+  color: #243d30;
+}
+
+.account-security-heading h2 {
+  margin: 0;
+  color: #203b2e;
+  font-size: 19px;
+}
+
+.account-security-identity {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 22px;
+  padding-bottom: 21px;
+  border-bottom: 1px solid #e9eeea;
+}
+
+.account-security-identity strong {
+  color: #244b35;
+  font-size: 15px;
+}
+
+.account-security-identity span {
+  color: #718276;
+  font-size: 12px;
+}
+
+.account-security-form {
+  display: grid;
+  gap: 17px;
+  width: min(100%, 440px);
+  margin-top: 23px;
+}
+
+.account-security-form h3 {
+  margin: 0 0 3px;
+  color: #28513b;
+  font-size: 15px;
+}
+
+.account-security-field {
+  display: grid;
+  gap: 8px;
+  color: #345340;
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.account-security-field input {
+  width: 100%;
+  height: 45px;
+  padding: 10px 13px;
+  border: 1px solid #dce5df;
+  border-radius: 9px;
+  outline: none;
+  background: #fff;
+  color: #253f2e;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 400;
+  box-sizing: border-box;
+}
+
+.account-security-field input:focus {
+  border-color: #27754f;
+  box-shadow: 0 0 0 3px rgba(39, 117, 79, 0.08);
+}
+
+.account-security-field input:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.account-security-check {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  color: #496250;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.account-security-check input {
+  width: 16px;
+  height: 16px;
+  accent-color: #164c3b;
+}
+
+.account-security-error,
+.account-security-success {
+  margin: 0;
+  padding: 12px 14px;
+  border-radius: 9px;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.account-security-error {
+  background: #fff0f0;
+  color: #a23e3e;
+}
+
+.account-security-success {
+  background: #eaf7ee;
+  color: #227045;
+}
+
+.account-security-actions {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.account-security-actions button {
+  min-height: 43px;
+  padding: 10px 17px;
+  border: 1px solid #164c3b;
+  border-radius: 9px;
+  background: #164c3b;
+  color: #fff;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.account-security-actions button:hover:not(:disabled) {
+  background: #103e2d;
+}
+
+.account-security-actions button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+@media (max-width: 600px) {
+  .account-security {
+    padding: 19px 15px;
+    border-radius: 12px;
+  }
+
+  .account-security-form {
+    width: 100%;
+  }
+
+  .account-security-actions button {
+    width: 100%;
+  }
+}

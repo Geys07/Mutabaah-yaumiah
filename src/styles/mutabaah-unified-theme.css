@@ -1,0 +1,563 @@
+
+/* MUTABAAH YAUMIAH — TEMA TERPADU
+   Login, aktivasi, pemberitahuan, dan panel orang tua.
+   Header panel tetap memakai gambar statis.
+*/
+
+:root,
+:root[data-time-theme="pagi"] {
+  --mut-ui-accent: #168060;
+  --mut-ui-accent-dark: #0c6c50;
+  --mut-ui-soft: #eaf7ef;
+  --mut-ui-soft-border: #cde7d7;
+  --mut-ui-text: #274c43;
+  --mut-ui-muted: #5f7973;
+  --mut-ui-page: #f5faf6;
+  --mut-ui-glass: rgba(250, 255, 248, .91);
+  --mut-ui-notice-border: rgba(116, 172, 132, .43);
+
+  --mut-ui-login-fade: linear-gradient(
+    to bottom,
+    rgba(255, 251, 239, .02) 0%,
+    rgba(255, 252, 244, .10) 29%,
+    rgba(255, 252, 244, .62) 51%,
+    rgba(249, 253, 248, .94) 71%,
+    #f9fcf8 100%
+  );
+}
+
+:root[data-time-theme="siang"] {
+  --mut-ui-accent: #167f91;
+  --mut-ui-accent-dark: #096678;
+  --mut-ui-soft: #eaf7f9;
+  --mut-ui-soft-border: #c7e5ea;
+  --mut-ui-text: #255260;
+  --mut-ui-muted: #627e87;
+  --mut-ui-page: #f3fafc;
+  --mut-ui-glass: rgba(245, 253, 255, .91);
+  --mut-ui-notice-border: rgba(97, 174, 194, .44);
+
+  --mut-ui-login-fade: linear-gradient(
+    to bottom,
+    rgba(243, 252, 255, .02) 0%,
+    rgba(243, 252, 255, .13) 29%,
+    rgba(245, 252, 255, .64) 51%,
+    rgba(247, 252, 254, .95) 71%,
+    #f7fcfe 100%
+  );
+}
+
+:root[data-time-theme="sore"] {
+  --mut-ui-accent: #a8663f;
+  --mut-ui-accent-dark: #895032;
+  --mut-ui-soft: #fff3e8;
+  --mut-ui-soft-border: #efd5bf;
+  --mut-ui-text: #665045;
+  --mut-ui-muted: #87746b;
+  --mut-ui-page: #fff9f4;
+  --mut-ui-glass: rgba(255, 249, 240, .92);
+  --mut-ui-notice-border: rgba(205, 151, 112, .46);
+
+  --mut-ui-login-fade: linear-gradient(
+    to bottom,
+    rgba(255, 242, 225, .02) 0%,
+    rgba(255, 244, 231, .10) 29%,
+    rgba(255, 246, 234, .64) 51%,
+    rgba(255, 251, 246, .95) 71%,
+    #fffbf6 100%
+  );
+}
+
+:root[data-time-theme="malam"] {
+  --mut-ui-accent: #4a6ea7;
+  --mut-ui-accent-dark: #365888;
+  --mut-ui-soft: #eaf0fb;
+  --mut-ui-soft-border: #cedbf0;
+  --mut-ui-text: #273f61;
+  --mut-ui-muted: #63758e;
+  --mut-ui-page: #f1f5fc;
+  --mut-ui-glass: rgba(241, 246, 255, .93);
+  --mut-ui-notice-border: rgba(151, 174, 211, .48);
+
+  --mut-ui-login-fade: linear-gradient(
+    to bottom,
+    rgba(8, 27, 57, .02) 0%,
+    rgba(17, 39, 71, .13) 28%,
+    rgba(230, 238, 252, .66) 50%,
+    rgba(242, 246, 253, .96) 71%,
+    #f2f6fd 100%
+  );
+}
+
+/* LOGIN DAN AKTIVASI */
+
+.mut-login-page {
+  background: var(--mut-ui-page);
+  color: var(--mut-ui-text);
+}
+
+.mut-login-page::before {
+  background: var(--mut-ui-login-fade);
+}
+
+.mut-login-page .mut-login-brand h1,
+.mut-login-page .mut-login-card .mut-login-welcome,
+.mut-login-page .activation-heading h2 {
+  color: var(--mut-ui-text);
+}
+
+:root[data-time-theme="malam"]
+.mut-login-page .mut-login-brand h1,
+:root[data-time-theme="malam"]
+.mut-login-page .mut-login-brand p {
+  color: #fff;
+  text-shadow: 0 2px 10px rgba(0, 17, 44, .75);
+}
+
+.mut-login-page .mut-login-field,
+.mut-login-page .activation-field input {
+  background: rgba(255, 255, 255, .87);
+  border-color: var(--mut-ui-soft-border);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+
+.mut-login-page .mut-login-field:focus-within,
+.mut-login-page .activation-field input:focus {
+  border-color: var(--mut-ui-accent);
+  box-shadow: 0 0 0 3px var(--mut-ui-soft-border);
+}
+
+.mut-login-page .mut-login-field-label,
+.mut-login-page .activation-field span,
+.mut-login-page .mut-login-info p,
+.mut-login-page .activation-root form > p:first-child {
+  color: var(--mut-ui-muted) !important;
+}
+
+.mut-login-page .mut-login-submit,
+.mut-login-page .activation-submit {
+  background: linear-gradient(
+    105deg,
+    var(--mut-ui-accent),
+    var(--mut-ui-accent-dark)
+  );
+
+  box-shadow: 0 8px 22px rgba(27, 55, 64, .13);
+  color: #fff;
+}
+
+.mut-login-page .mut-login-forgot button,
+.mut-login-page .mut-login-activation button,
+.mut-login-page .activation-back {
+  color: var(--mut-ui-accent-dark);
+}
+
+.mut-login-page .mut-login-info {
+  background: var(--mut-ui-glass);
+  border-left-color: var(--mut-ui-accent);
+}
+
+.mut-login-page .mut-login-info svg,
+.mut-login-page .activation-checkbox input {
+  color: var(--mut-ui-accent);
+  accent-color: var(--mut-ui-accent);
+}
+
+/* PEMBERITAHUAN TERPADU */
+
+.mut-login-page .toast,
+.mut-splash-layer > .mut-splash-recovery,
+.pd-app .pd-notice-popover {
+  color: var(--mut-ui-text);
+  background: var(--mut-ui-glass);
+  border: 1px solid var(--mut-ui-notice-border);
+  border-radius: 16px;
+
+  box-shadow: 0 10px 30px rgba(20, 46, 62, .12);
+
+  -webkit-backdrop-filter: blur(14px) saturate(115%);
+  backdrop-filter: blur(14px) saturate(115%);
+}
+
+.mut-login-page .toast {
+  top: max(18px, env(safe-area-inset-top));
+  right: 18px;
+  bottom: auto;
+  z-index: 100;
+
+  align-items: center;
+  max-width: calc(100vw - 32px);
+  padding: 12px 13px;
+  gap: 11px;
+
+  border-left: 3px solid var(--mut-ui-accent);
+}
+
+.mut-login-page .toast.toast-error {
+  border-left-color: #b95d61;
+}
+
+.mut-login-page .toast span {
+  min-width: 0;
+  color: var(--mut-ui-text);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.mut-login-page .toast button {
+  flex: 0 0 34px;
+  min-height: 34px;
+  border-radius: 9px;
+  color: var(--mut-ui-text);
+  background: var(--mut-ui-soft);
+}
+
+.mut-login-page .activation-error,
+.pd-app .pd-error,
+.pd-app .daily-error,
+.pd-app .parent-calendar-error,
+.pd-app .account-security-error {
+  margin-block: 10px;
+  padding: 11px 13px;
+  border: 1px solid #e7c3c3;
+  border-left: 3px solid #b95d61;
+  border-radius: 12px;
+  color: #8b414a;
+  background: rgba(255, 244, 243, .92);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.pd-app .pd-message,
+.pd-app .daily-success,
+.pd-app .account-security-success {
+  margin-block: 10px;
+  padding: 11px 13px;
+  border: 1px solid var(--mut-ui-soft-border);
+  border-left: 3px solid var(--mut-ui-accent);
+  border-radius: 12px;
+  color: var(--mut-ui-text);
+  background: var(--mut-ui-soft);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.mut-splash-layer > .mut-splash-recovery {
+  position: fixed;
+  left: 50%;
+  bottom: max(15px, env(safe-area-inset-bottom));
+  width: min(calc(100vw - 28px), 560px);
+  min-height: 60px;
+  padding: 12px 14px;
+  transform: translateX(-50%);
+
+  z-index: 10003;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 10px;
+}
+
+.mut-splash-layer > .mut-splash-recovery::before {
+  content: "";
+  flex: 0 0 9px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--mut-ui-accent);
+  box-shadow: 0 0 0 4px var(--mut-ui-soft-border);
+}
+
+.mut-splash-layer > .mut-splash-recovery > span {
+  flex: 1 1 180px;
+  min-width: 0;
+  color: var(--mut-ui-text);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.mut-splash-layer > .mut-splash-recovery > button,
+.pd-app .pd-notice-popover button {
+  min-height: 40px;
+  border: 0;
+  border-radius: 10px;
+  padding: 8px 12px;
+  background: var(--mut-ui-accent);
+  color: #fff;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.mut-splash-layer:has(> .mut-splash-recovery)
+.mut-live-bottom {
+  padding-bottom: max(
+    100px,
+    env(safe-area-inset-bottom)
+  );
+}
+
+/* PANEL ORANG TUA */
+
+.pd-app {
+  --pd-green: var(--mut-ui-accent);
+  --pd-navy: var(--mut-ui-text);
+  --pd-muted: var(--mut-ui-muted);
+  --pd-border: var(--mut-ui-soft-border);
+
+  background: var(--mut-ui-page);
+  color: var(--mut-ui-text);
+}
+
+/* Penyesuaian tema berdasarkan waktu dashboard */
+
+.pd-app[data-theme="pagi"] {
+  --mut-ui-accent: #168060;
+  --mut-ui-accent-dark: #0c6c50;
+  --mut-ui-soft: #eaf7ef;
+  --mut-ui-soft-border: #cde7d7;
+  --mut-ui-text: #274c43;
+  --mut-ui-muted: #5f7973;
+  --mut-ui-page: #f5faf6;
+  --mut-ui-glass: rgba(250, 255, 248, .95);
+  --mut-ui-notice-border: rgba(116, 172, 132, .43);
+}
+
+.pd-app[data-theme="siang"] {
+  --mut-ui-accent: #167f91;
+  --mut-ui-accent-dark: #096678;
+  --mut-ui-soft: #eaf7f9;
+  --mut-ui-soft-border: #c7e5ea;
+  --mut-ui-text: #255260;
+  --mut-ui-muted: #627e87;
+  --mut-ui-page: #f3fafc;
+  --mut-ui-glass: rgba(245, 253, 255, .95);
+  --mut-ui-notice-border: rgba(97, 174, 194, .44);
+}
+
+.pd-app[data-theme="sore"] {
+  --mut-ui-accent: #a8663f;
+  --mut-ui-accent-dark: #895032;
+  --mut-ui-soft: #fff3e8;
+  --mut-ui-soft-border: #efd5bf;
+  --mut-ui-text: #665045;
+  --mut-ui-muted: #87746b;
+  --mut-ui-page: #fff9f4;
+  --mut-ui-glass: rgba(255, 249, 240, .95);
+  --mut-ui-notice-border: rgba(205, 151, 112, .46);
+}
+
+.pd-app[data-theme="malam"] {
+  --mut-ui-accent: #4a6ea7;
+  --mut-ui-accent-dark: #365888;
+  --mut-ui-soft: #eaf0fb;
+  --mut-ui-soft-border: #cedbf0;
+  --mut-ui-text: #273f61;
+  --mut-ui-muted: #63758e;
+  --mut-ui-page: #f1f5fc;
+  --mut-ui-glass: rgba(241, 246, 255, .96);
+  --mut-ui-notice-border: rgba(151, 174, 211, .48);
+}
+
+/* Kartu dan permukaan */
+
+.pd-app .pd-sidebar,
+.pd-app .pd-identity-card,
+.pd-app .pd-card,
+.pd-app .pd-modal,
+.pd-app .pd-notification-item,
+.pd-app .pd-profile-child,
+.pd-app .pd-profile-user {
+  background: #fff;
+  border-color: var(--pd-border);
+}
+
+/* Tipografi */
+
+.pd-app .pd-sidebar-brand strong,
+.pd-app .pd-card-heading h2,
+.pd-app .pd-page-title h1,
+.pd-app .pd-current-child strong,
+.pd-app .pd-recap-numbers strong,
+.pd-app .pd-status-message strong {
+  color: var(--pd-navy);
+}
+
+.pd-app .pd-card-heading > small,
+.pd-app .pd-page-title small,
+.pd-app .pd-current-child small,
+.pd-app .pd-profile-child small,
+.pd-app .pd-notification-item p,
+.pd-app .pd-notification-item small,
+.pd-app .pd-status-message small {
+  color: var(--pd-muted);
+}
+
+/* Menu dan pilihan */
+
+.pd-app .pd-sidebar-nav button.is-active,
+.pd-app .pd-bottom-nav button.is-active,
+.pd-app .pd-child-choice.is-selected,
+.pd-app .pd-child-arrow,
+.pd-app .pd-date-nav,
+.pd-app .pd-shortcut-grid button:hover {
+  background: var(--mut-ui-soft);
+  color: var(--mut-ui-accent-dark);
+}
+
+.pd-app .pd-sidebar-nav button.is-active,
+.pd-app .pd-bottom-nav button.is-active {
+  font-weight: 800;
+}
+
+.pd-app .pd-bottom-nav {
+  background: var(--mut-ui-glass);
+  border-top-color: var(--pd-border);
+}
+
+/* Tombol utama */
+
+.pd-app .pd-primary-button,
+.pd-app .pd-no-child button,
+.pd-app .pd-section-icon,
+.pd-app .pd-choice-check,
+.pd-app .daily-save:not(:disabled) {
+  background: var(--mut-ui-accent);
+  color: #fff;
+}
+
+.pd-app .pd-primary-button:hover,
+.pd-app .pd-no-child button:hover {
+  background: var(--mut-ui-accent-dark);
+}
+
+.pd-app .pd-outline-button,
+.pd-app .pd-date-nav button,
+.pd-app .pd-child-arrow,
+.pd-app .pd-current-child div > span,
+.pd-app .pd-quran-source,
+.pd-app .pd-quran-arabic {
+  color: var(--mut-ui-accent-dark);
+}
+
+.pd-app .pd-outline-button {
+  border-color: var(--mut-ui-soft-border);
+}
+
+/* Kutipan dan grafik */
+
+.pd-app .pd-quran-card {
+  background: linear-gradient(
+    115deg,
+    #fffdf6,
+    var(--mut-ui-soft)
+  );
+
+  border-color: var(--pd-border);
+}
+
+.pd-app .pd-ring {
+  background: conic-gradient(
+    var(--mut-ui-accent) var(--pd-progress),
+    var(--mut-ui-soft-border) var(--pd-progress) 100%
+  );
+}
+
+.pd-app .pd-progress-track i {
+  background: var(--mut-ui-accent);
+}
+
+/* Status dan bantuan */
+
+.pd-app .pd-status-message,
+.pd-app .pd-calendar-help {
+  background: var(--mut-ui-soft);
+  border: 1px solid var(--pd-border);
+  color: var(--mut-ui-text);
+  border-radius: 13px;
+}
+
+.pd-app .pd-status-message > span,
+.pd-app .pd-notification-item > span,
+.pd-app .pd-profile-user > span {
+  color: var(--mut-ui-accent);
+  background: var(--mut-ui-soft);
+}
+
+/* Notifikasi panel orang tua */
+
+.pd-app .pd-notice-popover {
+  background: var(--mut-ui-glass);
+  z-index: 75;
+}
+
+.pd-app .pd-notice-popover p {
+  color: var(--mut-ui-muted);
+}
+
+/* Kalender */
+
+.pd-app .parent-calendar-day.selected {
+  outline-color: var(--mut-ui-accent);
+}
+
+.pd-app .parent-calendar-heading button,
+.pd-app .parent-calendar-heading h2 {
+  color: var(--mut-ui-text);
+}
+
+/* HEADER PANEL ORANG TUA TETAP STATIS */
+
+.pd-app .pd-hero-picture img {
+  animation: none !important;
+  transition: none !important;
+  transform: none !important;
+}
+
+/* RESPONSIF PONSEL */
+
+@media (max-width: 600px) {
+  .mut-login-page .toast {
+    top: auto;
+    right: 14px;
+    bottom: max(
+      14px,
+      env(safe-area-inset-bottom)
+    );
+
+    width: calc(100vw - 28px);
+  }
+
+  .mut-splash-layer > .mut-splash-recovery {
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .mut-splash-layer > .mut-splash-recovery > span {
+    flex: 1 1 calc(100% - 30px);
+  }
+
+  .mut-splash-layer > .mut-splash-recovery > button {
+    width: 100%;
+  }
+
+  .mut-splash-layer:has(> .mut-splash-recovery)
+  .mut-live-bottom {
+    padding-bottom: max(
+      154px,
+      env(safe-area-inset-bottom)
+    );
+  }
+}
+
+/* AKSESIBILITAS */
+
+@media (prefers-reduced-motion: reduce) {
+  .mut-login-page .toast,
+  .pd-app .pd-modal {
+    animation: none !important;
+  }
+}

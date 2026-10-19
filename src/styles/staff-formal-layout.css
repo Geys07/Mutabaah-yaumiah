@@ -1,0 +1,746 @@
+
+/* MUTABAAH YAUMIAH — DESAIN FORMAL STAF */
+
+:root {
+  --staff-accent: #137a60;
+  --staff-accent-hover: #0e664f;
+  --staff-tint: #e9f5ef;
+  --staff-bg: #f6f8f7;
+  --staff-surface: #ffffff;
+  --staff-border: #e1e9e5;
+  --staff-text: #213c34;
+  --staff-muted: #687b73;
+  --staff-shadow: 0 6px 24px rgba(27, 56, 46, .045);
+}
+
+:root[data-time-theme="siang"] {
+  --staff-accent: #157e98;
+  --staff-accent-hover: #11677b;
+  --staff-tint: #e9f6f9;
+  --staff-bg: #f4f9fb;
+  --staff-border: #dfebef;
+  --staff-text: #254451;
+  --staff-muted: #687d86;
+}
+
+:root[data-time-theme="sore"] {
+  --staff-accent: #ae704a;
+  --staff-accent-hover: #945a36;
+  --staff-tint: #fff1e7;
+  --staff-bg: #fbf8f5;
+  --staff-border: #eee5de;
+  --staff-text: #4e4038;
+  --staff-muted: #83756e;
+}
+
+:root[data-time-theme="malam"] {
+  --staff-accent: #4e6ba6;
+  --staff-accent-hover: #40598c;
+  --staff-tint: #e9eef9;
+  --staff-bg: #f4f6fb;
+  --staff-border: #e0e6f1;
+  --staff-text: #283950;
+  --staff-muted: #717f93;
+}
+
+/* PANEL ADMIN */
+
+.admin-layout {
+  --admin-green: var(--staff-accent);
+  --admin-green-dark: var(--staff-surface);
+  --admin-gold: var(--staff-accent);
+  --admin-text: var(--staff-text);
+  --admin-muted: var(--staff-muted);
+  --admin-border: var(--staff-border);
+  background: var(--staff-bg);
+}
+
+.admin-sidebar {
+  box-sizing: border-box;
+  width: 246px;
+  padding: 24px 12px 18px;
+  border-right: 1px solid var(--staff-border);
+  background: var(--staff-surface);
+  color: var(--staff-text);
+  box-shadow: var(--staff-shadow);
+}
+
+.admin-sidebar-brand {
+  padding: 0 11px 26px;
+}
+
+.admin-sidebar-brand strong,
+.admin-sidebar-bottom span {
+  color: var(--staff-text);
+}
+
+.admin-sidebar-brand small,
+.admin-sidebar-bottom small,
+.admin-menu-label {
+  color: var(--staff-muted);
+}
+
+.admin-navigation {
+  gap: 3px;
+}
+
+.admin-navigation button {
+  min-height: 44px;
+  padding: 10px 12px;
+  border-radius: 9px;
+  color: var(--staff-muted);
+  transition: background-color .15s, color .15s;
+}
+
+.admin-navigation button:hover {
+  background: var(--staff-tint);
+  color: var(--staff-text);
+}
+
+.admin-navigation button.active {
+  background: var(--staff-tint);
+  color: var(--staff-accent);
+  font-weight: 750;
+}
+
+.admin-sidebar-bottom {
+  border-color: var(--staff-border);
+}
+
+.admin-main {
+  margin-left: 246px;
+}
+
+.admin-topbar {
+  min-height: 76px;
+  padding: 15px 29px;
+  background: var(--staff-surface);
+  border-color: var(--staff-border);
+}
+
+.admin-topbar-caption,
+.admin-eyebrow {
+  color: var(--staff-accent);
+}
+
+.admin-topbar h1 {
+  color: var(--staff-text);
+}
+
+.admin-logout,
+.admin-secondary-button {
+  color: var(--staff-text);
+  border-color: var(--staff-border);
+}
+
+.admin-content {
+  padding: 27px;
+}
+
+.admin-welcome {
+  min-height: 122px;
+  padding: 24px 28px;
+  border: 1px solid var(--staff-border);
+  border-radius: 15px;
+  background: var(--staff-tint);
+  color: var(--staff-text);
+}
+
+.admin-welcome h2 {
+  margin: 8px 0 5px;
+  color: var(--staff-text);
+}
+
+.admin-welcome p {
+  color: var(--staff-muted);
+}
+
+.admin-primary-button {
+  background: var(--staff-accent);
+}
+
+.admin-primary-button:hover {
+  background: var(--staff-accent-hover);
+}
+
+.admin-panel,
+.overview-item {
+  border-color: var(--staff-border);
+  box-shadow: var(--staff-shadow);
+}
+
+/* PANEL WALI KELAS */
+
+.teacher-page {
+  box-sizing: border-box;
+  padding-left: 234px;
+  background: var(--staff-bg);
+  color: var(--staff-text);
+}
+
+.teacher-header {
+  background: var(--staff-surface);
+  border-bottom: 1px solid var(--staff-border);
+}
+
+.teacher-header-inner {
+  max-width: none;
+  min-height: 76px;
+  padding: 12px 26px;
+}
+
+.teacher-brand {
+  color: var(--staff-text);
+}
+
+.teacher-brand span {
+  color: var(--staff-muted);
+}
+
+.teacher-logout {
+  border: 1px solid var(--staff-border);
+  background: var(--staff-surface);
+  color: var(--staff-text);
+}
+
+.teacher-main {
+  width: min(100%, 1300px);
+  padding: 27px 26px 65px;
+}
+
+.teacher-heading h1,
+.teacher-table-header h2 {
+  color: var(--staff-text);
+}
+
+.teacher-heading span {
+  color: var(--staff-muted);
+}
+
+.teacher-report-tabs {
+  box-sizing: border-box;
+  position: fixed;
+  z-index: 40;
+  inset: 0 auto 0 0;
+  width: 234px;
+  max-width: none;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 88px 12px 20px;
+  margin: 0;
+  border: 0;
+  border-right: 1px solid var(--staff-border);
+  border-radius: 0;
+  background: var(--staff-surface);
+  box-shadow: var(--staff-shadow);
+}
+
+.teacher-report-tabs::before {
+  content: "MENU WALI KELAS";
+  position: absolute;
+  top: 36px;
+  left: 22px;
+  color: var(--staff-muted);
+  font-size: 11px;
+  font-weight: 750;
+  letter-spacing: .1em;
+}
+
+.teacher-report-tabs button {
+  width: 100%;
+  flex: none;
+  min-height: 46px;
+  padding: 11px 13px;
+  text-align: left;
+  color: var(--staff-muted);
+}
+
+.teacher-report-tabs button:hover {
+  background: var(--staff-tint);
+  color: var(--staff-text);
+}
+
+.teacher-report-tabs button.active {
+  background: var(--staff-tint);
+  color: var(--staff-accent);
+}
+
+.teacher-panel {
+  border-color: var(--staff-border);
+  box-shadow: var(--staff-shadow);
+}
+
+.teacher-filters select:focus,
+.teacher-filters input:focus {
+  border-color: var(--staff-accent);
+}
+
+/* PANEL KEPALA SEKOLAH */
+
+.principal-page {
+  padding-left: 234px;
+  --principal-bg: var(--staff-bg);
+  --principal-card: var(--staff-surface);
+  --principal-text: var(--staff-text);
+  --principal-muted: var(--staff-muted);
+  --principal-accent: var(--staff-accent);
+  --principal-tint: var(--staff-tint);
+  --principal-border: var(--staff-border);
+  background: var(--staff-bg);
+}
+
+.principal-hero {
+  height: auto;
+  min-height: 79px;
+  overflow: visible;
+  border: 0;
+  border-bottom: 1px solid var(--staff-border);
+  border-radius: 0;
+  background: var(--staff-surface);
+  color: var(--staff-text);
+}
+
+.principal-hero-picture,
+.principal-hero-shade {
+  display: none;
+}
+
+.principal-hero-content {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  width: 100%;
+  max-width: none;
+  min-height: 79px;
+  height: auto;
+  gap: 10px 20px;
+  padding: 14px 25px;
+}
+
+.principal-brand {
+  order: 0;
+}
+
+.principal-brand span {
+  color: var(--staff-muted);
+}
+
+.principal-welcome {
+  order: 1;
+  margin-left: auto;
+  text-align: right;
+}
+
+.principal-welcome h1 {
+  font-size: 17px;
+  color: var(--staff-text);
+}
+
+.principal-welcome > span,
+.principal-welcome p {
+  color: var(--staff-muted);
+  font-size: 11px;
+}
+
+.principal-logout {
+  order: 2;
+  align-self: center;
+  min-height: 38px;
+  border: 1px solid var(--staff-border);
+  background: var(--staff-surface);
+  color: var(--staff-text);
+  backdrop-filter: none;
+}
+
+.principal-main {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 27px 25px 55px;
+}
+
+.principal-tabs {
+  position: fixed;
+  z-index: 40;
+  inset: 0 auto 0 0;
+  width: 234px;
+  max-width: none;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  gap: 5px;
+  padding: 88px 12px 20px;
+  margin: 0;
+  border-right: 1px solid var(--staff-border);
+  background: var(--staff-surface);
+  box-shadow: var(--staff-shadow);
+}
+
+.principal-tabs::before {
+  content: "MENU KEPALA SEKOLAH";
+  position: absolute;
+  top: 36px;
+  left: 22px;
+  color: var(--staff-muted);
+  font-size: 11px;
+  font-weight: 750;
+  letter-spacing: .1em;
+}
+
+.principal-tabs button {
+  width: 100%;
+  flex: none;
+  min-height: 46px;
+  padding: 11px 13px;
+  text-align: left;
+  border: 0;
+  border-radius: 9px;
+}
+
+.principal-tabs button:hover {
+  background: var(--staff-tint);
+  color: var(--staff-text);
+}
+
+.principal-tabs button.is-active {
+  background: var(--staff-tint);
+  color: var(--staff-accent);
+}
+
+.principal-section {
+  box-shadow: var(--staff-shadow);
+}
+
+/* MOBILE DAN TABLET KECIL */
+
+@media (max-width: 900px) {
+  .admin-main {
+    margin-left: 0;
+  }
+
+  .admin-topbar {
+    position: relative;
+    z-index: auto;
+    min-height: 68px;
+    padding: 11px 15px;
+  }
+
+  .admin-content {
+    padding: 18px 14px calc(
+      100px + env(safe-area-inset-bottom)
+    );
+  }
+
+  /* Admin: bottom navigation empat menu utama */
+
+  .admin-sidebar:not(.is-open) {
+    position: fixed;
+    inset: auto 0 0 0;
+    z-index: 45;
+    display: block;
+    width: 100%;
+    height: calc(
+      70px + env(safe-area-inset-bottom)
+    );
+    padding: 5px 20%
+      max(6px, env(safe-area-inset-bottom))
+      5px;
+    overflow: visible;
+    transform: none;
+    border: 0;
+    border-top: 1px solid var(--staff-border);
+    background: var(--staff-surface);
+    box-shadow: 0 -8px 25px rgba(36,59,49,.07);
+  }
+
+  .admin-sidebar:not(.is-open)
+  .admin-sidebar-brand,
+  .admin-sidebar:not(.is-open)
+  .admin-menu-label,
+  .admin-sidebar:not(.is-open)
+  .admin-sidebar-bottom {
+    display: none;
+  }
+
+  .admin-sidebar:not(.is-open)
+  .admin-navigation {
+    display: grid;
+    grid-template-columns: repeat(
+      4, minmax(0, 1fr)
+    );
+    gap: 0;
+    height: 100%;
+  }
+
+  .admin-sidebar:not(.is-open)
+  .admin-navigation button {
+    display: none;
+  }
+
+  .admin-sidebar:not(.is-open)
+  .admin-navigation button:nth-child(1),
+  .admin-sidebar:not(.is-open)
+  .admin-navigation button:nth-child(5),
+  .admin-sidebar:not(.is-open)
+  .admin-navigation button:nth-child(6),
+  .admin-sidebar:not(.is-open)
+  .admin-navigation button:nth-child(10) {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 0;
+    min-height: 55px;
+    width: 100%;
+    padding: 6px 2px;
+    text-align: center;
+    border-radius: 8px;
+    font-size: clamp(10px, 2.8vw, 12px);
+    font-weight: 600;
+  }
+
+  .admin-sidebar:not(.is-open)
+  .admin-navigation button:nth-child(1) {
+    order: 0;
+  }
+
+  .admin-sidebar:not(.is-open)
+  .admin-navigation button:nth-child(6) {
+    order: 1;
+  }
+
+  .admin-sidebar:not(.is-open)
+  .admin-navigation button:nth-child(5) {
+    order: 2;
+  }
+
+  .admin-sidebar:not(.is-open)
+  .admin-navigation button:nth-child(10) {
+    order: 3;
+  }
+
+  /* Semua menu tetap bisa dibuka lewat Lainnya */
+
+  .admin-sidebar.is-open {
+    position: fixed;
+    inset: 0 auto 0 0;
+    z-index: 60;
+    display: flex;
+    width: min(330px, 88vw);
+    height: 100dvh;
+    padding: 24px 12px 20px;
+    overflow-y: auto;
+    transform: translateX(0);
+  }
+
+  .admin-sidebar.is-open
+  .admin-navigation button {
+    display: block;
+  }
+
+  .admin-sidebar-overlay {
+    z-index: 55;
+  }
+
+  .admin-mobile-menu {
+    position: fixed;
+    inset: auto 3px
+      max(6px, env(safe-area-inset-bottom))
+      auto;
+    z-index: 65;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: calc(20% - 6px);
+    height: 56px;
+    padding: 4px 2px;
+    border: 0;
+    background: var(--staff-surface);
+    color: var(--staff-muted);
+    font-size: 0;
+    line-height: 1.1;
+  }
+
+  .admin-mobile-menu::before {
+    content: "☰";
+    font-size: 22px;
+  }
+
+  .admin-mobile-menu::after {
+    content: "Lainnya";
+    font-size: 11px;
+    font-weight: 650;
+  }
+
+  .admin-layout:has(
+    .admin-navigation button.active:not(
+      :nth-child(1)
+    ):not(
+      :nth-child(5)
+    ):not(
+      :nth-child(6)
+    ):not(
+      :nth-child(10)
+    )
+  ) .admin-mobile-menu {
+    color: var(--staff-accent);
+  }
+
+  .admin-layout:has(
+    .admin-sidebar.is-open
+  ) .admin-mobile-menu {
+    display: none;
+  }
+
+  /* Wali Kelas: empat tab asli di bawah */
+
+  .teacher-page {
+    padding-left: 0;
+    padding-bottom: calc(
+      80px + env(safe-area-inset-bottom)
+    );
+  }
+
+  .teacher-header-inner {
+    min-height: 67px;
+    padding: 11px 15px;
+  }
+
+  .teacher-main {
+    padding: 20px 14px 18px;
+  }
+
+  .teacher-report-tabs {
+    inset: auto 0 0 0;
+    z-index: 60;
+    width: 100%;
+    height: calc(
+      72px + env(safe-area-inset-bottom)
+    );
+    flex-direction: row;
+    gap: 2px;
+    padding: 6px 6px
+      max(7px, env(safe-area-inset-bottom));
+    border: 0;
+    border-top: 1px solid var(--staff-border);
+    background: var(--staff-surface);
+    box-shadow: 0 -8px 24px rgba(36,59,49,.07);
+  }
+
+  .teacher-report-tabs::before {
+    display: none;
+  }
+
+  .teacher-report-tabs button {
+    flex: 1;
+    min-width: 0;
+    width: 25%;
+    min-height: 53px;
+    padding: 7px 3px;
+    text-align: center;
+    font-size: clamp(10px, 2.65vw, 12px);
+    line-height: 1.3;
+  }
+
+  /* Kepala Sekolah: empat tab asli di bawah */
+
+  .principal-page {
+    padding-left: 0;
+    padding-bottom: calc(
+      80px + env(safe-area-inset-bottom)
+    );
+  }
+
+  .principal-hero {
+    min-height: 72px;
+    height: auto;
+    border-radius: 0;
+  }
+
+  .principal-hero-content {
+    min-height: 72px;
+    padding: 10px 14px;
+  }
+
+  .principal-welcome {
+    margin-left: 0;
+    text-align: left;
+  }
+
+  .principal-welcome > span,
+  .principal-welcome p {
+    display: none;
+  }
+
+  .principal-welcome h1 {
+    font-size: 14px;
+  }
+
+  .principal-main {
+    padding: 18px 13px;
+  }
+
+  .principal-tabs {
+    inset: auto 0 0 0;
+    z-index: 60;
+    width: 100%;
+    height: calc(
+      72px + env(safe-area-inset-bottom)
+    );
+    flex-direction: row;
+    flex-wrap: nowrap;
+    gap: 2px;
+    padding: 6px 6px
+      max(7px, env(safe-area-inset-bottom));
+    margin: 0;
+    border: 0;
+    border-top: 1px solid var(--staff-border);
+    background: var(--staff-surface);
+    box-shadow: 0 -8px 24px rgba(36,59,49,.07);
+  }
+
+  .principal-tabs::before {
+    display: none;
+  }
+
+  .principal-tabs button {
+    flex: 1;
+    width: 25%;
+    min-width: 0;
+    min-height: 53px;
+    padding: 7px 3px;
+    text-align: center;
+    font-size: clamp(10px, 2.65vw, 12px);
+    line-height: 1.3;
+  }
+}
+
+@media (max-width: 450px) {
+  .principal-hero-content {
+    gap: 6px 10px;
+  }
+
+  .principal-brand img {
+    width: 37px;
+    height: 37px;
+  }
+
+  .principal-welcome {
+    flex-basis: 100%;
+    order: 3;
+  }
+
+  .principal-welcome h1 {
+    margin: 0;
+    font-size: 12px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .admin-navigation button {
+    transition: none;
+  }
+}

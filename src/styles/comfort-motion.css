@@ -1,0 +1,179 @@
+
+/*
+ * MUTABAAH YAUMIAH
+ * Scroll dan animasi global.
+ *
+ * Diimpor melalui src/main.jsx:
+ * import "./styles/comfort-motion.css";
+ */
+
+:root {
+  --mut-motion-fast: 160ms;
+  --mut-motion-normal: 240ms;
+  --mut-motion-ease:
+    cubic-bezier(.22, 1, .36, 1);
+
+  scrollbar-width: none;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 16px;
+}
+
+html,
+body,
+#root {
+  max-width: 100%;
+  min-width: 0;
+}
+
+body {
+  overflow-x: clip;
+  -webkit-font-smoothing: antialiased;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* Scrollbar tidak terlihat. */
+
+* {
+  scrollbar-width: none;
+}
+
+*::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none;
+}
+
+/* Area dengan scroll tersendiri. */
+
+.parent-daily-modal-body,
+.pd-daily-scroll,
+.pd-modal,
+.pd-two-children,
+.parent-choose-options,
+[data-scrollable="true"] {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+/* Interaksi tombol dan tautan. */
+
+button,
+a,
+input,
+select,
+textarea {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button,
+a {
+  transition:
+    color var(--mut-motion-normal) ease,
+    background-color var(--mut-motion-normal) ease,
+    border-color var(--mut-motion-normal) ease,
+    box-shadow var(--mut-motion-normal) ease;
+}
+
+/* Fokus untuk pengguna keyboard. */
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 3px solid #edc758;
+  outline-offset: 3px;
+}
+
+/* Transisi halaman. */
+
+.parent-page-enter,
+.pm-tab-content {
+  animation:
+    mut-fade-rise .28s
+    var(--mut-motion-ease) both;
+}
+
+.parent-modal-enter {
+  animation:
+    mut-fade-rise .22s
+    var(--mut-motion-ease) both;
+}
+
+@keyframes mut-fade-rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Navigasi bawah. */
+
+.parent-bottom-nav button svg,
+.pm-bottom-nav button svg {
+  transition:
+    transform var(--mut-motion-normal)
+    var(--mut-motion-ease);
+}
+
+.parent-bottom-nav button.active svg,
+.pm-bottom-nav button.active svg {
+  transform: translateY(-2px);
+}
+
+/*
+ * Hanya menyembunyikan teks
+ * "Kegiatan tambahan".
+ * Perhitungan kegiatan bonus tetap ada.
+ */
+
+.daily-item-title > small {
+  display: none;
+}
+
+/* Menghormati preferensi kurangi animasi. */
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --mut-motion-fast: 0ms;
+    --mut-motion-normal: 0ms;
+  }
+
+  html {
+    scroll-behavior: auto;
+  }
+
+  .parent-page-enter,
+  .pm-tab-content,
+  .parent-modal-enter {
+    animation: none !important;
+  }
+
+  .parent-bottom-nav button svg,
+  .pm-bottom-nav button svg {
+    transition: none !important;
+    transform: none !important;
+  }
+
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+}

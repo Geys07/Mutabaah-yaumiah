@@ -1,0 +1,4 @@
+.data-pagination { display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin:14px 0; font-size:13px; }
+.data-pagination span { margin-right:auto; }
+.data-pagination button { border:1px solid #d7e3da; border-radius:6px; background:#fff; color:#17533b; padding:7px 10px; cursor:pointer; }
+.data-pagination button:disabled { opacity:.5; cursor:default; }

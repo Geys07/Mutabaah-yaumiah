@@ -1,0 +1,235 @@
+
+/* PANEL KEPALA SEKOLAH — FORMAL MODERN
+   Mengikuti warna StaffWorkspace pada setiap waktu WIB.
+*/
+
+.staff-app {
+  --principal-bg: var(--sa-bg);
+  --principal-card: #ffffff;
+  --principal-text: var(--sa-ink);
+  --principal-muted: var(--sa-muted);
+  --principal-accent: var(--sa-accent);
+  --principal-tint: var(--sa-soft);
+  --principal-border: var(--sa-line);
+}
+
+.principal-section {
+  min-width: 0;
+  padding: 22px;
+
+  border: 1px solid var(--principal-border);
+  border-radius: 14px;
+  background: var(--principal-card);
+}
+
+.principal-section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 15px;
+
+  margin-bottom: 17px;
+}
+
+.principal-section-head h2,
+.principal-section-head h3 {
+  margin: 0;
+  color: var(--principal-text);
+  font-size: 17px;
+  font-weight: 750;
+}
+
+.principal-section-head h3 {
+  font-size: 15px;
+}
+
+.principal-section-head p {
+  margin: 5px 0 0;
+  color: var(--principal-muted);
+  font-size: 12px;
+}
+
+.principal-refresh,
+.principal-detail-button {
+  min-height: 37px;
+  padding: 8px 12px;
+
+  border: 1px solid var(--principal-border);
+  border-radius: 9px;
+
+  background: var(--principal-tint);
+  color: var(--principal-accent);
+
+  font-size: 12px;
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+.principal-filters {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin: 0 0 19px;
+}
+
+.principal-filters label {
+  display: grid;
+  gap: 7px;
+
+  color: var(--principal-text);
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.principal-filters select,
+.principal-filters input {
+  width: 100%;
+  min-width: 0;
+  height: 43px;
+  padding: 0 12px;
+
+  border: 1px solid var(--principal-border);
+  border-radius: 10px;
+
+  background: #fff;
+  color: var(--principal-text);
+
+  font-size: 13px;
+  font-weight: 400;
+}
+
+.principal-completion {
+  margin: 0 0 14px;
+  color: var(--principal-muted);
+  font-size: 12px;
+}
+
+.principal-completion strong {
+  color: var(--principal-accent);
+}
+
+.principal-table-scroll {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+
+  border: 1px solid var(--principal-border);
+  border-radius: 11px;
+
+  -webkit-overflow-scrolling: touch;
+}
+
+.principal-table {
+  width: 100%;
+  min-width: 650px;
+
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.principal-table th,
+.principal-table td {
+  padding: 12px 11px;
+  text-align: left;
+  border-bottom: 1px solid var(--principal-border);
+}
+
+.principal-table th {
+  background: var(--principal-tint);
+  color: var(--principal-text);
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.principal-table td {
+  color: var(--principal-text);
+}
+
+.principal-table tr:last-child td {
+  border-bottom: none;
+}
+
+.principal-table strong {
+  font-weight: 650;
+}
+
+.principal-muted,
+.principal-info {
+  color: var(--principal-muted);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.principal-detail {
+  margin-top: 23px;
+  padding-top: 22px;
+  border-top: 1px solid var(--principal-border);
+}
+
+.principal-status {
+  display: inline-flex;
+  padding: 5px 9px;
+
+  border-radius: 8px;
+
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.principal-status.done {
+  background: #e0f4e9;
+  color: #20704b;
+}
+
+.principal-status.draft {
+  background: #fff3db;
+  color: #8a601a;
+}
+
+.principal-status.empty {
+  background: #f0f1f3;
+  color: #65737c;
+}
+
+.principal-alert {
+  margin: 12px 0;
+  padding: 11px 13px;
+
+  border: 1px solid #eccac1;
+  border-left: 3px solid #b95d61;
+  border-radius: 10px;
+
+  background: #fff2ee;
+  color: #9c4e38;
+
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+@media (max-width: 800px) {
+  .principal-section {
+    padding: 16px 13px;
+  }
+
+  .principal-section-head {
+    align-items: flex-start;
+  }
+
+  .principal-table th,
+  .principal-table td {
+    padding: 11px 9px;
+  }
+}
+
+@media (max-width: 400px) {
+  .principal-filters {
+    grid-template-columns: 1fr;
+  }
+
+  .principal-section {
+    padding: 14px 11px;
+  }
+}

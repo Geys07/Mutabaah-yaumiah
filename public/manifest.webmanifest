@@ -1,0 +1,21 @@
+{
+  "id": "/",
+  "name": "Mutabaah Yaumiah — MTs Al-Khairiyah",
+  "short_name": "Mutabaah",
+  "description": "Pengisian Mutabaah Yaumiah MTs Al-Khairiyah untuk orang tua, wali kelas, kepala madrasah, dan Admin.",
+  "lang": "id",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "background_color": "#f7faf8",
+  "theme_color": "#176b4e",
+  "icons": [
+    {"src":"/pwa/icon-192.png","sizes":"192x192","type":"image/png","purpose":"any"},
+    {"src":"/pwa/icon-512.png","sizes":"512x512","type":"image/png","purpose":"any"},
+    {"src":"/pwa/icon-512.png","sizes":"512x512","type":"image/png","purpose":"maskable"}
+  ],
+  "shortcuts": [
+    {"name":"Buka Mutabaah","short_name":"Mutabaah","url":"/","icons":[{"src":"/pwa/icon-192.png","sizes":"192x192"}]}
+  ]
+}

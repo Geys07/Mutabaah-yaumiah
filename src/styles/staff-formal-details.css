@@ -1,0 +1,412 @@
+
+/* ===========================================================
+   MUTABAAH YAUMIAH - PENYELARASAN HALAMAN DALAM PANEL STAF
+
+   Hanya perubahan visual.
+   Tidak mengubah navigasi, data, fungsi tombol,
+   validasi, hak akses, atau Supabase.
+
+   Impor SETELAH staff-formal-layout.css.
+   =========================================================== */
+
+/* Mencegah konten keluar dari batas layar */
+
+:is(.admin-layout, .teacher-page, .principal-page),
+:is(.admin-layout, .teacher-page, .principal-page)
+:is(main, section, article) {
+  min-width: 0;
+}
+
+:is(.admin-layout, .teacher-page, .principal-page)
+:is(
+  .academic-page,
+  .classes-page,
+  .students-page,
+  .activities-page,
+  .homeroom-page,
+  .parents-page,
+  .monthly-report,
+  .account-security,
+  .admin-notifications
+) {
+  min-width: 0;
+  max-width: 100%;
+  color: var(--staff-text);
+}
+
+/* Panel dan permukaan */
+
+:is(.admin-layout, .teacher-page, .principal-page)
+:is(
+  .academic-panel,
+  .classes-panel,
+  .students-panel,
+  .activities-panel,
+  .homeroom-panel,
+  .parents-panel,
+  .account-security,
+  .notification-item,
+  .teacher-panel,
+  .principal-section
+) {
+  border-color: var(--staff-border);
+  background: var(--staff-surface);
+  box-shadow: var(--staff-shadow);
+}
+
+/* Judul halaman */
+
+:is(.admin-layout, .teacher-page, .principal-page)
+:is(
+  .academic-heading,
+  .classes-heading,
+  .students-page-heading,
+  .students-list-title,
+  .activities-heading,
+  .homeroom-heading,
+  .parents-heading,
+  .monthly-report-heading,
+  .account-security-heading,
+  .admin-notifications-heading
+)
+:is(h1, h2, h3) {
+  color: var(--staff-text);
+}
+
+/* Keterangan halaman */
+
+:is(.admin-layout, .teacher-page, .principal-page)
+:is(
+  .academic-heading,
+  .classes-heading,
+  .students-page-heading,
+  .students-list-title,
+  .activities-heading,
+  .homeroom-heading,
+  .parents-heading,
+  .monthly-report-heading,
+  .account-security-heading,
+  .admin-notifications-heading
+)
+:is(p, small) {
+  color: var(--staff-muted);
+}
+
+/* Formulir tetap menggunakan seluruh fungsi semula */
+
+:is(.admin-layout, .teacher-page, .principal-page)
+:is(
+  .academic-page,
+  .classes-page,
+  .students-page,
+  .activities-page,
+  .homeroom-page,
+  .parents-page,
+  .monthly-report,
+  .account-security,
+  .admin-notifications,
+  .teacher-filters,
+  .principal-filters
+)
+:is(
+  input:not([type="checkbox"]):not([type="radio"]),
+  select,
+  textarea
+) {
+  max-width: 100%;
+  min-width: 0;
+  border-color: var(--staff-border);
+  border-radius: 10px;
+  color: var(--staff-text);
+  background: #ffffff;
+}
+
+/* Fokus input */
+
+:is(.admin-layout, .teacher-page, .principal-page)
+:is(
+  .academic-page,
+  .classes-page,
+  .students-page,
+  .activities-page,
+  .homeroom-page,
+  .parents-page,
+  .monthly-report,
+  .account-security,
+  .admin-notifications,
+  .teacher-filters,
+  .principal-filters
+)
+:is(
+  input:not([type="checkbox"]):not([type="radio"]),
+  select,
+  textarea
+):focus-visible {
+  border-color: var(--staff-accent);
+  outline: 2px solid var(--staff-accent);
+  outline-offset: 1px;
+}
+
+/* Checkbox dan radio */
+
+:is(.admin-layout, .teacher-page, .principal-page)
+:is(input[type="checkbox"], input[type="radio"]) {
+  accent-color: var(--staff-accent);
+}
+
+/* Tombol utama */
+
+:is(.admin-layout, .teacher-page, .principal-page)
+:is(
+  .academic-primary,
+  .classes-primary,
+  .students-primary,
+  .activities-primary,
+  .homeroom-primary,
+  .monthly-report-download,
+  .admin-primary-button,
+  .principal-detail-button.is-primary
+) {
+  background: var(--staff-accent);
+  border-color: var(--staff-accent);
+  color: #ffffff;
+}
+
+/* Hover tombol utama */
+
+:is(.admin-layout, .teacher-page, .principal-page)
+:is(
+  .academic-primary,
+  .classes-primary,
+  .students-primary,
+  .activities-primary,
+  .homeroom-primary,
+  .monthly-report-download,
+  .admin-primary-button
+):not(:disabled):hover {
+  background: var(--staff-accent-hover);
+  border-color: var(--staff-accent-hover);
+}
+
+/* Tombol sekunder */
+
+:is(.admin-layout, .teacher-page, .principal-page)
+:is(
+  .academic-secondary,
+  .classes-secondary,
+  .students-secondary,
+  .activities-secondary,
+  .homeroom-secondary,
+  .monthly-report-secondary,
+  .notification-outline-button,
+  .teacher-report-refresh
+) {
+  border-color: var(--staff-border);
+  background: var(--staff-surface);
+  color: var(--staff-accent);
+}
+
+:is(.admin-layout, .teacher-page, .principal-page)
+:is(
+  .academic-secondary,
+  .classes-secondary,
+  .students-secondary,
+  .activities-secondary,
+  .homeroom-secondary,
+  .monthly-report-secondary,
+  .notification-outline-button,
+  .teacher-report-refresh
+):not(:disabled):hover {
+  background: var(--staff-tint);
+}
+
+/* Tabel administrasi */
+
+:is(.admin-layout, .teacher-page, .principal-page)
+:is(
+  .students-table-wrap,
+  .activities-table-wrap,
+  .homeroom-table-wrap,
+  .parents-table-wrapper,
+  .monthly-report-table-wrap,
+  .teacher-table-wrap,
+  .principal-table-scroll
+) {
+  max-width: 100%;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+  border-color: var(--staff-border);
+}
+
+/* Header tabel */
+
+:is(.admin-layout, .teacher-page, .principal-page)
+:is(
+  .students-table,
+  .teacher-table-wrap table,
+  .principal-table
+) th {
+  background: var(--staff-tint);
+  color: var(--staff-text);
+}
+
+:is(.admin-layout, .teacher-page, .principal-page)
+:is(
+  .students-table,
+  .teacher-table-wrap table,
+  .principal-table
+)
+:is(th, td) {
+  border-bottom-color: var(--staff-border);
+}
+
+/* Pesan berhasil */
+
+:is(.admin-layout, .teacher-page, .principal-page)
+:is(
+  .academic-success,
+  .classes-success,
+  .students-success,
+  .activities-success,
+  .homeroom-success,
+  .notification-success,
+  .account-security-success,
+  .admin-success
+) {
+  border-radius: 11px;
+  border: 1px solid var(--staff-border);
+  border-left: 3px solid var(--staff-accent);
+  background: var(--staff-tint);
+  color: var(--staff-accent-hover);
+  padding: 11px 13px;
+}
+
+/* Pesan kesalahan */
+
+:is(.admin-layout, .teacher-page, .principal-page)
+:is(
+  .academic-error,
+  .classes-error,
+  .students-error,
+  .activities-error,
+  .homeroom-error,
+  .notification-error,
+  .monthly-report-error,
+  .account-security-error,
+  .teacher-error,
+  .admin-error,
+  .principal-alert
+) {
+  border: 1px solid #f0d0d0;
+  border-left: 3px solid #b95b60;
+  border-radius: 11px;
+  background: #fff4f3;
+  color: #914349;
+  padding: 11px 13px;
+}
+
+/* Modal */
+
+:is(.admin-layout, .teacher-page, .principal-page)
+:is(
+  .students-modal,
+  .activities-dialog,
+  .notification-modal
+) {
+  max-width: calc(100vw - 24px);
+  border-radius: 16px;
+  color: var(--staff-text);
+}
+
+/* Menu aktif guru dan kepala sekolah */
+
+.teacher-report-tabs button.active,
+.principal-tabs button.is-active {
+  background: var(--staff-tint);
+  color: var(--staff-accent);
+  font-weight: 750;
+}
+
+/* Penyesuaian tablet dan ponsel */
+
+@media (max-width: 900px) {
+  .admin-content,
+  .teacher-main,
+  .principal-main {
+    max-width: 100vw;
+    overflow-wrap: anywhere;
+  }
+
+  /* Panel tidak terlalu lebar */
+
+  :is(.admin-layout, .teacher-page, .principal-page)
+  :is(
+    .academic-panel,
+    .classes-panel,
+    .students-panel,
+    .activities-panel,
+    .homeroom-panel,
+    .parents-panel,
+    .account-security,
+    .teacher-panel,
+    .principal-section
+  ) {
+    padding: 16px;
+  }
+
+  /* Tombol lebih nyaman disentuh */
+
+  :is(.admin-layout, .teacher-page, .principal-page)
+  :is(
+    .academic-primary,
+    .classes-primary,
+    .students-primary,
+    .activities-primary,
+    .homeroom-primary,
+    .monthly-report-download,
+    .teacher-report-refresh
+  ) {
+    min-height: 44px;
+  }
+
+  /* Modal dapat digulir saat keyboard terbuka */
+
+  :is(.admin-layout, .teacher-page, .principal-page)
+  :is(
+    .students-modal,
+    .activities-dialog,
+    .notification-modal
+  ) {
+    max-height: min(90dvh, 860px);
+    overflow-y: auto;
+  }
+}
+
+/* Ponsel kecil */
+
+@media (max-width: 390px) {
+  :is(.admin-layout, .teacher-page, .principal-page)
+  :is(
+    .academic-panel,
+    .classes-panel,
+    .students-panel,
+    .activities-panel,
+    .homeroom-panel,
+    .parents-panel,
+    .account-security,
+    .teacher-panel,
+    .principal-section
+  ) {
+    padding: 13px;
+  }
+}
+
+/* Aksesibilitas */
+
+@media (prefers-reduced-motion: reduce) {
+  :is(.admin-layout, .teacher-page, .principal-page)
+  :is(button, input, select, textarea) {
+    transition: none;
+  }
+}

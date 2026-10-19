@@ -1,0 +1,266 @@
+
+.pnc-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 18px;
+  background: rgba(16, 32, 33, .57);
+  backdrop-filter: blur(5px);
+}
+
+.pnc-dialog {
+  position: relative;
+  width: min(100%, 410px);
+  padding: 27px 25px 22px;
+
+  border: 1px solid var(--pd-border, #daebe1);
+  border-radius: 21px;
+  background: #fff;
+
+  color: var(--pd-text, #163c32);
+  box-shadow: 0 25px 75px rgba(10, 41, 33, .28);
+
+  text-align: center;
+  animation: pnc-arrive .2s ease both;
+}
+
+.pnc-close {
+  position: absolute;
+  right: 12px;
+  top: 11px;
+
+  width: 34px;
+  height: 34px;
+
+  border: 0;
+  border-radius: 10px;
+
+  background: var(--pd-accent-soft, #e9f7ee);
+  color: var(--pd-accent-strong, #0d7056);
+
+  font-size: 25px !important;
+  line-height: 1;
+}
+
+.pnc-logo {
+  width: 62px;
+  height: 62px;
+  object-fit: contain;
+  display: block;
+  margin: 0 auto 12px;
+}
+
+.pnc-dialog-icon {
+  display: grid;
+  place-items: center;
+
+  width: 40px;
+  height: 40px;
+  margin: 0 auto 10px;
+
+  border-radius: 13px;
+  background: var(--pd-accent-soft, #e9f7ee);
+  color: var(--pd-accent, #128563);
+}
+
+.pnc-dialog h2 {
+  font-size: 19px;
+  line-height: 1.3;
+  margin: 0 0 10px;
+
+  color: var(--pd-text, #163c32);
+}
+
+.pnc-dialog > p:not(.pnc-error) {
+  font-size: 13px;
+  line-height: 1.65;
+  margin: 0 0 20px;
+
+  color: var(--pd-muted, #6e837a);
+}
+
+.pnc-primary,
+.pnc-later {
+  display: block;
+  width: 100%;
+  min-height: 43px;
+
+  border: 0;
+  border-radius: 11px;
+
+  font-size: 13px !important;
+  font-weight: 750 !important;
+}
+
+.pnc-primary {
+  background: var(--pd-accent, #128563);
+  color: #fff;
+}
+
+.pnc-primary:hover:not(:disabled) {
+  background: var(--pd-accent-strong, #0a7657);
+}
+
+.pnc-later {
+  background: transparent;
+  color: var(--pd-muted, #6e837a);
+  margin-top: 6px;
+}
+
+.pnc-primary:disabled,
+.pnc-later:disabled {
+  opacity: .55;
+  cursor: not-allowed;
+}
+
+/* Pengaturan notifikasi pada halaman Profil. */
+
+.pnc-settings {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 13px;
+
+  margin: 0 0 16px;
+  padding: 17px;
+
+  border: 1px solid var(--pd-border, #dceae3);
+  border-radius: 15px;
+
+  background: #fff;
+  box-shadow: 0 6px 22px rgba(18, 56, 44, .04);
+}
+
+.pnc-settings-icon {
+  display: grid;
+  place-items: center;
+
+  width: 44px;
+  height: 44px;
+
+  border-radius: 12px;
+  background: var(--pd-accent-soft, #e9f7ee);
+  color: var(--pd-accent, #128563);
+}
+
+.pnc-settings-body h2 {
+  margin: 0 0 4px;
+  font-size: 15px;
+  color: var(--pd-text, #173d34);
+}
+
+.pnc-settings-body > p {
+  margin: 0 0 7px;
+  color: var(--pd-muted, #6e837a);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.pnc-status {
+  display: inline-flex;
+  padding: 3px 8px;
+  border-radius: 7px;
+  font-size: 11px;
+
+  color: #7a6456;
+  background: #f8eee7;
+}
+
+.pnc-status.is-on {
+  background: var(--pd-accent-soft, #e9f7ee);
+  color: var(--pd-accent-strong, #0a7657);
+}
+
+.pnc-settings-button {
+  min-height: 41px;
+  padding: 9px 13px;
+
+  border: 0;
+  border-radius: 10px;
+
+  background: var(--pd-accent, #128563);
+  color: white;
+
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  white-space: nowrap;
+}
+
+.pnc-settings-button:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+}
+
+.pnc-message {
+  color: var(--pd-accent-strong, #0a7657) !important;
+  margin: 7px 0 0 !important;
+  font-size: 12px !important;
+}
+
+.pnc-error {
+  margin: 9px 0 !important;
+  padding: 9px 10px;
+
+  border-radius: 9px;
+  background: #fff0ed;
+
+  color: #a0443d !important;
+  font-size: 12px !important;
+  line-height: 1.5;
+}
+
+@keyframes pnc-arrive {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (max-width: 580px) {
+  .pnc-overlay {
+    align-items: flex-end;
+    padding: 0;
+  }
+
+  .pnc-dialog {
+    width: 100%;
+    padding: 24px 19px
+      max(22px, env(safe-area-inset-bottom));
+
+    border-radius: 22px 22px 0 0;
+  }
+
+  .pnc-settings {
+    grid-template-columns:
+      40px minmax(0, 1fr);
+
+    gap: 10px;
+    padding: 13px;
+  }
+
+  .pnc-settings-icon {
+    width: 40px;
+    height: 40px;
+  }
+
+  .pnc-settings-button {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pnc-dialog {
+    animation: none;
+  }
+}

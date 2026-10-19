@@ -1,0 +1,190 @@
+
+.ramadan-admin {
+  background: #fff;
+  border: 1px solid var(--sa-line, #e1e9e3);
+  border-radius: 14px;
+  padding: 20px;
+  margin: 0 0 20px;
+  color: var(--sa-ink, #233e34);
+}
+
+.ramadan-admin-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.ramadan-admin h2 {
+  margin: 0;
+  font-size: 17px;
+  color: inherit;
+}
+
+.ramadan-admin h3 {
+  font-size: 12px;
+  margin: 0 0 6px;
+  color: inherit;
+}
+
+.ramadan-admin-heading p,
+.ramadan-admin-hint,
+.ramadan-admin-list p {
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--sa-muted, #687e74);
+  margin: 5px 0;
+}
+
+.ramadan-admin-label {
+  font-size: 11px;
+  white-space: nowrap;
+  font-weight: 700;
+  color: var(--sa-accent, #167e60);
+  background: var(--sa-soft, #e9f5ee);
+  padding: 6px 9px;
+  border-radius: 9px;
+}
+
+.ramadan-admin-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1.1fr auto;
+  gap: 12px;
+  align-items: end;
+}
+
+.ramadan-admin-form label {
+  display: grid;
+  gap: 7px;
+  min-width: 0;
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.ramadan-admin-form input[type="date"] {
+  width: 100%;
+  min-width: 0;
+  height: 42px;
+  padding: 0 10px;
+  color: inherit;
+  background: #fff;
+  border: 1px solid var(--sa-line, #d6e6de);
+  border-radius: 9px;
+}
+
+.ramadan-admin-toggle {
+  display: flex !important;
+  align-items: center;
+  gap: 7px;
+  min-height: 42px;
+}
+
+.ramadan-admin-toggle input {
+  accent-color: var(--sa-accent, #167e60);
+}
+
+.ramadan-admin-form button {
+  height: 42px;
+  border: 0;
+  border-radius: 9px;
+  padding: 0 13px;
+  color: #fff;
+  background: var(--sa-accent, #167e60);
+  font-weight: 700;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.ramadan-admin-form button:disabled {
+  opacity: .55;
+  cursor: not-allowed;
+}
+
+.ramadan-admin-hint {
+  margin-top: 12px !important;
+}
+
+.ramadan-admin-error,
+.ramadan-admin-success {
+  font-size: 12px;
+  line-height: 1.5;
+  padding: 11px 12px;
+  border-radius: 9px;
+  margin: 10px 0 0;
+}
+
+.ramadan-admin-error {
+  background: #fff1ef;
+  color: #974e44;
+}
+
+.ramadan-admin-success {
+  background: var(--sa-soft, #e9f5ee);
+  color: var(--sa-accent, #167e60);
+}
+
+.ramadan-admin-list {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+  margin-top: 18px;
+  padding-top: 15px;
+  border-top: 1px solid var(--sa-line, #e1e9e3);
+}
+
+.ramadan-period-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ramadan-period-list button {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  text-align: left;
+  background: #fff;
+  border: 1px solid var(--sa-line, #e1e9e3);
+  border-radius: 9px;
+  padding: 9px 11px;
+  font-size: 11px;
+  color: inherit;
+  cursor: pointer;
+}
+
+.ramadan-period-list button span {
+  color: var(--sa-muted, #687e74);
+}
+
+@media (max-width: 900px) {
+  .ramadan-admin-form {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 600px) {
+  .ramadan-admin {
+    padding: 15px;
+  }
+
+  .ramadan-admin-heading {
+    align-items: start;
+    flex-wrap: wrap;
+  }
+
+  .ramadan-admin-form,
+  .ramadan-admin-list {
+    grid-template-columns: 1fr;
+  }
+
+  .ramadan-admin-form button {
+    width: 100%;
+  }
+
+  .ramadan-period-list button {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}

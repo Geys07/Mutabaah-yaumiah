@@ -1,0 +1,262 @@
+
+.classes-page {
+  display: grid;
+  gap: 20px;
+}
+
+.classes-panel {
+  padding: 28px;
+  border: 1px solid #e5eae6;
+  border-radius: 15px;
+  background: #fff;
+}
+
+.classes-heading h2 {
+  margin: 0;
+  color: #223b32;
+  font-size: 19px;
+}
+
+.classes-heading p {
+  margin: 8px 0 0;
+  color: #77847e;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.classes-field {
+  display: grid;
+  gap: 9px;
+  color: #223b32;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.classes-year-field {
+  max-width: 320px;
+  margin-top: 25px;
+}
+
+.classes-field select,
+.classes-field input,
+.classes-edit-row input {
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid #dfe7e1;
+  border-radius: 9px;
+  outline: none;
+  background: white;
+  color: #223b32;
+  font: inherit;
+  font-size: 13px;
+}
+
+.classes-field select:focus,
+.classes-field input:focus,
+.classes-edit-row input:focus {
+  border-color: #3a8066;
+  box-shadow: 0 0 0 3px rgba(58, 128, 102, .1);
+}
+
+.classes-add-form {
+  display: flex;
+  align-items: end;
+  flex-wrap: wrap;
+  gap: 13px;
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid #edf0ed;
+}
+
+.classes-add-form .classes-field {
+  flex: 1;
+  min-width: 150px;
+  max-width: 230px;
+}
+
+.classes-primary,
+.classes-secondary,
+.classes-danger,
+.classes-delete-button {
+  min-height: 40px;
+  padding: 10px 15px;
+  border-radius: 9px;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.classes-primary {
+  border: 1px solid #164c3b;
+  background: #164c3b;
+  color: white;
+}
+
+.classes-primary:hover {
+  background: #0e372b;
+}
+
+.classes-secondary {
+  border: 1px solid #dfe7e1;
+  background: white;
+  color: #365446;
+}
+
+.classes-secondary:hover {
+  background: #f3f6f3;
+}
+
+.classes-delete-button {
+  border: 1px solid #f0dddd;
+  background: #fff;
+  color: #a33f3f;
+}
+
+.classes-danger {
+  border: 1px solid #a33f3f;
+  background: #a33f3f;
+  color: white;
+}
+
+.classes-primary:disabled,
+.classes-secondary:disabled,
+.classes-danger:disabled {
+  opacity: .6;
+  cursor: not-allowed;
+}
+
+.classes-error,
+.classes-success {
+  margin: 16px 0 0;
+  font-size: 13px;
+}
+
+.classes-error {
+  color: #b13f3f;
+}
+
+.classes-success {
+  color: #22764d;
+}
+
+.classes-empty {
+  margin: 14px 0;
+  color: #8a9790;
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+.classes-groups {
+  display: grid;
+  gap: 20px;
+  margin-top: 25px;
+}
+
+.classes-group {
+  border: 1px solid #e5eae6;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.classes-group-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 19px;
+  background: #f6f9f6;
+  border-bottom: 1px solid #e5eae6;
+}
+
+.classes-group-header h3 {
+  margin: 0;
+  color: #174b39;
+  font-size: 15px;
+}
+
+.classes-group-header span {
+  color: #77847e;
+  font-size: 12px;
+}
+
+.classes-group > .classes-empty {
+  padding: 0 19px;
+}
+
+.classes-list {
+  display: grid;
+}
+
+.classes-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  min-height: 68px;
+  padding: 13px 19px;
+  border-bottom: 1px solid #edf0ed;
+}
+
+.classes-item:last-child {
+  border-bottom: 0;
+}
+
+.classes-item strong {
+  color: #223b32;
+  font-size: 14px;
+}
+
+.classes-actions,
+.classes-edit-row,
+.classes-delete-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 9px;
+}
+
+.classes-edit-row,
+.classes-delete-row {
+  width: 100%;
+}
+
+.classes-edit-row input {
+  flex: 1;
+  min-width: 160px;
+}
+
+.classes-delete-row span {
+  flex: 1;
+  min-width: 140px;
+  font-size: 13px;
+  color: #a33f3f;
+}
+
+@media (max-width: 600px) {
+  .classes-panel {
+    padding: 20px 16px;
+  }
+
+  .classes-add-form {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .classes-add-form .classes-field {
+    width: 100%;
+    max-width: none;
+  }
+
+  .classes-add-form .classes-primary {
+    width: 100%;
+  }
+
+  .classes-group-header,
+  .classes-item {
+    padding-left: 13px;
+    padding-right: 13px;
+  }
+}

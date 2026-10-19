@@ -1,0 +1,699 @@
+
+/*
+  MUTABAAH YAUMIAH
+  LOGIN & AKTIVASI FULLSCREEN
+
+  - Background masjid memenuhi layar
+  - Form menyatu dengan gradasi
+  - Tanpa kartu putih besar
+  - Menggunakan animasi AuthAmbient
+  - Responsif untuk HP, tablet, dan desktop
+*/
+
+.mut-login-page {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  isolation: isolate;
+
+  display: block;
+  min-height: 100dvh;
+  margin: 0;
+  padding: 0;
+
+  overflow-x: hidden;
+  overflow-y: auto;
+
+  background: var(--mut-page-background, #f7faf8);
+  color: #193f54;
+
+  font-family: "Segoe UI", Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.mut-login-page *,
+.mut-login-page *::before,
+.mut-login-page *::after {
+  box-sizing: border-box;
+}
+
+/* Background fullscreen */
+
+.mut-login-page .mut-auth-ambient {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.mut-login-page
+.mut-auth-ambient
+.mut-login-background {
+  position: absolute;
+  inset: -2%;
+
+  display: block;
+
+  background-image: var(--mut-scene-desktop);
+  background-position: center 48%;
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+
+/* Gradasi transparan, bukan kartu */
+
+.mut-login-page::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+
+  pointer-events: none;
+
+  background: linear-gradient(
+    to bottom,
+    rgba(245, 251, 248, 0.03) 0%,
+    rgba(248, 252, 249, 0.06) 31%,
+    rgba(249, 252, 250, 0.60) 48%,
+    rgba(251, 254, 252, 0.94) 65%,
+    rgba(250, 253, 252, 0.99) 100%
+  );
+}
+
+/* Satu halaman menyatu */
+
+.mut-login-page .mut-login-content {
+  position: relative;
+  z-index: 2;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+
+  width: min(100%, 470px);
+  min-height: 100vh;
+  min-height: 100dvh;
+  height: auto;
+
+  margin: 0 auto;
+
+  padding:
+    max(20px, env(safe-area-inset-top))
+    clamp(18px, 4vw, 30px)
+    max(15px, env(safe-area-inset-bottom));
+
+  overflow: visible;
+
+  border: 0;
+  border-radius: 0;
+
+  background: transparent;
+  box-shadow: none;
+}
+
+/* Identitas sekolah */
+
+.mut-login-page .mut-login-brand {
+  position: relative;
+  isolation: auto;
+
+  flex: 0 0 auto;
+
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+
+  width: 100%;
+  min-height: 0;
+
+  margin: 0;
+  padding: clamp(2px, 1.5vh, 18px) 0 0;
+
+  overflow: visible;
+
+  border: 0;
+  border-radius: 0;
+
+  background: transparent;
+
+  text-align: center;
+
+  text-shadow:
+    0 2px 10px rgba(255, 255, 255, 0.85);
+}
+
+.mut-login-page .mut-login-brand::before,
+.mut-login-page .mut-login-brand::after {
+  display: none;
+}
+
+.mut-login-page
+.mut-login-brand
+.school-logo-frame {
+  display: block;
+
+  width: clamp(55px, 8.5vh, 80px);
+  height: clamp(55px, 8.5vh, 80px);
+
+  margin: 0 0 7px;
+  padding: 0;
+
+  border: none;
+  border-radius: 0;
+
+  background: transparent;
+  box-shadow: none;
+}
+
+.mut-login-page
+.mut-login-brand
+.school-logo-frame::before {
+  display: none;
+}
+
+.mut-login-page
+.mut-login-brand
+.school-logo {
+  width: 100%;
+  height: 100%;
+
+  object-fit: contain;
+
+  filter: drop-shadow(
+    0 4px 8px rgba(11, 53, 49, 0.2)
+  );
+}
+
+.mut-login-page .mut-login-brand h1 {
+  margin: 0;
+
+  color: #153b62;
+
+  font-size: clamp(21px, 3.1vh, 31px);
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: -0.035em;
+}
+
+.mut-login-page .mut-login-brand p {
+  margin: 4px 0 0;
+
+  color: #244a67;
+
+  font-size: clamp(12px, 1.9vh, 17px);
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+/* Tema malam */
+
+:root[data-time-theme="malam"]
+.mut-login-page .mut-login-brand {
+  text-shadow:
+    0 2px 11px rgba(4, 21, 43, 0.9);
+}
+
+:root[data-time-theme="malam"]
+.mut-login-page .mut-login-brand h1,
+:root[data-time-theme="malam"]
+.mut-login-page .mut-login-brand p {
+  color: #ffffff;
+}
+
+/* Form tanpa kotak utama */
+
+.mut-login-page .mut-login-card {
+  position: relative;
+
+  flex: 0 0 auto;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+
+  grid-column: auto;
+  grid-row: auto;
+
+  width: 100%;
+  height: auto;
+  min-height: 0;
+
+  margin: auto 0 0;
+  padding: 0;
+
+  overflow: visible;
+
+  border: 0;
+  border-radius: 0;
+
+  background: transparent;
+  box-shadow: none;
+
+  scrollbar-width: auto;
+}
+
+.mut-login-page .mut-login-card::before {
+  display: none;
+}
+
+.mut-login-page
+.mut-login-card
+.mut-login-welcome {
+  margin: 0 0 clamp(15px, 2vh, 21px);
+
+  color: #193c59;
+
+  font-size: clamp(23px, 3.2vh, 30px);
+  line-height: 1.2;
+  font-weight: 800;
+  letter-spacing: -0.035em;
+
+  text-align: left;
+}
+
+/* Form login */
+
+.mut-login-form {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(9px, 1.55vh, 13px);
+}
+
+.mut-login-field {
+  display: flex;
+  align-items: center;
+
+  width: 100%;
+  min-height: clamp(53px, 7vh, 61px);
+
+  padding: 8px 12px;
+
+  border: 1px solid rgba(186, 209, 200, 0.85);
+  border-radius: 15px;
+
+  background: rgba(255, 255, 255, 0.88);
+  color: #4a6b76;
+
+  box-shadow:
+    0 4px 13px rgba(23, 80, 64, 0.045);
+
+  backdrop-filter: blur(8px);
+
+  transition:
+    border-color 0.16s ease,
+    box-shadow 0.16s ease;
+}
+
+.mut-login-field:focus-within {
+  border-color: #11956d;
+
+  box-shadow:
+    0 0 0 3px rgba(20, 151, 113, 0.15);
+}
+
+.mut-login-field-icon {
+  flex: 0 0 21px;
+
+  width: 21px;
+  height: 23px;
+
+  margin: 0 13px 0 2px;
+
+  color: #5b7f8a;
+}
+
+.mut-login-field-body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+
+  min-width: 0;
+}
+
+.mut-login-field-label {
+  color: #567784;
+
+  font-size: 11px;
+  line-height: 1.3;
+}
+
+.mut-login-field-body input {
+  width: 100%;
+  min-height: 26px;
+
+  padding: 1px 0;
+
+  border: 0;
+  outline: 0;
+
+  background: transparent;
+  box-shadow: none;
+
+  color: #1d3c50;
+
+  font: inherit;
+  font-size: 16px;
+}
+
+.mut-login-field-body input::placeholder {
+  color: #a4b2b7;
+}
+
+.mut-login-eye {
+  display: grid;
+  flex: 0 0 34px;
+  place-items: center;
+
+  width: 34px;
+  height: 34px;
+
+  padding: 0;
+
+  border: 0;
+  border-radius: 10px;
+
+  background: transparent;
+  color: #517c85;
+
+  cursor: pointer;
+}
+
+.mut-login-eye:hover {
+  background: rgba(207, 229, 217, 0.6);
+}
+
+.mut-login-forgot {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.mut-login-forgot button,
+.mut-login-activation button {
+  padding: 3px 0;
+
+  border: 0;
+
+  background: transparent;
+  color: #0c8d67;
+
+  font: inherit;
+  font-size: 12px;
+  font-weight: 750;
+
+  cursor: pointer;
+}
+
+/* Tombol masuk */
+
+.mut-login-submit {
+  display: block;
+
+  width: 100%;
+  min-height: clamp(45px, 6.5vh, 53px);
+
+  margin-top: 1px;
+  padding: 10px;
+
+  border: 0;
+  border-radius: 14px;
+
+  background: linear-gradient(
+    105deg,
+    #159b78,
+    #0c8562
+  );
+
+  color: #ffffff;
+
+  font-size: clamp(15px, 2vh, 17px);
+  font-weight: 750;
+
+  box-shadow:
+    0 9px 20px rgba(13, 119, 86, 0.16);
+
+  cursor: pointer;
+}
+
+.mut-login-submit:hover:not(:disabled) {
+  filter: brightness(1.05);
+}
+
+/* Pemisah dan aktivasi */
+
+.mut-login-divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 12px;
+
+  margin:
+    clamp(11px, 1.8vh, 17px) 0;
+
+  color: #7c8e97;
+  font-size: 12px;
+}
+
+.mut-login-divider span {
+  flex: 1;
+  height: 1px;
+
+  background:
+    rgba(115, 160, 149, 0.25);
+}
+
+.mut-login-activation {
+  color: #586f77;
+
+  text-align: center;
+
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+/* Informasi ringkas */
+
+.mut-login-info {
+  display: flex;
+  align-items: center;
+
+  gap: 9px;
+
+  padding: 9px 10px 9px 12px;
+  margin-top: 14px;
+
+  border-left: 3px solid #7ac9a6;
+  border-radius: 0 9px 9px 0;
+
+  background: rgba(234, 248, 239, 0.68);
+
+  backdrop-filter: blur(4px);
+}
+
+.mut-login-info svg {
+  flex: 0 0 18px;
+
+  width: 18px;
+  height: 18px;
+
+  color: #128a63;
+}
+
+.mut-login-info p {
+  display: flex;
+  flex-direction: column;
+
+  gap: 1px;
+  margin: 0;
+
+  color: #345768;
+
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+.mut-login-info p span {
+  color: #6d8589;
+}
+
+/* Aktivasi dan lupa kata sandi */
+
+.mut-login-card-secondary {
+  padding: 0 !important;
+}
+
+/* Footer */
+
+.mut-login-page
+.mut-login-content > footer {
+  flex: 0 0 auto;
+
+  width: 100%;
+
+  margin: 16px 0 0 !important;
+  padding: 0;
+
+  color: #6b8486;
+
+  font-size: 11px;
+  line-height: 1.3;
+
+  text-align: center;
+}
+
+/* HP dan tablet */
+
+@media (max-width: 740px) {
+  .mut-login-page
+  .mut-auth-ambient
+  .mut-login-background {
+    background-image: var(--mut-scene-mobile);
+    background-position: center 43%;
+  }
+
+  .mut-login-page .mut-login-content {
+    width: min(100%, 470px);
+
+    padding-inline:
+      clamp(17px, 4.7vw, 25px);
+  }
+
+  .mut-login-page .mut-login-brand {
+    padding-top: 4px;
+  }
+
+  .mut-login-page
+  .mut-login-card
+  .mut-login-welcome {
+    font-size: clamp(21px, 3vh, 27px);
+  }
+}
+
+/* HP pendek */
+
+@media (max-height: 650px) {
+  .mut-login-page .mut-login-content {
+    min-height: 100dvh;
+
+    padding-top: 9px;
+    padding-bottom: 10px;
+  }
+
+  .mut-login-page
+  .mut-login-brand
+  .school-logo-frame {
+    width: 50px;
+    height: 50px;
+
+    margin-bottom: 3px;
+  }
+
+  .mut-login-page .mut-login-brand h1 {
+    font-size: 20px;
+  }
+
+  .mut-login-page .mut-login-brand p {
+    margin-top: 2px;
+    font-size: 12px;
+  }
+
+  .mut-login-page .mut-login-card {
+    padding-top: 18px;
+  }
+
+  .mut-login-page
+  .mut-login-card
+  .mut-login-welcome {
+    margin-bottom: 10px;
+    font-size: 21px;
+  }
+
+  .mut-login-form {
+    gap: 8px;
+  }
+
+  .mut-login-field {
+    min-height: 48px;
+    padding-block: 5px;
+  }
+
+  .mut-login-divider {
+    margin: 9px 0;
+  }
+
+  .mut-login-info {
+    margin-top: 10px;
+    padding: 7px 9px;
+  }
+
+  .mut-login-page
+  .mut-login-content > footer {
+    margin-top: 11px !important;
+  }
+}
+
+/* Mode horizontal dengan layar pendek */
+
+@media (orientation: landscape)
+and (max-height: 480px) {
+  .mut-login-page .mut-login-content {
+    width: min(100%, 900px);
+    min-height: 100dvh;
+
+    display: grid;
+
+    grid-template-columns:
+      0.85fr 1.15fr;
+
+    grid-template-rows:
+      1fr auto;
+
+    gap:
+      0 clamp(20px, 4vw, 50px);
+
+    align-items: center;
+
+    padding-inline:
+      clamp(18px, 5vw, 46px);
+  }
+
+  .mut-login-page .mut-login-brand {
+    grid-column: 1;
+    grid-row: 1 / 3;
+  }
+
+  .mut-login-page .mut-login-card {
+    grid-column: 2;
+    grid-row: 1;
+
+    margin: 0;
+    padding: 10px 0 0;
+  }
+
+  .mut-login-page
+  .mut-login-content > footer {
+    grid-column: 2;
+    grid-row: 2;
+  }
+
+  .mut-login-page::before {
+    background: linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.02),
+      rgba(251, 253, 252, 0.6) 42%,
+      rgba(251, 253, 252, 0.96) 75%,
+      rgba(251, 253, 252, 0.98)
+    );
+  }
+}
+
+/* Aksesibilitas */
+
+@media (prefers-reduced-motion: reduce) {
+  .mut-login-page
+  .mut-auth-ambient
+  .mut-login-background {
+    animation: none !important;
+  }
+}

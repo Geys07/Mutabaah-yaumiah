@@ -1,0 +1,49 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Secrets and machine-local state
+.env
+.env.*
+!.env.example
+.codex-remote-attachments/
+.playwright-mcp/
+supabase/.temp/
+supabase/.branches/
+
+# Private QA records, generated evidence and superseded source copies
+MANIFEST*.json
+LAPORAN*.md
+KODE-LENGKAP*.md
+*.zip
+*.dump
+*.backup
+*.bak
+*.sebelum-*.txt
+scripts/fixtures/*local-run.json
+scripts/private/
+scripts/access-matrix-cloud.playwright.mjs
+scripts/stage123-*.playwright.mjs
+upgrade-mutabaah5.mjs
+RENCANA-SUPABASE-QA05.md

@@ -1,0 +1,453 @@
+[
+  {
+    "signature": "cancel_stuck_password_reset(uuid,uuid)",
+    "test_inactive": false,
+    "category": "service-or-internal-only"
+  },
+  {
+    "signature": "check_login_rate_limit(text)",
+    "test_inactive": false,
+    "category": "service-or-internal-only"
+  },
+  {
+    "signature": "save_student_with_class(uuid,text,text,text,text,uuid)",
+    "test_inactive": true,
+    "category": "active-user-rpc"
+  },
+  {
+    "signature": "submit_parent_mutabaah_day(uuid,date,boolean,jsonb,boolean)",
+    "test_inactive": false,
+    "category": "existing-explicit-active-or-role-check"
+  },
+  {
+    "signature": "create_academic_year(integer)",
+    "test_inactive": true,
+    "category": "active-user-rpc"
+  },
+  {
+    "signature": "has_role(text)",
+    "test_inactive": false,
+    "category": "active-role-helper"
+  },
+  {
+    "signature": "is_staff()",
+    "test_inactive": false,
+    "category": "active-role-helper"
+  },
+  {
+    "signature": "save_student_family_contacts(uuid,jsonb)",
+    "test_inactive": true,
+    "category": "active-user-rpc"
+  },
+  {
+    "signature": "list_password_reset_requests()",
+    "test_inactive": false,
+    "category": "existing-explicit-active-or-role-check"
+  },
+  {
+    "signature": "import_students_atomic(uuid,jsonb)",
+    "test_inactive": true,
+    "category": "active-user-rpc"
+  },
+  {
+    "signature": "password_reset_pending_count()",
+    "test_inactive": false,
+    "category": "existing-explicit-active-or-role-check"
+  },
+  {
+    "signature": "generate_parent_activation_code(uuid,text)",
+    "test_inactive": true,
+    "category": "active-user-rpc"
+  },
+  {
+    "signature": "claim_parent_activation(text)",
+    "test_inactive": false,
+    "category": "existing-explicit-active-or-role-check"
+  },
+  {
+    "signature": "get_mutabaah_accessible_classes()",
+    "test_inactive": true,
+    "category": "active-user-rpc"
+  },
+  {
+    "signature": "get_mutabaah_class_report(uuid,date)",
+    "test_inactive": true,
+    "category": "active-user-rpc"
+  },
+  {
+    "signature": "set_homeroom_teacher(uuid,uuid)",
+    "test_inactive": false,
+    "category": "existing-explicit-active-or-role-check"
+  },
+  {
+    "signature": "save_mutabaah_day(uuid,date,jsonb)",
+    "test_inactive": false,
+    "category": "existing-explicit-active-or-role-check"
+  },
+  {
+    "signature": "manage_existing_teacher(uuid,text,text,boolean)",
+    "test_inactive": false,
+    "category": "existing-explicit-active-or-role-check"
+  },
+  {
+    "signature": "get_parent_mutabaah_month(uuid,date)",
+    "test_inactive": false,
+    "category": "existing-explicit-active-or-role-check"
+  },
+  {
+    "signature": "claim_password_reset_code(uuid,uuid,text,uuid)",
+    "test_inactive": false,
+    "category": "service-or-internal-only"
+  },
+  {
+    "signature": "finish_password_reset_code(uuid,uuid,boolean)",
+    "test_inactive": false,
+    "category": "service-or-internal-only"
+  },
+  {
+    "signature": "get_mutabaah_report_periods(uuid)",
+    "test_inactive": true,
+    "category": "active-user-rpc"
+  },
+  {
+    "signature": "list_parent_contacts()",
+    "test_inactive": true,
+    "category": "active-user-rpc"
+  },
+  {
+    "signature": "invalidate_parent_code_on_contact_change()",
+    "test_inactive": false,
+    "category": "trigger-only"
+  },
+  {
+    "signature": "admin_push_subscription_count()",
+    "test_inactive": false,
+    "category": "existing-explicit-active-or-role-check"
+  },
+  {
+    "signature": "rotate_approved_password_reset_code(uuid,uuid,text)",
+    "test_inactive": false,
+    "category": "service-or-internal-only"
+  },
+  {
+    "signature": "save_mutabaah_report_targets(jsonb)",
+    "test_inactive": true,
+    "category": "active-user-rpc"
+  },
+  {
+    "signature": "get_mutabaah_report_targets()",
+    "test_inactive": true,
+    "category": "active-user-rpc"
+  },
+  {
+    "signature": "get_parent_mutabaah_haid(uuid,date)",
+    "test_inactive": false,
+    "category": "existing-explicit-active-or-role-check"
+  },
+  {
+    "signature": "get_mutabaah_change_history(uuid,date,date)",
+    "test_inactive": false,
+    "category": "service-or-internal-only"
+  },
+  {
+    "signature": "set_parent_mutabaah_haid(uuid,date,boolean)",
+    "test_inactive": false,
+    "category": "existing-explicit-active-or-role-check"
+  },
+  {
+    "signature": "mutabaah_is_exempt(uuid,uuid,date)",
+    "test_inactive": false,
+    "category": "service-or-internal-only"
+  },
+  {
+    "signature": "get_mutabaah_haid_policy()",
+    "test_inactive": false,
+    "category": "existing-explicit-active-or-role-check"
+  },
+  {
+    "signature": "set_mutabaah_haid_policy(boolean)",
+    "test_inactive": false,
+    "category": "existing-explicit-active-or-role-check"
+  },
+  {
+    "signature": "get_parent_mutabaah_day_state(uuid,date)",
+    "test_inactive": false,
+    "category": "existing-explicit-active-or-role-check"
+  },
+  {
+    "signature": "get_mutabaah_report_archives_v2(uuid,uuid)",
+    "test_inactive": true,
+    "category": "active-user-rpc"
+  },
+  {
+    "signature": "delete_mutabaah_report_archive(uuid)",
+    "test_inactive": true,
+    "category": "active-user-rpc"
+  },
+  {
+    "signature": "save_parent_mutabaah_day(uuid,date,boolean,jsonb)",
+    "test_inactive": false,
+    "category": "existing-explicit-active-or-role-check"
+  },
+  {
+    "signature": "get_parent_mutabaah_month_status(uuid,date)",
+    "test_inactive": false,
+    "category": "existing-explicit-active-or-role-check"
+  },
+  {
+    "signature": "get_mutabaah_class_day_status(uuid,date)",
+    "test_inactive": true,
+    "category": "active-user-rpc"
+  },
+  {
+    "signature": "get_mutabaah_class_month_status(uuid,date)",
+    "test_inactive": true,
+    "category": "active-user-rpc"
+  },
+  {
+    "signature": "get_mutabaah_monthly_notes(uuid,date)",
+    "test_inactive": true,
+    "category": "active-user-rpc"
+  },
+  {
+    "signature": "get_mutabaah_report_grading()",
+    "test_inactive": true,
+    "category": "active-user-rpc"
+  },
+  {
+    "signature": "set_mutabaah_report_grading(numeric,numeric,numeric,numeric)",
+    "test_inactive": true,
+    "category": "active-user-rpc"
+  },
+  {
+    "signature": "mutabaah_ramadan_date_allowed(uuid,uuid,date)",
+    "test_inactive": false,
+    "category": "internal-calendar-revoke-client-execute",
+    "client_execute": "revoked; nested owner-run callers preserved"
+  },
+  {
+    "signature": "get_mutabaah_report_details(uuid,uuid)",
+    "test_inactive": true,
+    "category": "active-user-rpc"
+  },
+  {
+    "signature": "get_mutabaah_semester_report(uuid,uuid)",
+    "test_inactive": true,
+    "category": "active-user-rpc"
+  },
+  {
+    "signature": "mutabaah_can_read_report_class(uuid)",
+    "test_inactive": true,
+    "category": "active-user-rpc"
+  },
+  {
+    "signature": "mutabaah_can_write_report_class(uuid)",
+    "test_inactive": true,
+    "category": "active-user-rpc"
+  },
+  {
+    "signature": "register_mutabaah_report_archive(uuid,uuid,uuid,text,integer,date)",
+    "test_inactive": true,
+    "category": "active-user-rpc"
+  },
+  {
+    "signature": "get_mutabaah_report_archives(uuid,uuid)",
+    "test_inactive": true,
+    "category": "active-user-rpc"
+  },
+  {
+    "signature": "mutabaah_can_delete_report_archive(uuid)",
+    "test_inactive": true,
+    "category": "active-user-rpc"
+  },
+  {
+    "signature": "mutabaah_can_delete_report_storage_object(text,text)",
+    "test_inactive": true,
+    "category": "active-user-rpc"
+  },
+  {
+    "signature": "get_mutabaah_report_archives_v3(uuid,uuid)",
+    "test_inactive": true,
+    "category": "active-user-rpc"
+  },
+  {
+    "signature": "register_mutabaah_report_archive_v2(uuid,uuid,uuid,text,integer,date,text)",
+    "test_inactive": true,
+    "category": "active-user-rpc"
+  },
+  {
+    "signature": "get_parent_daily_notice_read(uuid,date)",
+    "test_inactive": false,
+    "category": "existing-explicit-active-or-role-check"
+  },
+  {
+    "signature": "mark_parent_daily_notice_read(uuid,date)",
+    "test_inactive": false,
+    "category": "existing-explicit-active-or-role-check"
+  },
+  {
+    "signature": "complete_parent_activation(text,text,uuid,text)",
+    "test_inactive": false,
+    "category": "service-or-internal-only"
+  },
+  {
+    "signature": "list_parent_reminder_targets(date)",
+    "test_inactive": false,
+    "category": "service-or-internal-only"
+  },
+  {
+    "signature": "get_mutabaah_ramadan_settings()",
+    "test_inactive": true,
+    "category": "active-user-rpc"
+  },
+  {
+    "signature": "get_parent_ramadan_day_activities(date)",
+    "test_inactive": true,
+    "category": "active-user-rpc"
+  },
+  {
+    "signature": "save_mutabaah_ramadan_period(date,date,boolean)",
+    "test_inactive": true,
+    "category": "active-user-rpc"
+  },
+  {
+    "signature": "confirm_mutabaah_promotion(integer,jsonb,integer)",
+    "test_inactive": true,
+    "category": "active-user-rpc"
+  },
+  {
+    "signature": "preview_mutabaah_promotion(integer)",
+    "test_inactive": true,
+    "category": "active-user-rpc"
+  },
+  {
+    "signature": "inherit_mutabaah_homeroom_on_class_insert()",
+    "test_inactive": false,
+    "category": "trigger-only"
+  },
+  {
+    "signature": "protect_mutabaah_semester_dates()",
+    "test_inactive": false,
+    "category": "trigger-only"
+  },
+  {
+    "signature": "mutabaah_cleanup_exempt_answers_on_haid()",
+    "test_inactive": false,
+    "category": "trigger-only"
+  },
+  {
+    "signature": "parent_phone_request_verified(uuid,text)",
+    "test_inactive": false,
+    "category": "service-or-internal-only"
+  },
+  {
+    "signature": "get_mutabaah_change_history(uuid,date,date,integer,integer)",
+    "test_inactive": false,
+    "category": "existing-explicit-active-or-role-check"
+  },
+  {
+    "signature": "admin_review_parent_phone_request(uuid,uuid,boolean)",
+    "test_inactive": false,
+    "category": "service-or-internal-only"
+  },
+  {
+    "signature": "log_mutabaah_entry_change()",
+    "test_inactive": false,
+    "category": "trigger-only"
+  },
+  {
+    "signature": "prepare_mutabaah_grade_seven(integer,boolean)",
+    "test_inactive": true,
+    "category": "active-user-rpc"
+  },
+  {
+    "signature": "admin_change_student_lifecycle(uuid,text,uuid)",
+    "test_inactive": true,
+    "category": "active-user-rpc"
+  },
+  {
+    "signature": "get_mutabaah_student_placement_history(uuid)",
+    "test_inactive": true,
+    "category": "active-user-rpc"
+  },
+  {
+    "signature": "search_mutabaah_student_history(text)",
+    "test_inactive": true,
+    "category": "active-user-rpc"
+  },
+  {
+    "signature": "set_mutabaah_semester_boundary(uuid,date)",
+    "test_inactive": true,
+    "category": "active-user-rpc"
+  },
+  {
+    "signature": "qa06_account_active()",
+    "test_inactive": false,
+    "category": "active-role-helper"
+  },
+  {
+    "signature": "get_mutabaah_bonus_counts(uuid,date,date)",
+    "test_inactive": true,
+    "category": "active-user-rpc"
+  },
+  {
+    "signature": "get_mutabaah_monthly_report(uuid,date)",
+    "test_inactive": true,
+    "category": "active-user-rpc"
+  },
+  {
+    "signature": "get_mutabaah_monthly_required_report(uuid,date)",
+    "test_inactive": true,
+    "category": "active-user-rpc"
+  },
+  {
+    "signature": "get_mutabaah_report_bonus(uuid,uuid)",
+    "test_inactive": true,
+    "category": "active-user-rpc"
+  },
+  {
+    "signature": "get_mutabaah_report_signatures(uuid)",
+    "test_inactive": true,
+    "category": "active-user-rpc"
+  },
+  {
+    "signature": "finish_parent_reminder_qa05(uuid,date,uuid,text,boolean,text)",
+    "test_inactive": false,
+    "category": "service-role-only-ledger-rpc",
+    "anonymous_execute": false,
+    "authenticated_execute": false
+  },
+  {
+    "signature": "parent_reminder_pending_qa05(uuid,date)",
+    "test_inactive": false,
+    "category": "service-role-only-ledger-rpc",
+    "anonymous_execute": false,
+    "authenticated_execute": false
+  },
+  {
+    "signature": "list_parent_reminder_targets_page(date,uuid,integer)",
+    "test_inactive": false,
+    "category": "service-role-only-ledger-rpc",
+    "anonymous_execute": false,
+    "authenticated_execute": false
+  },
+  {
+    "signature": "claim_parent_reminder_qa05(uuid,date)",
+    "test_inactive": false,
+    "category": "service-role-only-ledger-rpc",
+    "anonymous_execute": false,
+    "authenticated_execute": false
+  },
+  {
+    "signature": "begin_parent_reminder_qa05(uuid,date,uuid)",
+    "test_inactive": false,
+    "category": "service-role-only-ledger-rpc",
+    "anonymous_execute": false,
+    "authenticated_execute": false
+  },
+  {
+    "signature": "enforce_push_subscription_owner_qa06()",
+    "test_inactive": false,
+    "category": "non-executable-trigger; validates active owner role across both subscription tables"
+  }
+]

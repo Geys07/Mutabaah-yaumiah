@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f7faf8" />
+    <link rel="icon" type="image/png" href="/pwa/icon-192.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="/pwa/icon-192.png" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <title>Mutabaah Yaumiah — MTs Al-Khairiyah</title>
+    <style>
+      html:root, body, #root { background: #f7faf8; }
+    </style>
+    <script>
+      (function () {
+        const formatter = new Intl.DateTimeFormat("en-GB", {
+          timeZone: "Asia/Jakarta", hour: "2-digit", hourCycle: "h23"
+        });
+        const hour = Number(formatter.format(new Date()));
+        document.documentElement.dataset.timeTheme =
+          hour >= 4 && hour < 11 ? "pagi" :
+          hour >= 11 && hour < 15 ? "siang" :
+          hour >= 15 && hour < 18 ? "sore" : "malam";
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

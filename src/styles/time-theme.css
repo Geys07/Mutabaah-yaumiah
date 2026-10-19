@@ -1,0 +1,41 @@
+
+:root,
+:root[data-time-theme="pagi"] {
+  --mut-scene-desktop:
+    url("/loading/loading-pagi-desktop.webp");
+
+  --mut-scene-mobile:
+    url("/loading/loading-pagi-mobile.webp");
+
+  --mut-page-background: #f7faf8;
+}
+
+:root[data-time-theme="siang"] {
+  --mut-scene-desktop:
+    url("/loading/loading-siang-desktop.webp");
+
+  --mut-scene-mobile:
+    url("/loading/loading-siang-mobile.webp");
+
+  --mut-page-background: #f3fbfc;
+}
+
+:root[data-time-theme="sore"] {
+  --mut-scene-desktop:
+    url("/loading/loading-sore-desktop.webp");
+
+  --mut-scene-mobile:
+    url("/loading/loading-sore-mobile.webp");
+
+  --mut-page-background: #fff8f4;
+}
+
+:root[data-time-theme="malam"] {
+  --mut-scene-desktop:
+    url("/loading/loading-malam-desktop.webp");
+
+  --mut-scene-mobile:
+    url("/loading/loading-malam-mobile.webp");
+
+  --mut-page-background: #f5f8fd;
+}

@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 1400" preserveAspectRatio="xMidYMin slice">
+ <defs>
+ <linearGradient id="bg" x1="0" y1="0" x2="0.2" y2="1"><stop offset="0" stop-color="#dbe7d9"/><stop offset="0.46" stop-color="#f3f8f3"/><stop offset="1" stop-color="#f7faf8"/></linearGradient>
+ <linearGradient id="arch" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff" stop-opacity="0.97"/><stop offset="1" stop-color="#f1faf6" stop-opacity="0.75"/></linearGradient>
+ <linearGradient id="wash" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff" stop-opacity=".12"/><stop offset=".65" stop-color="#ffffff" stop-opacity=".65"/><stop offset="1" stop-color="#ffffff" stop-opacity=".93"/></linearGradient>
+ <filter id="blur"><feGaussianBlur stdDeviation="10"/></filter>
+ <filter id="soft"><feGaussianBlur stdDeviation="4"/></filter>
+ </defs>
+ <rect width="960" height="1400" fill="url(#bg)"/>
+ <g filter="url(#blur)" opacity=".42">
+  <path d="M-70 700V350h150v-65L160 215l80 70v65h80v350M110 475h135" fill="#c8dcd5"/>
+  <path d="M500 760V480h70v-70h90v-90l85-85 85 85v90h95v340" fill="#c6ddd7"/>
+  <path d="M40 580V420h100v-35c0-45 42-80 80-110 38 30 80 65 80 110v35h75v160" fill="#abc5b7"/>
+  <path d="M670 600V420h50v-90c0-30 18-52 35-75 17 23 35 45 35 75v90h50v180" fill="#a9c5ba"/>
+  <g stroke="#759c88" stroke-width="9" fill="none" opacity=".45">
+   <path d="M85 580v-120a35 35 0 0 1 70 0v120M175 580v-120a35 35 0 0 1 70 0v120M760 600v-120a35 35 0 0 1 70 0v120"/>
+  </g>
+ </g>
+ <path d="M-65 820V215C-65 65 110 30 300-64H660C850 30 1025 65 1025 215V820" fill="none" stroke="#e7efe7" stroke-width="126" opacity=".75"/>
+ <path d="M-65 830V215C-65 65 110 30 300-64H660C850 30 1025 65 1025 215V830" fill="none" stroke="#ffffff" stroke-width="74" opacity=".8" filter="url(#soft)"/>
+ <g filter="url(#blur)" opacity=".26" fill="#7dae83">
+  <circle cx="-10" cy="665" r="105"/><circle cx="70" cy="815" r="90"/><circle cx="930" cy="640" r="107"/><circle cx="1000" cy="850" r="100"/>
+  <path d="M-40 970Q165 710 245 940L320 1180H-20Z"/><path d="M720 890Q880 720 1050 840V1170H660Z"/>
+ </g>
+ <rect width="960" height="1400" fill="url(#wash)"/>
+</svg>

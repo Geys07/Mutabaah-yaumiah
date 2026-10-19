@@ -1,0 +1,117 @@
+
+.mut-parent-push-prompt {
+  position: fixed;
+  z-index: 80;
+  right: 14px;
+  bottom: calc(
+    90px + env(safe-area-inset-bottom)
+  );
+
+  width: min(
+    340px,
+    calc(100vw - 28px)
+  );
+
+  display: none;
+  gap: 10px;
+  padding: 14px 15px;
+
+  border: 1px solid var(
+    --mut-ui-soft-border,
+    #cde7d7
+  );
+
+  border-radius: 14px;
+
+  background: var(
+    --mut-ui-glass,
+    rgba(255, 255, 255, 0.94)
+  );
+
+  color: var(
+    --mut-ui-text,
+    #274c43
+  );
+
+  box-shadow:
+    0 14px 38px #10251c1d;
+
+  backdrop-filter: blur(14px);
+
+  font-family: system-ui, sans-serif;
+}
+
+body:has(.pd-app):not(:has(.mut-splash-layer))
+.mut-parent-push-prompt {
+  display: grid;
+}
+
+.mut-parent-push-prompt strong {
+  font-size: 13px;
+}
+
+.mut-parent-push-prompt p {
+  font-size: 12px;
+  margin: 4px 0 0;
+
+  color: var(
+    --mut-ui-muted,
+    #5f7973
+  );
+}
+
+.mut-parent-push-prompt small {
+  display: block;
+  color: #974943;
+  font-size: 11px;
+  margin-top: 5px;
+}
+
+.mut-parent-push-actions {
+  display: flex;
+  gap: 9px;
+}
+
+.mut-parent-push-actions button {
+  flex: 1;
+  border: 0;
+  border-radius: 9px;
+  min-height: 38px;
+
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+
+  color: white;
+
+  background: var(
+    --mut-ui-accent,
+    #168060
+  );
+}
+
+.mut-parent-push-actions
+.mut-parent-push-later {
+  background: var(
+    --mut-ui-soft,
+    #eaf7ef
+  );
+
+  color: var(
+    --mut-ui-text,
+    #274c43
+  );
+}
+
+@media (max-width: 450px) {
+  .mut-parent-push-prompt {
+    right: 12px;
+
+    bottom: calc(
+      80px +
+      env(safe-area-inset-bottom)
+    );
+
+    width: calc(100vw - 24px);
+  }
+}

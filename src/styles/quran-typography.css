@@ -1,0 +1,41 @@
+@import url("https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap");
+
+:root { --mut-quran-font: "Amiri", "Noto Naskh Arabic", serif; }
+[lang="ar"] {
+  font-family: var(--mut-quran-font) !important;
+  font-weight: 400;
+  font-synthesis: none;
+  direction: rtl;
+  unicode-bidi: isolate;
+  word-break: normal;
+  overflow-wrap: normal;
+  text-rendering: optimizeLegibility;
+}
+
+.mut-load-page .mut-load-quote-arabic {
+  font-family: var(--mut-quran-font) !important;
+  font-size: clamp(27px, 4.4vh, 46px) !important;
+  line-height: 1.8 !important;
+}
+
+.pd-app .pd-quran-card .pd-quran-arabic {
+  font-family: var(--mut-quran-font) !important;
+  font-size: clamp(31px, 3.1vw, 43px) !important;
+  line-height: 1.9 !important;
+  padding: 7px 2px 12px;
+  word-break: normal;
+  overflow-wrap: normal;
+  text-align: right;
+}
+.pd-app .pd-quran-card .pd-quran-translation {
+  font-size: 13px;
+  line-height: 1.75;
+}
+@media (max-width: 640px) {
+  .pd-app .pd-quran-card .pd-quran-arabic {
+    font-size: clamp(30px, 7.6vw, 38px) !important;
+  }
+  .mut-load-page .mut-load-quote-arabic {
+    font-size: clamp(26px, 7vw, 37px) !important;
+  }
+}
