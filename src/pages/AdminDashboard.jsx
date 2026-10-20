@@ -25,9 +25,7 @@ const ReportCards = lazy(() => import("./ReportCards"));
 import ReportTargetSettings from "./ReportTargetSettings";
 import ReportGradingSettings from "./ReportGradingSettings";
 import AccountSecurity from "./AccountSecurity";
-import AdminNotifications from "./AdminNotifications";
-import AdminPhoneRequests from "./AdminPhoneRequests";
-import AdminPushSettings from "../components/AdminPushSettings";
+import AdminNotificationSections from "./AdminNotificationSections";
 import "./AdminDashboard.css";
 
 const BUCKET = "school-assets";
@@ -979,16 +977,12 @@ export default function AdminDashboard({
       )}
 
       {activeMenu === "notifications" && (
-        <>
-          <AdminPushSettings />
-          <AdminPhoneRequests onChanged={notificationChanged} />
-          <AdminNotifications
-            pendingCount={passwordPendingCount}
-            onPendingCountChange={notificationChanged}
-            onRefreshCounts={loadPendingCount}
-            suspended={loggingOut}
-          />
-        </>
+        <AdminNotificationSections
+          passwordPendingCount={passwordPendingCount}
+          notificationChanged={notificationChanged}
+          loadPendingCount={loadPendingCount}
+          loggingOut={loggingOut}
+        />
       )}
 
       {activeMenu === "identity" && (
