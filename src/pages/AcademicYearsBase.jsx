@@ -269,10 +269,7 @@ export default function AcademicYears() {
       <section className="academic-panel">
         <div className="academic-heading">
           <h2>Daftar Tahun Ajaran</h2>
-          <p>
-            Semester Ganjil dan Genap tersimpan
-            dalam tahun ajaran yang sama.
-          </p>
+          
         </div>
 
         {loading ? (

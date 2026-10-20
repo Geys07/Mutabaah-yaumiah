@@ -191,19 +191,7 @@ export default function ReportGradingSettings() {
           ))}
         </div>
 
-        <p
-          style={{
-            fontSize: 12,
-            color: "#66766d",
-            lineHeight: 1.6,
-          }}
-        >
-          Nilai minimal A, B, dan C menentukan
-          grade secara otomatis. Nilai di bawah
-          batas C mendapat grade D. KKM digunakan
-          untuk menentukan ketuntasan dan tidak
-          mengubah grade.
-        </p>
+        <p style={{ fontSize: 12, color: "#66766d", lineHeight: 1.6 }}>KKM menentukan ketuntasan dan tidak mengubah grade.</p>
 
         {error && (
           <p
