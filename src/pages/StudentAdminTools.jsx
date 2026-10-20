@@ -235,10 +235,6 @@ export default function StudentAdminTools({ onChanged }) {
       <header className="sat-heading">
         <div>
           <h2>Administrasi Siswa</h2>
-          <p>
-            Siswa baru kelas VII, siswa keluar
-            dan kembali — riwayat tetap disimpan.
-          </p>
         </div>
       </header>
 
