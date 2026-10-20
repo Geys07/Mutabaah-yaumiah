@@ -1,10 +1,9 @@
 
-import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { supabase } from "../lib/supabase";
 import { fetchAll, searchFilter, PAGE_SIZE } from "../lib/pagination";
 import usePagedQuery from "../lib/usePagedQuery";
 import Pagination from "../components/Pagination";
-const StudentImport = lazy(() => import("./StudentImport"));
 import StudentFamily from "./StudentFamily";
 import "./Students.css";
 
@@ -38,7 +37,6 @@ export default function Students() {
   const [search, setSearch] = useState("");
   const [classFilter, setClassFilter] = useState("");
   const [form, setForm] = useState(null);
-  const [importOpen, setImportOpen] = useState(false);
   const [familyStudent, setFamilyStudent] = useState(null);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
@@ -147,7 +145,6 @@ export default function Students() {
     setClassFilter("");
     setForm(null);
     setFamilyStudent(null);
-    setImportOpen(false);
     setError("");
     setNotice("");
   }
@@ -225,11 +222,6 @@ export default function Students() {
     }
   }
 
-  function handleImported() {
-    setNotice("Impor berhasil. Data siswa diperbarui.");
-    refreshData();
-  }
-
   return (
     <div className="students-page">
       <section className="students-panel">
@@ -298,18 +290,6 @@ export default function Students() {
           </div>
 
           <div className="students-list-actions">
-            <button
-              type="button"
-              className="students-secondary"
-              disabled={loading || busy || classes.length === 0}
-              onClick={() => {
-                setImportOpen(true);
-                setError("");
-              }}
-            >
-              Impor Excel
-            </button>
-
             <button
               type="button"
               className="students-primary students-add-button"
@@ -579,15 +559,6 @@ export default function Students() {
             </form>
           </section>
         </div>
-      )}
-
-      {importOpen && (
-        <Suspense fallback={<p role="status">Memuat…</p>}><StudentImport
-          academicYearId={yearId}
-          classes={classes}
-          onClose={() => setImportOpen(false)}
-          onImported={handleImported}
-        /></Suspense>
       )}
 
       {familyStudent && (
