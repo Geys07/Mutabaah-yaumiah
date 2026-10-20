@@ -213,12 +213,6 @@ export default function SemesterBoundaryManager() {
       <div className="sb-heading">
         <div>
           <h2>Periode Semester</h2>
-
-          <p>
-            Atur satu tanggal; hari sebelum
-            Semester Genap otomatis menjadi
-            akhir Semester Ganjil.
-          </p>
         </div>
 
         <span>Tanpa jeda</span>
@@ -311,13 +305,6 @@ export default function SemesterBoundaryManager() {
           </div>
         </div>
       )}
-
-      <p className="sb-hint">
-        Libur di antara kegiatan belajar tetap
-        masuk dalam periode semester berikutnya.
-        Jika rapor sudah diterbitkan, tanggal
-        tahun tersebut dikunci.
-      </p>
 
       {error && (
         <p
