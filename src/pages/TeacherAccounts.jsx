@@ -4,6 +4,7 @@ import { staffPage } from "../lib/teacherPagination";
 import usePagedQuery from "../lib/usePagedQuery";
 import Pagination from "../components/Pagination";
 import "./TeacherAccounts.css";
+import EmptyState from "../components/EmptyState";
 
 const BLANK = {
   full_name: "", username: "", phone: "",
@@ -144,7 +145,7 @@ export default function TeacherAccounts({ role = "homeroom_teacher" }) {
       {notice && <p className="teacher-accounts-success" role="status">{notice}</p>}
       {accounts.error && <p className="teacher-accounts-error" role="alert">{String(accounts.error.message || accounts.error)}</p>}
       {accounts.loading ? <div className="teacher-accounts-empty">Memuat akun…</div>
-       : rows.length === 0 ? <div className="teacher-accounts-empty">Belum ada akun.</div>
+       : rows.length === 0 ? <EmptyState kind="people" title={search ? "Akun tidak ditemukan" : "Belum ada akun"} description={search ? "Coba kata kunci lain." : `Tambahkan akun ${roleLabel} untuk memulai.`} />
        : <div className="teacher-accounts-table-wrap">
            <table>
              <thead><tr><th>Nama</th><th>Nama Pengguna</th><th>Nomor HP</th><th>Status</th><th>Tindakan</th></tr></thead>
