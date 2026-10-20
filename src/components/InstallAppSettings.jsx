@@ -22,7 +22,6 @@ export default function InstallAppSettings() {
   }
   return <section className="install-settings" aria-labelledby="install-app-title">
     <h1 id="install-app-title">Panduan Aplikasi</h1>
-    <p>Buka Mutabaah Yaumiah dengan mudah dari Layar Utama.</p>
     {(standalone || installed) && <p className="install-status" role="status">Aplikasi sudah terpasang.</p>}
     <div className="install-guide-tabs" role="group" aria-label="Panduan perangkat">
       <button type="button" aria-pressed={guide === "ios"} onClick={() => setGuide("ios")}>iPhone / iPad</button>
@@ -52,6 +51,5 @@ export default function InstallAppSettings() {
       <p>Jika tombol pemasangan belum tersedia, gunakan menu Chrome. Pada komputer, pilihan instal dapat tersedia di menu atau bilah alamat browser.</p>
     </div>}
     {message && <p role="status">{message}</p>}
-    {!standalone && !installed && <p className="install-note">Status pemasangan di luar jendela aplikasi ini belum dapat dipastikan. Jika sudah memasang, buka melalui ikon Layar Utama.</p>}
   </section>;
 }
