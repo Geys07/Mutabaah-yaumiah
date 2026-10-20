@@ -215,15 +215,8 @@ export default function PromotionManager() {
       <div className="pm-heading">
         <div>
           <h2>Kenaikan Kelas & Kelulusan</h2>
-          <p>
-            Periksa pembagian kelas dahulu, lalu
-            konfirmasi melalui popup.
-          </p>
         </div>
 
-        <span className="pm-note">
-          Dijalankan oleh Admin
-        </span>
       </div>
 
       <div className="pm-controls">
