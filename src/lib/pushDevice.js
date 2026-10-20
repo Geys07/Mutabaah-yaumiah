@@ -1,5 +1,6 @@
 import { supabase } from "./supabase";
 import { pushSupportMessage } from "./pwaPlatform";
+import { pushErrorMessage } from "./pushErrors";
 
 // Ownership metadata only: never store endpoint keys or auth credentials here.
 const OWNER_KEY = "mutabaah-push-owner-v2";
@@ -66,7 +67,8 @@ async function localOff() {
 }
 export async function invokePush(kind, action, values = {}) {
   const { data, error } = await bounded(supabase.functions.invoke(kind + "-push", { body: { action, ...values } }));
-  if (error || data?.error) throw new Error(data?.error || "Notifikasi belum dapat diproses. Coba lagi.");
+  if (error) throw new Error(pushErrorMessage(error, action));
+  if (data?.error) throw new Error("Notifikasi belum dapat diproses. Coba lagi.");
   return data;
 }
 function decode(key) {
