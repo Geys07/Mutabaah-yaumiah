@@ -1,5 +1,6 @@
 import { setParentEditorOpen } from "../lib/parentEditorState";
 import InstallAppSettings from "../components/InstallAppSettings";
+import useScreenHistory from "../hooks/useScreenHistory";
 
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "../lib/supabase";
@@ -282,11 +283,18 @@ export default function ParentDashboard({
   onLogout,
 }) {
   const [clock, setClock] = useState(jakartaNow);
-  const [tab, setTab] = useState("today");
+  const [screen, setScreen, , goBackScreen] = useScreenHistory(
+    "today", `parent-${account?.id || "session"}`
+  );
+  const dailyOpen = screen.endsWith(":daily");
+  const tab = dailyOpen ? screen.slice(0, -6) : screen;
+  function setDailyOpen(open) {
+    if (open && !dailyOpen) setScreen(`${tab}:daily`);
+    if (!open && dailyOpen) goBackScreen();
+  }
   const [selectedDate, setSelectedDate] =
     useState(clock.date);
 
-  const [dailyOpen, setDailyOpen] = useState(false);
   const [children, setChildren] = useState([]);
   const [studentId, setStudentId] = useState("");
   const [loadingChildren, setLoadingChildren] =
@@ -791,8 +799,7 @@ export default function ParentDashboard({
   function navigate(next) {
     if (next === tab) return;
 
-    setTab(next);
-    setDailyOpen(false);
+    setScreen(next);
     setNoticeOpen(false);
     setError("");
     setMessage("");
