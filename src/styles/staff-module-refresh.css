@@ -288,3 +288,75 @@
     min-height: 42px;
   }
 }
+
+/* Tahap visual: aksi, filter, dan area kosong yang ringkas di layar sempit. */
+.staff-app .monthly-report {
+  border-color:var(--module-line);
+  padding:clamp(14px,2vw,22px);
+  border-radius:16px;
+}
+.staff-app .monthly-report-heading { flex-wrap:wrap; }
+.staff-app .monthly-report-heading h2 { color:var(--module-ink);font-size:17px }
+.staff-app .monthly-report-filters { gap:11px;margin-top:14px }
+.staff-app .monthly-report-subheading { flex-wrap:wrap;gap:10px;margin:15px 0 10px }
+.staff-app .monthly-report-subheading strong { color:var(--module-ink);font-size:13px }
+.staff-app .monthly-report-download {
+  min-height:39px;
+  padding:8px 12px;
+  font-size:12px;
+  border-radius:10px;
+  border:1px solid var(--module-accent);
+  background:var(--module-accent);
+  color:#fff;
+}
+.staff-app .monthly-report-subheading > div { gap:7px!important; }
+.staff-app .monthly-report-empty {
+  min-height:120px;
+  display:grid;
+  place-items:center;
+  padding:23px 12px;
+  margin:10px 0 0;
+  border-radius:12px;
+  background:var(--module-soft);
+  color:var(--module-muted);
+  font-size:13px;
+}
+.staff-app :is(.teacher-accounts-empty,.parents-empty,.students-empty) {
+  min-height:100px;
+  display:grid;
+  place-items:center;
+  text-align:center;
+  padding:24px 13px;
+  border-color:var(--module-line);
+  border-radius:12px;
+  background:var(--module-soft);
+  color:var(--module-muted);
+}
+.staff-app .teacher-accounts-heading { gap:12px }
+.staff-app .teacher-accounts-toolbar { gap:9px; flex-wrap:wrap }
+.staff-app .teacher-accounts-primary { max-width:100%; white-space:normal; text-wrap:balance; }
+@media(max-width:700px) {
+  .staff-app .monthly-report-heading { gap:10px }
+  .staff-app .monthly-report-filters {
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:10px;
+  }
+  .staff-app .monthly-report-filters label:last-child { grid-column:1 / -1 }
+  .staff-app .monthly-report-subheading > div { width:100%; }
+  .staff-app .monthly-report-download { flex:1 1 0; min-width:0; }
+  .staff-app .teacher-accounts-toolbar {
+    display:grid;
+    grid-template-columns:minmax(0,1fr) auto;
+    gap:8px;
+  }
+  .staff-app .teacher-accounts-toolbar input { min-width:0; width:100%; }
+  .staff-app .teacher-accounts-toolbar .teacher-accounts-primary {
+    min-width:0; padding-inline:11px; line-height:1.25;
+  }
+}
+@media(max-width:380px) {
+  .staff-app .monthly-report-filters { grid-template-columns:1fr; }
+  .staff-app .monthly-report-filters label:last-child { grid-column:auto }
+  .staff-app .teacher-accounts-toolbar { grid-template-columns:1fr; }
+  .staff-app .teacher-accounts-toolbar .teacher-accounts-primary { width:100%; }
+}
