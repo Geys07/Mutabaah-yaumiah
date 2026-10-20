@@ -695,3 +695,46 @@
     margin-top: 16px;
   }
 }
+
+/* QA gabungan screenshot: kartu, formulir, dan aksi staf tetap nyaman pada HP. */
+.staff-app :is(.academic-panel,.classes-panel,.homeroom-panel,.teacher-accounts,.activities-panel) {
+  min-width: 0;
+  max-width: 100%;
+}
+.staff-app :is(.academic-panel,.classes-panel,.homeroom-panel,.teacher-accounts,.activities-panel) :is(input,select,textarea) {
+  max-width: 100%;
+}
+.staff-app :is(.academic-primary,.classes-primary,.homeroom-primary,.activities-primary,.teacher-accounts-primary) {
+  background: var(--sa-accent);
+  border-color: var(--sa-accent);
+  color: #fff;
+}
+.staff-app :is(.academic-secondary,.classes-secondary,.homeroom-secondary,.activities-secondary,.teacher-accounts-secondary) {
+  border-color: var(--sa-line);
+  color: var(--sa-ink);
+}
+.staff-app :is(.academic-year-item,.classes-group,.homeroom-assignment-row,.activities-group) {
+  min-width: 0;
+  max-width: 100%;
+}
+.staff-app :is(.activities-table-wrap,.homeroom-table-wrap,.teacher-accounts-table-wrap) {
+  max-width: 100%;
+  overscroll-behavior-x: contain;
+}
+@media (max-width: 650px) {
+  .staff-app :is(.academic-create-form,.classes-add-form,.homeroom-filters,.activities-filters) {
+    min-width: 0;
+    max-width: 100%;
+  }
+  .staff-app :is(.academic-actions,.classes-actions,.activities-dialog-footer) > button {
+    min-width: 0;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+  .staff-app .activities-group { overflow: hidden; }
+  .staff-app .staff-mobile-nav {
+    overflow: hidden;
+    padding-left: max(5px, env(safe-area-inset-left));
+    padding-right: max(5px, env(safe-area-inset-right));
+  }
+}
