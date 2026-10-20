@@ -1,1 +1,53 @@
 .my-empty-state{min-height:155px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:19px 12px;text-align:center;border:1px dashed var(--sa-line,#dae4df);border-radius:14px;background:var(--sa-soft,#edf3fa);color:var(--sa-accent,#516fa7)}.my-empty-state strong{color:var(--sa-ink,#27344b);font-size:14px;font-weight:750}.my-empty-state p{margin:0;max-width:300px;color:var(--sa-muted,#7b8594);font-size:12px;line-height:1.5}.my-empty-state svg{flex:none}@media(max-width:480px){.my-empty-state{min-height:140px;padding:14px 9px}.my-empty-state svg{width:102px;height:68px}}
+
+/* Empty state staf: ilustrasi berlapis, hirarki jelas, mengikuti tema WIB. */
+.staff-app .my-empty-state {
+  position: relative;
+  isolation: isolate;
+  box-sizing: border-box;
+  min-height: 206px;
+  padding: 26px 18px;
+  gap: 9px;
+  border: 1px dashed var(--sa-line);
+  border-radius: 18px;
+  background: var(--sa-soft);
+  color: var(--sa-accent);
+  overflow: hidden;
+}
+.staff-app .my-empty-state::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  width: 160px;
+  height: 110px;
+  top: 15px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background: var(--sa-card);
+  opacity: .45;
+  pointer-events: none;
+}
+.staff-app .my-empty-state svg {
+  display: block;
+  width: 132px;
+  height: 88px;
+  max-width: 100%;
+}
+.staff-app .my-empty-state strong {
+  color: var(--sa-ink);
+  font-size: clamp(15px, 2vw, 17px);
+  font-weight: 750;
+  line-height: 1.35;
+}
+.staff-app .my-empty-state p {
+  max-width: 360px;
+  margin: 0;
+  color: var(--sa-muted);
+  font-size: 13px;
+  line-height: 1.6;
+}
+@media (max-width: 480px) {
+  .staff-app .my-empty-state { min-height: 180px; padding: 20px 14px; gap: 7px; }
+  .staff-app .my-empty-state svg { width: 114px; height: 76px; }
+}
