@@ -155,19 +155,6 @@ export default function ParentActivation({
       </div>
 
       <form onSubmit={submit}>
-        <p
-          style={{
-            margin: "0 0 2px",
-            color: "#567463",
-            fontSize: 12,
-            lineHeight: 1.55,
-          }}
-        >
-          Nama orang tua otomatis mengikuti
-          data keluarga siswa yang sudah
-          terdaftar di madrasah.
-        </p>
-
         <label className="activation-field">
           <span>Nomor HP terdaftar</span>
           <input

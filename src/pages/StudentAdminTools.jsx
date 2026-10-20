@@ -295,11 +295,6 @@ export default function StudentAdminTools({ onChanged }) {
               Impor Excel khusus kelas VII
             </strong>
 
-            <p>
-              Untuk siswa baru. Duplikat NIS,
-              NISN, atau nama akan ditolak oleh
-              sistem impor yang sudah ada.
-            </p>
           </div>
 
           <button
@@ -502,11 +497,7 @@ export default function StudentAdminTools({ onChanged }) {
               </label>
             </fieldset>
 
-            <p>
-              Template impor bawaan tetap
-              dipakai. Isi kolom Kelas dengan
-              VII A atau VII B sesuai pilihan.
-            </p>
+            <p>Isi kolom Kelas: VII A atau VII B sesuai pilihan.</p>
 
             <div className="sat-dialog-actions">
               <button
