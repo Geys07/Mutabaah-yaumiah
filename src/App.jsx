@@ -14,6 +14,7 @@ import {
 
 
 
+import useScreenHistory from "./hooks/useScreenHistory";
 import ParentActivation from "./pages/ParentActivation";
 import ForgotPassword from "./pages/ForgotPassword";
 
@@ -82,7 +83,8 @@ function LoginPage({
   onLogin,
   year,
 }) {
-  const [mode, setMode] = useState("login");
+  const [mode, setMode, replaceMode, backMode] = useScreenHistory("login", "auth");
+  const [loginAudience, setLoginAudience] = useState("parent");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] =
@@ -109,14 +111,15 @@ function LoginPage({
       return;
     }
 
-    setMode(next);
+    if (next === "login" && mode !== "login") backMode();
+    else setMode(next);
     setPassword("");
     setShowPassword(false);
     setNotice(null);
   }
 
   function returnAfter(message) {
-    setMode("login");
+    replaceMode("login");
     setUsername("");
     setPassword("");
     setShowPassword(false);
@@ -254,22 +257,26 @@ function LoginPage({
 
                   <span className="mut-login-field-body">
                     <span className="mut-login-field-label">
-                      Nomor HP / Pengguna
+                      {loginAudience === "parent" ? "Nomor HP" : "Pengguna / Nomor HP"}
                     </span>
 
                     <input
                       id="phone"
                       type="text"
-                      inputMode="tel"
+                      inputMode={loginAudience === "parent" ? "numeric" : "text"}
+                      pattern={loginAudience === "parent" ? "[0-9]*" : undefined}
+                      maxLength={loginAudience === "parent" ? 17 : 64}
                       autoComplete="username"
                       autoCapitalize="none"
                       spellCheck={false}
-                      placeholder="08xxxxxxxxxx"
+                      placeholder={loginAudience === "parent" ? "08xxxxxxxxxx" : "Nama pengguna / nomor HP"}
                       value={username}
                       disabled={busy}
                       onChange={(event) =>
                         setUsername(
-                          event.target.value
+                          loginAudience === "parent"
+                            ? event.target.value.replace(/\D/g, "")
+                            : event.target.value
                         )
                       }
                     />
@@ -343,6 +350,17 @@ function LoginPage({
                   </button>
                 </div>
 
+                <div className="mut-login-audience">
+                  <button type="button" disabled={busy} aria-pressed={loginAudience === "staff"}
+                    onClick={() => {
+                      setLoginAudience(loginAudience === "parent" ? "staff" : "parent");
+                      setUsername("");
+                      setPassword("");
+                      setNotice(null);
+                    }}>
+                    {loginAudience === "parent" ? "Login Admin / Guru" : "Login Orang Tua"}
+                  </button>
+                </div>
                 <div className="mut-login-forgot">
                   <button
                     type="button"
