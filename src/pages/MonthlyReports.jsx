@@ -1186,8 +1186,6 @@ export default function MonthlyReports() {
         </strong>
       </div>
 
-      <p style={{ fontSize: 12, color: "#6b7c75", margin: "0 0 12px" }}>Hanya jawaban final dihitung; tidak masuk grade.</p>
-
       {loadingClasses || loadingReport || searchResult.loading ? (
         <div className="monthly-report-empty">
           Memuat rekap Tambahan...
