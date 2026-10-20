@@ -545,3 +545,5 @@
   .staff-app .teacher-accounts-toolbar + .my-empty-state,
   .staff-app .teacher-accounts-toolbar + .teacher-accounts-empty { margin-top: 16px; }
 }
+
+/* QA: tema modul mengikuti token StaffWorkspace; PR memicu lint, build, dan tes regresi. */
