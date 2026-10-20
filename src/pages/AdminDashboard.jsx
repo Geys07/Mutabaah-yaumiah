@@ -1,4 +1,5 @@
 import InstallAppSettings from "../components/InstallAppSettings";
+import useScreenHistory from "../hooks/useScreenHistory";
 
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { supabase } from "../lib/supabase";
@@ -869,7 +870,7 @@ export default function AdminDashboard({
   onSchoolUpdated,
   onLogout,
 }) {
-  const [activeMenu, setActiveMenu] = useState("dashboard");
+  const [activeMenu, setActiveMenu] = useScreenHistory("dashboard", `admin-${account?.id || "session"}`);
   const [loggingOut, setLoggingOut] = useState(false);
   const [logoutError, setLogoutError] = useState("");
   const readCounts = useCallback(async (signal) => {
