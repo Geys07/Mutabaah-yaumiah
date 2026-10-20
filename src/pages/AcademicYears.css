@@ -203,3 +203,10 @@
     flex-direction: column;
   }
 }
+
+/* Spasi formulir dan daftar tahun ajaran yang konsisten. */
+@media (max-width: 650px) {
+ .staff-app .academic-create-form { gap: 14px; margin-top: 22px; }
+ .staff-app .academic-year-list { margin-top: 22px; }
+ .staff-app .academic-year-item { min-width:0; }
+}
