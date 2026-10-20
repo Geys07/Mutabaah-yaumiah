@@ -4,6 +4,7 @@ import { supabase } from "../lib/supabase";
 import { searchFilter, PAGE_SIZE } from "../lib/pagination";
 import usePagedQuery from "../lib/usePagedQuery";
 import Pagination from "../components/Pagination";
+import EmptyState from "../components/EmptyState";
 import StudentFamily from "./StudentFamily";
 import "./Parents.css";
 
@@ -110,9 +111,7 @@ export default function Parents() {
           Memuat...
         </div>
       ) : filtered.length === 0 ? (
-        <div className="parents-empty">
-          Tidak ada data.
-        </div>
+        <EmptyState kind="people" title="Tidak ada data orang tua" description="Data orang tua atau wali akan ditampilkan di sini ketika tersedia." />
       ) : (
         <div className="parents-table-wrapper">
           <table>
