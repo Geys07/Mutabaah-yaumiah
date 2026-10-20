@@ -337,10 +337,6 @@ export default function Classes() {
       <section className="classes-panel">
         <div className="classes-heading">
           <h2>Pengelolaan Kelas</h2>
-          <p>
-            Atur rombongan belajar kelas VII,
-            VIII, dan IX berdasarkan tahun ajaran.
-          </p>
         </div>
 
         <label className="classes-field classes-year-field">
