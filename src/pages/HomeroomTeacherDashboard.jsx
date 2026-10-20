@@ -1,4 +1,5 @@
 import InstallAppSettings from "../components/InstallAppSettings";
+import useScreenHistory from "../hooks/useScreenHistory";
 
 import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import { supabase } from "../lib/supabase";
@@ -123,7 +124,7 @@ export default function HomeroomTeacherDashboard({
   const [today] = useState(todayInJakarta);
   const earliestDate = daysBefore(today, 365);
 
-  const [activeTab, setActiveTab] = useState("daily");
+  const [activeTab, setActiveTab] = useScreenHistory("daily", `homeroom-${account?.id || "session"}`);
   const [classes, setClasses] = useState([]);
   const [classId, setClassId] = useState("");
   const [selectedDate, setSelectedDate] = useState(today);
