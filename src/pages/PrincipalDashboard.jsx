@@ -455,7 +455,7 @@ export default function PrincipalDashboard({
     notices.push(
       `${
         total.draft + total.unfilled
-      } siswa pada kelas terbaca belum berstatus final tanggal ${
+      } siswa belum final pada ${
         prettyDate(date)
       }.`
     );
