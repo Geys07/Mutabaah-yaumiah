@@ -9,14 +9,15 @@ export default function Students() {
 
   return (
     <>
-      <StudentHistoryPanel />
+      <StudentsBase key={revision} />
+
       <StudentAdminTools
         onChanged={() =>
           setRevision((n) => n + 1)
         }
       />
 
-      <StudentsBase key={revision} />
+      <StudentHistoryPanel />
     </>
   );
 }
