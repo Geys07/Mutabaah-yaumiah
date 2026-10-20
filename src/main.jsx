@@ -18,6 +18,7 @@ import ParentNotificationGate from
 import "./styles/mutabaah-unified-theme.css";
 import "./styles/staff-formal-layout.css";
 import "./styles/staff-formal-details.css";
+import "./styles/staff-module-refresh.css";
 
 const jakartaHour = new Intl.DateTimeFormat(
   "en-GB",

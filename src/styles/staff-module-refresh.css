@@ -1,0 +1,218 @@
+/* Mutabaah Yaumiah — perapian modul staf, mengikuti palet waktu StaffWorkspace. */
+.staff-app {
+  --module-accent: var(--sa-accent, #178166);
+  --module-soft: var(--sa-soft, #e9f6ee);
+  --module-line: var(--sa-line, #dfe9e4);
+  --module-ink: var(--sa-ink, #253c36);
+  --module-muted: var(--sa-muted, #718079);
+  --module-card: var(--sa-card, #fff);
+}
+/* Kartu dan lembar kerja yang dahulu memakai gaya berbeda. */
+.staff-app :is(.students-panel, .classes-panel, .academic-panel, .parents-panel,
+  .teacher-accounts, .sat-panel, .sh-panel, .homeroom-panel,
+  .monthly-report, .activities-panel, .pm-shell, .ramadan-admin) {
+  background: var(--module-card);
+  color: var(--module-ink);
+  border: 1px solid var(--module-line);
+  border-radius: 15px;
+  box-shadow: 0 3px 18px rgba(22, 47, 38, .04);
+}
+.staff-app :is(.students-page-heading h2, .students-list-title h2, .classes-heading h2,
+  .academic-heading h2, .parents-heading h2, .teacher-accounts-heading h2,
+  .sat-heading h2, .sh-heading h2, .homeroom-heading h2,
+  .monthly-report-heading h2) {
+  color: var(--module-ink);
+  letter-spacing: -.025em;
+  font-weight: 750;
+}
+.staff-app :is(.students-list-title p, .academic-muted, .sh-hint,
+  .student-import-help, .monthly-report-subheading, .sat-lifecycle p) {
+  color: var(--module-muted);
+}
+/* Input dan tombol bersama lintas modul. */
+.staff-app :is(.students-page, .classes-page, .academic-page, .parents-panel,
+  .teacher-accounts, .sat-panel, .sh-panel, .student-import-dialog,
+  .homeroom-page, .monthly-report, .pm-shell, .ramadan-admin)
+  :is(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]), select, textarea) {
+  border-color: var(--module-line);
+  background: var(--module-card);
+  color: var(--module-ink);
+  border-radius: 10px;
+}
+.staff-app :is(.students-page, .classes-page, .academic-page, .parents-panel,
+  .teacher-accounts, .sat-panel, .sh-panel, .student-import-dialog,
+  .homeroom-page, .monthly-report, .pm-shell, .ramadan-admin)
+  :is(input, select, textarea):focus {
+  border-color: var(--module-accent);
+  box-shadow: 0 0 0 3px var(--module-soft);
+  outline: none;
+}
+.staff-app :is(.students-primary, .classes-primary, .academic-primary,
+  .teacher-accounts-primary, .homeroom-primary, .activities-primary,
+  .student-import-primary, .monthly-report-download, .family-primary) {
+  background: var(--module-accent);
+  border-color: var(--module-accent);
+  border-radius: 10px;
+  color: white;
+}
+.staff-app :is(.students-primary, .classes-primary, .academic-primary,
+  .teacher-accounts-primary, .homeroom-primary, .activities-primary,
+  .student-import-primary, .monthly-report-download, .family-primary):hover:not(:disabled) {
+  filter: brightness(.93);
+}
+.staff-app :is(.students-secondary, .students-edit, .classes-secondary,
+  .academic-secondary, .teacher-accounts-secondary, .homeroom-secondary,
+  .student-import-secondary, .parents-edit, .monthly-report-secondary) {
+  color: var(--module-ink);
+  border-color: var(--module-line);
+  background: var(--module-card);
+  border-radius: 10px;
+}
+.staff-app :is(.students-secondary, .students-edit, .classes-secondary,
+  .academic-secondary, .teacher-accounts-secondary, .homeroom-secondary,
+  .student-import-secondary, .parents-edit, .monthly-report-secondary):hover:not(:disabled) {
+  background: var(--module-soft);
+}
+/* Tabel administrasi tetap mudah dibaca pada desktop dan selaras dengan tema. */
+.staff-app :is(.students-table, .parents-table-wrapper table,
+  .teacher-accounts-table-wrap table, .homeroom-table-wrap table,
+  .monthly-report-table-wrap table, .student-import-table-wrap table) th {
+  background: var(--module-soft);
+  color: var(--module-ink);
+  border-color: var(--module-line);
+}
+.staff-app :is(.students-table, .parents-table-wrapper table,
+  .teacher-accounts-table-wrap table, .homeroom-table-wrap table,
+  .monthly-report-table-wrap table, .student-import-table-wrap table) td {
+  border-bottom-color: var(--module-line);
+  color: var(--module-ink);
+}
+.staff-app :is(.parents-table-wrapper, .teacher-accounts-table-wrap,
+  .homeroom-table-wrap, .monthly-report-table-wrap, .student-import-table-wrap,
+  .pm-table-wrap) {
+  max-width: 100%;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+}
+/* Daftar Siswa: gaya tabel baru pada desktop. */
+.staff-app .students-page { gap: 13px; min-width: 0; }
+.staff-app .students-panel { padding: 20px; }
+.staff-app .students-filter-bar { gap: 12px; margin-top: 14px; }
+.staff-app .students-field { gap: 6px; color: var(--module-muted); font-weight: 700; }
+.staff-app .students-field :is(input, select) { height: 42px; font-size: 13px; }
+.staff-app .students-list-heading { gap: 12px; }
+.staff-app .students-list-title p { margin-top: 3px; font-size: 12px; }
+.staff-app .students-add-button { min-height: 40px; padding: 9px 15px; }
+.staff-app .students-groups { gap: 13px; margin-top: 16px; }
+.staff-app .students-class-group {
+  border-color: var(--module-line);
+  background: var(--module-card);
+  border-radius: 13px;
+}
+.staff-app .students-class-heading {
+  background: var(--module-soft);
+  border-bottom-color: var(--module-line);
+  padding: 12px 16px;
+}
+.staff-app .students-class-heading h3 { color: var(--module-ink); font-size: 13px; }
+.staff-app .students-class-heading span { color: var(--module-muted); font-size: 11px; }
+.staff-app .students-table { width: 100%; white-space: normal; font-size: 12px; }
+.staff-app .students-table :is(th,td) { padding: 12px; vertical-align: middle; }
+.staff-app .students-table .students-name { font-weight: 750; min-width: 155px; }
+.staff-app .students-name-content { display: inline-flex; align-items: center; gap: 10px; }
+.staff-app .students-monogram {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  border: 1px solid var(--module-line);
+  color: var(--module-accent);
+  background: var(--module-soft);
+  font-weight: 800;
+}
+.staff-app .students-row-actions { display: flex; flex-wrap: wrap; gap: 7px; }
+.staff-app .students-edit { min-height: 34px; padding: 7px 12px; white-space: nowrap; }
+.staff-app .students-table tbody tr:hover td { background: var(--module-soft); }
+.staff-app .students-empty {
+  background: var(--module-soft);
+  color: var(--module-muted);
+  border-color: var(--module-line);
+}
+.staff-app .students-modal { border-color: var(--module-line); }
+.staff-app .students-modal-header h2 { color: var(--module-ink); }
+.staff-app .students-modal :is(.students-modal-header,.students-modal-footer) {
+  border-color: var(--module-line);
+}
+.staff-app .students-table :is(td:nth-child(3), td:nth-child(4)) {
+  font-variant-numeric: tabular-nums;
+}
+@media (max-width: 1050px) {
+  .staff-app .students-panel { padding: 16px; }
+  .staff-app .students-table :is(th,td) { padding-inline: 10px; }
+}
+/* Ponsel: tiap siswa adalah satu kartu, tanpa gulir tabel horizontal. */
+@media (max-width: 700px) {
+  .staff-app .students-page { gap: 11px; }
+  .staff-app .students-panel { padding: 15px 13px; border-radius: 13px; }
+  .staff-app .students-filter-bar {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px; margin-top: 12px;
+  }
+  .staff-app .students-search-field { grid-column: 1 / -1; }
+  .staff-app .students-list-heading {
+    display: flex; flex-wrap: wrap; flex-direction: row; align-items: center;
+  }
+  .staff-app .students-list-actions { display: flex; width: auto; margin-left: auto; }
+  .staff-app .students-add-button { width: auto; min-width: 0; padding-inline: 12px; }
+  .staff-app .students-table-wrap { overflow: visible; }
+  .staff-app .students-table { display: block; width: 100%; }
+  .staff-app .students-table thead {
+    position: absolute; width: 1px; height: 1px; padding: 0;
+    overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+  }
+  .staff-app .students-table tbody {
+    display: grid; gap: 9px; padding: 10px;
+  }
+  .staff-app .students-table tbody tr {
+    display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 9px 12px; padding: 12px; min-width: 0;
+    border: 1px solid var(--module-line);
+    border-radius: 12px; background: var(--module-card);
+  }
+  .staff-app .students-table tbody td {
+    display: flex; flex-direction: column; gap: 3px;
+    padding: 0; min-width: 0; border: 0;
+    font-size: 12px; overflow-wrap: anywhere;
+  }
+  .staff-app .students-table tbody td::before {
+    content: attr(data-label); color: var(--module-muted);
+    font-size: 10px; font-weight: 650; line-height: 1.3;
+  }
+  .staff-app .students-table tbody td.students-number { display: none; }
+  .staff-app .students-table tbody td.students-name {
+    grid-column: 1 / -1; min-width: 0;
+    padding-bottom: 9px; border-bottom: 1px solid var(--module-line);
+    font-size: 13px;
+  }
+  .staff-app .students-table tbody td.students-name::before,
+  .staff-app .students-table tbody td.students-actions-cell::before { display: none; }
+  .staff-app .students-table tbody td.students-actions-cell {
+    grid-column: 1 / -1; border-top: 1px solid var(--module-line);
+    padding-top: 9px;
+  }
+  .staff-app .students-row-actions {
+    display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px;
+  }
+  .staff-app .students-row-actions button {
+    width: 100%; min-width: 0; min-height: 38px;
+  }
+}
+@media (max-width: 390px) {
+  .staff-app .students-list-heading { flex-direction: column; align-items: stretch; }
+  .staff-app .students-list-actions, .staff-app .students-add-button { width: 100%; }
+  .staff-app .students-filter-bar { grid-template-columns: 1fr; }
+  .staff-app .students-search-field { grid-column: auto; }
+}
