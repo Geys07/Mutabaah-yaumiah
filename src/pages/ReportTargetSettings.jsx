@@ -323,11 +323,7 @@ export default function ReportTargetSettings() {
           Pengaturan Target Kegiatan
         </h2>
 
-        <p style={css.description}>
-          Tentukan target capaian minimal untuk
-          setiap kegiatan. Target digunakan
-          sebagai acuan penilaian rapor siswa.
-        </p>
+        
       </header>
 
       <form onSubmit={handleSave}>
