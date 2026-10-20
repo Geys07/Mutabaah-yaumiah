@@ -243,8 +243,7 @@ function DashboardHome({ account, onNavigate, pendingCount }) {
             Assalamu'alaikum, {account?.name || "Administrator"}
           </h2>
           <p>
-            Ringkasan Mutabaah hari ini, {clock.date}.
-            Semua angka berasal dari rekap kelas.
+            Ringkasan Mutabaah, {clock.date}.
           </p>
         </div>
 
@@ -380,18 +379,12 @@ function DashboardHome({ account, onNavigate, pendingCount }) {
                   ? "Memuat…"
                   : `${draft + missing} siswa belum final`}
               </strong>
-              <span>
-                Termasuk draf dan belum diisi hari ini.
-              </span>
             </div>
 
             <div>
               <strong>
                 {rows.length} kelas pada tahun ajaran terbaru
               </strong>
-              <span>
-                Kelola siswa dan kelas melalui sidebar.
-              </span>
             </div>
           </div>
         </section>
