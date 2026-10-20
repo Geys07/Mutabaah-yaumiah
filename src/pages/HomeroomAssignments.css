@@ -245,3 +245,25 @@
   }
   .homeroom-table-wrap tbody { padding: 0 !important; }
 }
+
+/* Penugasan: hilangkan bingkai panel terluar, pertahankan kartu kelas. */
+.staff-app .homeroom-panel {
+  border: 0;
+  box-shadow: none;
+  background: transparent;
+  padding: 0;
+  border-radius: 0;
+  min-width: 0;
+}
+.staff-app .homeroom-heading {
+  flex-wrap: wrap;
+  align-items: center;
+  margin-bottom: 20px;
+}
+.staff-app .homeroom-heading h2 { min-width: 0; }
+@media (max-width: 700px) {
+  .staff-app .homeroom-panel { padding: 0; }
+  .staff-app .homeroom-heading { gap: 12px; }
+  .staff-app .homeroom-heading h2 { font-size: 18px; }
+  .staff-app .homeroom-secondary { flex-shrink: 0; }
+}
