@@ -226,3 +226,22 @@
 .homeroom-table-wrap .homeroom-assignment-teacher select{display:block;box-sizing:border-box;width:100%!important;min-width:0!important;max-width:100%!important;min-height:43px}
 .homeroom-table-wrap .homeroom-assignment-action button{width:100%;min-height:42px}
 }
+
+/* HP: hanya kartu kelas yang memiliki garis, bukan tabel pembungkusnya. */
+@media (max-width:700px) {
+  .homeroom-table-wrap {
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    background: transparent !important;
+    padding: 0 !important;
+  }
+  .homeroom-table-wrap table,
+  .homeroom-table-wrap tbody {
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    background: transparent !important;
+  }
+  .homeroom-table-wrap tbody { padding: 0 !important; }
+}
