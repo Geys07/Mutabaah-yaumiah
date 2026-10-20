@@ -738,3 +738,91 @@
     padding-right: max(5px, env(safe-area-inset-right));
   }
 }
+
+
+/* Penyempurnaan visual panel Admin berdasarkan screenshot modul akhir.
+   Semua warna mengikuti tema waktu WIB aktif, tanpa mengubah perilaku form. */
+.staff-app .install-settings {
+  background: var(--sa-card);
+  border-color: var(--sa-line);
+  color: var(--sa-ink);
+}
+.staff-app .install-settings :is(h1,h2) { color: var(--sa-ink); }
+.staff-app .install-guide-tabs button {
+  border-color: var(--sa-line);
+  background: var(--sa-card);
+  color: var(--sa-ink);
+}
+.staff-app .install-guide-tabs button[aria-pressed="true"],
+.staff-app .install-primary:not(:disabled) {
+  border-color: var(--sa-accent);
+  background: var(--sa-accent);
+  color: #fff;
+}
+.staff-app .install-settings .install-status {
+  background: var(--sa-soft);
+  color: var(--sa-ink);
+}
+.staff-app .install-settings .install-note { color: var(--sa-muted); }
+.staff-app .install-menu-separator { border-color: var(--sa-line); }
+
+.staff-app :is(.monthly-report,.mut-rapor-page) {
+  min-width: 0;
+  max-width: 100%;
+  background: var(--sa-card);
+  color: var(--sa-ink);
+  border-color: var(--sa-line);
+}
+.staff-app :is(.monthly-report-heading h2,.monthly-report-subheading strong) { color: var(--sa-ink); }
+.staff-app .monthly-report-filters label { color: var(--sa-ink); }
+.staff-app .monthly-report-filters :is(input,select) {
+  background: var(--sa-card);
+  border-color: var(--sa-line);
+  color: var(--sa-ink);
+}
+.staff-app .monthly-report-filters :is(input,select):focus { border-color: var(--sa-accent); }
+.staff-app .monthly-report-secondary {
+  background: var(--sa-card);
+  border-color: var(--sa-line);
+  color: var(--sa-ink);
+}
+.staff-app .monthly-report-download {
+  background: var(--sa-accent);
+  border-color: var(--sa-accent);
+  color: #fff;
+}
+.staff-app .monthly-report-table-wrap { border-color: var(--sa-line); }
+.staff-app .monthly-report-table-wrap th { background: var(--sa-soft); color: var(--sa-ink); }
+.staff-app .monthly-report-table-wrap td { border-color: var(--sa-line); }
+.staff-app .monthly-report-name { color: var(--sa-ink); }
+.staff-app .monthly-report-total { background: var(--sa-soft); color: var(--sa-ink); }
+.staff-app .monthly-report-empty {
+  background: var(--sa-soft);
+  color: var(--sa-muted);
+  border: 1px dashed var(--sa-line);
+  border-radius: 13px;
+  line-height: 1.6;
+}
+.staff-app .notification-empty {
+  background: var(--sa-soft);
+  border-color: var(--sa-line);
+  color: var(--sa-muted);
+  line-height: 1.6;
+}
+.staff-app .notification-item {
+  background: var(--sa-card);
+  border-color: var(--sa-line);
+}
+.staff-app .notification-item-info strong { color: var(--sa-ink); }
+.staff-app .notification-item-info :is(span,small) { color: var(--sa-muted); }
+.staff-app .notification-avatar { background: var(--sa-soft); color: var(--sa-accent); }
+.staff-app .parents-empty { min-height: 145px; display: grid; place-content: center; }
+@media (max-width: 650px) {
+  .staff-app .monthly-report-heading { flex-wrap: wrap; }
+  .staff-app .monthly-report-heading > * { min-width: 0; }
+  .staff-app .monthly-report-subheading { flex-wrap: wrap; align-items: flex-start; }
+  .staff-app .monthly-report-subheading > * { min-width: 0; }
+  .staff-app .monthly-report-subheading button { white-space: normal; }
+  .staff-app .notification-actions { flex-wrap: wrap; }
+  .staff-app .notification-actions > button { min-width: 0; }
+}
