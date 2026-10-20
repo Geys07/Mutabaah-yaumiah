@@ -277,7 +277,7 @@ function LoginPage({
 
                   <span className="mut-login-field-body">
                     <span className="mut-login-field-label">
-                      {loginAs === "parent" ? "Nomor HP" : "Nama Pengguna / Nomor HP"}
+                      {loginAs === "parent" ? "Nomor HP" : "Nama Pengguna"}
                     </span>
 
                     <input
@@ -288,7 +288,7 @@ function LoginPage({
                       autoComplete="username"
                       autoCapitalize="none"
                       spellCheck={false}
-                      placeholder={loginAs === "parent" ? "08xxxxxxxxxx" : "admin atau nomor HP"}
+                      placeholder={loginAs === "parent" ? "08xxxxxxxxxx" : "contoh: guru_ahmad"}
                       value={username}
                       disabled={busy}
                       onChange={(event) =>
