@@ -1573,9 +1573,7 @@ export default function ParentDashboard({
               <section className="pd-card pd-page-card">
                 <header className="pd-page-title">
                   <h1>Notifikasi</h1>
-                  <small>
-                    Pengingat pengisian Mutabaah
-                  </small>
+                  
                 </header>
 
                 <div className="pd-notification-item">
@@ -1629,7 +1627,7 @@ export default function ParentDashboard({
               <section className="pd-card pd-page-card">
                 <header className="pd-page-title">
                   <h1>Profil Orang Tua</h1>
-                  <small>Informasi akun</small>
+                  
                 </header>
 
                 <div className="pd-profile-user">
