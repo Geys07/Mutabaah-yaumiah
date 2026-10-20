@@ -235,9 +235,6 @@ export default function Students() {
       <section className="students-panel">
         <div className="students-page-heading">
           <h2>Data Siswa</h2>
-          <p>
-            Kelola identitas, penempatan kelas, dan keluarga siswa.
-          </p>
         </div>
 
         <div className="students-filter-bar">
@@ -450,8 +447,7 @@ export default function Students() {
                 <h2 id="students-modal-title">
                   {form.id ? "Edit Siswa" : "Tambah Siswa"}
                 </h2>
-                <p>Isi identitas dan pilih kelas siswa.</p>
-              </div>
+                </div>
 
               <button
                 type="button"

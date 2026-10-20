@@ -1225,9 +1225,6 @@ export default function ParentDashboard({
               <div>
                 <span>{theme.greeting},</span>
                 <strong>{parentName}</strong>
-                <small>
-                  Semoga hari ini penuh keberkahan.
-                </small>
               </div>
             </div>
           </div>
@@ -1799,10 +1796,6 @@ export default function ParentDashboard({
               Pilih Anak
             </h2>
 
-            <p>
-              Pilih anak yang ingin dilihat
-              atau diisi Mutabaah-nya.
-            </p>
 
             <div className="pd-chooser-grid">
               {children.map((child) => (

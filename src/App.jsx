@@ -386,33 +386,6 @@ function LoginPage({
                 </button>
               </div>
 
-              <div className="mut-login-info">
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  aria-hidden="true"
-                >
-                  <circle
-                    cx="12"
-                    cy="12"
-                    r="9"
-                  />
-
-                  <path d="M12 11v5M12 7.6h.01" />
-                </svg>
-
-                <p>
-                  <strong>
-                    Gunakan nomor HP yang terdaftar
-                  </strong>
-
-                  <span>
-                    dan kata sandi akun Anda.
-                  </span>
-                </p>
-              </div>
             </>
           )}
         </section>

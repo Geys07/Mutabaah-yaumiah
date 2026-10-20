@@ -507,10 +507,6 @@ export default function PrincipalDashboard({
               ? "Pemantauan Mutabaah Sekolah"
               : MENUS.find((item) => item.id === tab)?.label}
           </h2>
-          <p>
-            {account?.name || "Kepala Sekolah"} ·
-            Pemantauan tanpa mengubah data
-          </p>
         </div>
       </div>
 
@@ -519,10 +515,6 @@ export default function PrincipalDashboard({
           <div className="principal-section-head">
             <div>
               <h2>Rekap Mutabaah Sekolah</h2>
-              <p>
-                Ringkasan pengisian per kelas pada tanggal
-                yang dipilih.
-              </p>
             </div>
 
             <button
@@ -700,7 +692,7 @@ export default function PrincipalDashboard({
                     Rincian {selectedClass.class_name}
                   </h3>
                   <p>
-                    {prettyDate(date)} · hanya untuk pemantauan
+                    {prettyDate(date)}
                   </p>
                 </div>
 

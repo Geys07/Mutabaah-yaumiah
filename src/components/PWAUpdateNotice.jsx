@@ -1,56 +1,48 @@
-import { getParentEditorOpen, subscribeParentEditor } from "../lib/parentEditorState";
-import { useEffect, useState, useSyncExternalStore } from "react";
-import "./PWAUpdateNotice.css";
+import { useEffect } from "react";
 import "../lib/pwaInstall";
 
+// Check quietly for updates; the Service Worker installs new assets in the
+// background. Do not skipWaiting or reload while another tab may have a draft.
 export default function PWAUpdateNotice() {
-  const editorOpen = useSyncExternalStore(subscribeParentEditor, getParentEditorOpen);
-  const [waiting, setWaiting] = useState(null);
-  const [showUpdateGuide, setShowUpdateGuide] = useState(false);
-  const [online, setOnline] = useState(() => navigator.onLine);
-
   useEffect(() => {
     if (!("serviceWorker" in navigator)) return undefined;
-    let active = true;
-    let registration;
-    function handleOnline() { setOnline(true); }
-    function handleOffline() { setOnline(false); }
-    window.addEventListener("online", handleOnline);
-    window.addEventListener("offline", handleOffline);
-    navigator.serviceWorker.register(`${import.meta.env.BASE_URL || "/"}parent-push-sw.js`, {
-      scope: import.meta.env.BASE_URL || "/"
-    }).then((r) => {
-      if (!active) return;
-      registration = r;
-      if (r.waiting) setWaiting(r.waiting);
-      r.addEventListener("updatefound", () => {
-        const worker = r.installing;
-        if (!worker) return;
-        worker.addEventListener("statechange", () => {
-          if (worker.state === "installed" && navigator.serviceWorker.controller && active) setWaiting(r.waiting);
-        });
-      });
-    }).catch(() => {});
-    function focus() { void registration?.update().catch(() => {}); }
-    window.addEventListener("focus", focus);
+
+    const scope = import.meta.env.BASE_URL || "/";
+    let registration = null;
+    let disposed = false;
+
+    function checkForUpdates() {
+      if (disposed || !registration || document.hidden || navigator.onLine === false) return;
+      void registration.update().catch(() => {});
+    }
+
+    void navigator.serviceWorker.register(`${scope}parent-push-sw.js`, { scope })
+      .then((result) => {
+        if (disposed) return;
+        registration = result;
+        checkForUpdates();
+      })
+      .catch(() => {});
+
+    function onVisible() {
+      if (!document.hidden) checkForUpdates();
+    }
+
+    window.addEventListener("focus", checkForUpdates);
+    window.addEventListener("online", checkForUpdates);
+    document.addEventListener("visibilitychange", onVisible);
+    const interval = window.setInterval(checkForUpdates, 60 * 60 * 1000);
+
     return () => {
-      active = false;
-      window.removeEventListener("online", handleOnline);
-      window.removeEventListener("offline", handleOffline);
-      window.removeEventListener("focus", focus);
+      disposed = true;
+      window.clearInterval(interval);
+      window.removeEventListener("focus", checkForUpdates);
+      window.removeEventListener("online", checkForUpdates);
+      document.removeEventListener("visibilitychange", onVisible);
     };
   }, []);
 
-
-  // There is no reliable global signal that every form/draft has synced.
-  // Do not activate a waiting worker or arm a reload in this live document.
-  // The browser can activate it naturally once all old clients are closed.
-  if (editorOpen || (online && !waiting)) return null;
-  return (
-    <div className="pwa-notice" role="status">
-      {!online && <span>Offline — pengisian baru perlu koneksi internet.</span>}
-      {waiting && <button type="button" aria-expanded={showUpdateGuide} onClick={() => setShowUpdateGuide(value => !value)}>Pembaruan tersedia</button>}
-      {waiting && showUpdateGuide && <p style={{ margin: 0, maxWidth: 360 }}>Pastikan semua draf sudah tersimpan. Setelah itu, tutup semua jendela aplikasi dan buka kembali untuk menggunakan pembaruan. Halaman ini tidak dimuat ulang otomatis.</p>}
-    </div>
-  );
+  // New worker activates naturally after old app windows are closed. Never
+  // interrupt an active form, and never show a blocking update banner.
+  return null;
 }

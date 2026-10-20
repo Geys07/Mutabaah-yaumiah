@@ -123,10 +123,6 @@ export default function RamadanSettings() {
         <div>
           <h2>Mode Ramadan</h2>
 
-          <p>
-            Periode dan kegiatan Ramadan, terpisah dari
-            kegiatan harian biasa.
-          </p>
         </div>
 
         <span className="ramadan-admin-label">
