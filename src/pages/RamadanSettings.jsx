@@ -186,12 +186,7 @@ export default function RamadanSettings() {
         </button>
       </form>
 
-      <p className="ramadan-admin-hint">
-        Kegiatan Ramadan hanya muncul pada tanggal
-        yang ditetapkan dan saat mode diaktifkan.
-        Di luar periode, kegiatan harian biasa tetap
-        berjalan. Jawaban lama tidak dihapus.
-      </p>
+      
 
       {error && (
         <p className="ramadan-admin-error" role="alert">
