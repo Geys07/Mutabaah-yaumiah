@@ -341,43 +341,49 @@ export default function Students() {
               >
                 <div className="students-class-heading">
                   <h3>{group.name}</h3>
-                  <span>{group.students.length} siswa pada halaman ini</span>
+                  <span>{group.students.length} siswa</span>
                 </div>
 
                 <div className="students-table-wrap">
-                  <table className="students-table">
+                  <table className="students-table" aria-label={`Daftar siswa ${group.name}`}>
                     <thead>
                       <tr>
-                        <th>No.</th>
-                        <th>Nama Siswa</th>
-                        <th>NIS</th>
-                        <th>NISN</th>
-                        <th>Jenis Kelamin</th>
-                        <th>Tindakan</th>
+                        <th scope="col">No.</th>
+                        <th scope="col">Nama Siswa</th>
+                        <th scope="col">NIS</th>
+                        <th scope="col">NISN</th>
+                        <th scope="col">Jenis Kelamin</th>
+                        <th scope="col">Tindakan</th>
                       </tr>
                     </thead>
 
                     <tbody>
                       {group.students.map((student, index) => (
                         <tr key={student.id}>
-                          <td>{index + 1}</td>
-                          <td className="students-name">
-                            {student.full_name}
+                          <td className="students-number">{index + 1}</td>
+                          <td className="students-name" data-label="Nama Siswa">
+                            <span className="students-name-content">
+                              <span className="students-monogram" aria-hidden="true">
+                                {student.full_name?.trim().charAt(0).toUpperCase() || "S"}
+                              </span>
+                              <span>{student.full_name}</span>
+                            </span>
                           </td>
-                          <td>{student.nis || "—"}</td>
-                          <td>{student.nisn || "—"}</td>
-                          <td>
+                          <td data-label="NIS">{student.nis || "—"}</td>
+                          <td data-label="NISN">{student.nisn || "—"}</td>
+                          <td data-label="Jenis Kelamin">
                             {student.gender === "male"
                               ? "Laki-laki"
                               : student.gender === "female"
                                 ? "Perempuan"
                                 : "—"}
                           </td>
-                          <td>
+                          <td className="students-actions-cell" data-label="Tindakan">
                             <div className="students-row-actions">
                               <button
                                 type="button"
                                 className="students-edit"
+                                aria-label={`Edit data ${student.full_name}`}
                                 onClick={() => openEdit(student)}
                               >
                                 Edit
@@ -385,11 +391,10 @@ export default function Students() {
                               <button
                                 type="button"
                                 className="students-edit"
-                                onClick={() =>
-                                  setFamilyStudent(student)
-                                }
+                                aria-label={`Kelola orang tua atau wali ${student.full_name}`}
+                                onClick={() => setFamilyStudent(student)}
                               >
-                                Orang Tua/Wali
+                                Wali
                               </button>
                             </div>
                           </td>
