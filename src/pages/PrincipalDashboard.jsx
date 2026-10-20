@@ -1,4 +1,5 @@
 import InstallAppSettings from "../components/InstallAppSettings";
+import useScreenHistory from "../hooks/useScreenHistory";
 
 import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import { supabase } from "../lib/supabase";
@@ -176,7 +177,7 @@ export default function PrincipalDashboard({
 }) {
   const clock = useJakartaClock();
 
-  const [tab, setTab] = useState("overview");
+  const [tab, setTab] = useScreenHistory("overview", `principal-${account?.id || "session"}`);
   const [classes, setClasses] = useState([]);
   const [year, setYear] = useState("");
   const [date, setDate] = useState(() => clock.date);
