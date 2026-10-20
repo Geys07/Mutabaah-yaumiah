@@ -515,19 +515,10 @@ export default function ReportTargetSettings() {
         )}
 
         {!loading && items.length > 0 && (
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "flex-end",
-              alignItems: "center",
-              gap: 12,
-              marginTop: 19,
-              flexWrap: "wrap",
-            }}
-          >
+          <div className="report-target-actions">
             <button
               type="button"
-              className="admin-secondary-button"
+              className="admin-secondary-button report-target-cancel"
               disabled={saving || !modified}
               onClick={() => {
                 setItems(
@@ -544,6 +535,7 @@ export default function ReportTargetSettings() {
 
             <button
               type="submit"
+              className="report-target-save"
               disabled={saving || !modified}
               style={{
                 ...css.save,
