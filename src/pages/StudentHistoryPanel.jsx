@@ -145,15 +145,8 @@ export default function StudentHistoryPanel() {
       <div className="sh-heading">
         <div>
           <h2>Riwayat Kelas Siswa</h2>
-          <p>
-            Lihat perjalanan kelas tanpa mengubah
-            identitas atau nilai.
-          </p>
         </div>
 
-        <span className="sh-readonly">
-          Hanya lihat
-        </span>
       </div>
 
       <form

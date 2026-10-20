@@ -1,10 +1,11 @@
 import { setParentEditorOpen } from "../lib/parentEditorState";
 import InstallAppSettings from "../components/InstallAppSettings";
 
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "../lib/supabase";
 import { fetchAll } from "../lib/pagination";
 import { signOut } from "../lib/auth";
+import usePanelHistory from "../hooks/usePanelHistory";
 import { SCHOOL_LOGO_URL } from "../lib/branding";
 import { getRandomQuote } from "../data/islamicQuotes";
 import StudentAvatar from "../components/StudentAvatar";
@@ -321,6 +322,16 @@ export default function ParentDashboard({
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
 
+  const { push: pushPage, replace: replacePage } = usePanelHistory("parent", "today", (page) => {
+    setDailyOpen(false);
+    setChooserOpen(false);
+    setLinkOpen(false);
+    setNoticeOpen(false);
+    if (page.startsWith("daily:")) { setSelectedDate(page.slice(6)); setDailyOpen(true); }
+    else if (page === "chooser") setChooserOpen(true);
+    else if (page === "link") setLinkOpen(true);
+    else if (MENU.some((item) => item.id === page) || page === "install-app") setTab(page);
+  });
   const [quote] = useState(() => getRandomQuote());
   const noticeRef = useRef(null);
 
@@ -693,6 +704,20 @@ export default function ParentDashboard({
       );
   }, [noticeOpen]);
 
+  const closeOverlay = useCallback(() => {
+    const route = window.history.state?.__mutabaahNav;
+    if (route?.scope === "parent" &&
+        (route.page?.startsWith("daily:") || route.page === "chooser" || route.page === "link")) {
+      window.history.back();
+    } else {
+      setDailyOpen(false);
+      setChooserOpen(false);
+      setLinkOpen(false);
+      replacePage(tab);
+    }
+    setNoticeOpen(false);
+  }, [replacePage, tab]);
+
   useEffect(() => {
     if (
       !dailyOpen &&
@@ -706,11 +731,9 @@ export default function ParentDashboard({
     function escape(event) {
       if (event.key !== "Escape") return;
 
-      setDailyOpen(false);
-      setChooserOpen(false);
-      setNoticeOpen(false);
-
-      if (!linking) setLinkOpen(false);
+      if (linkOpen && linking) return;
+      if (noticeOpen && !dailyOpen && !chooserOpen && !linkOpen) setNoticeOpen(false);
+      else closeOverlay();
     }
 
     window.addEventListener("keydown", escape);
@@ -723,6 +746,7 @@ export default function ParentDashboard({
     linkOpen,
     noticeOpen,
     linking,
+    closeOverlay,
   ]);
 
   const selectedChild = children.find(
@@ -783,6 +807,7 @@ export default function ParentDashboard({
     setSelectedDate(today);
     setChooserOpen(false);
     setDailyOpen(false);
+    replacePage(tab);
     setError("");
     setMessage("");
     setStatusRevision((n) => n + 1);
@@ -790,7 +815,7 @@ export default function ParentDashboard({
 
   function navigate(next) {
     if (next === tab) return;
-
+    pushPage(next);
     setTab(next);
     setDailyOpen(false);
     setNoticeOpen(false);
@@ -818,6 +843,7 @@ export default function ParentDashboard({
   }
 
   function openLink() {
+    pushPage("link");
     setChooserOpen(false);
     setError("");
     setMessage("");
@@ -839,6 +865,7 @@ export default function ParentDashboard({
       return;
     }
 
+    pushPage(`daily:${date}`);
     setSelectedDate(date);
     setDailyOpen(true);
     setNoticeOpen(false);
@@ -889,6 +916,7 @@ export default function ParentDashboard({
       }
 
       setLinkOpen(false);
+      replacePage(tab);
       setActivationCode("");
 
       setMessage(
@@ -1013,7 +1041,7 @@ export default function ParentDashboard({
       <button
         type="button"
         className="pd-current-child pd-current-child-button"
-        onClick={() => setChooserOpen(true)}
+        onClick={() => { pushPage("chooser"); setChooserOpen(true); }}
         aria-label="Pilih anak"
       >
         <StudentAvatar
@@ -1555,9 +1583,7 @@ export default function ParentDashboard({
 
                 <p className="pd-calendar-help">
                   <Icon name="info" size={18} />
-                  Ketuk tanggal dalam 30 hari terakhir
-                  untuk membuka formulir pengisian
-                  atau pengeditan.
+                  Pilih tanggal (maksimal 30 hari terakhir).
                 </p>
               </section>
             )}
@@ -1710,7 +1736,7 @@ export default function ParentDashboard({
           className="pd-modal-backdrop"
           onMouseDown={(event) => {
             if (event.target === event.currentTarget) {
-              setDailyOpen(false);
+              closeOverlay();
             }
           }}
         >
@@ -1725,7 +1751,7 @@ export default function ParentDashboard({
                 type="button"
                 className="pd-modal-close"
                 aria-label="Tutup formulir"
-                onClick={() => setDailyOpen(false)}
+                onClick={closeOverlay}
               >
                 <Icon name="close" />
               </button>
@@ -1773,7 +1799,7 @@ export default function ParentDashboard({
           className="pd-modal-backdrop"
           onMouseDown={(event) => {
             if (event.target === event.currentTarget) {
-              setChooserOpen(false);
+              closeOverlay();
             }
           }}
         >
@@ -1787,7 +1813,7 @@ export default function ParentDashboard({
               type="button"
               className="pd-modal-close"
               aria-label="Tutup pilihan anak"
-              onClick={() => setChooserOpen(false)}
+              onClick={closeOverlay}
             >
               <Icon name="close" />
             </button>
@@ -1832,7 +1858,7 @@ export default function ParentDashboard({
               event.target === event.currentTarget &&
               !linking
             ) {
-              setLinkOpen(false);
+              closeOverlay();
             }
           }}
         >
@@ -1848,7 +1874,7 @@ export default function ParentDashboard({
               aria-label="Tutup"
               disabled={linking}
               onClick={() => {
-                setLinkOpen(false);
+                closeOverlay();
                 setError("");
               }}
             >
@@ -1900,7 +1926,7 @@ export default function ParentDashboard({
                   type="button"
                   className="pd-outline-button"
                   disabled={linking}
-                  onClick={() => setLinkOpen(false)}
+                  onClick={closeOverlay}
                 >
                   Batal
                 </button>
