@@ -4,6 +4,7 @@ import { supabase } from "../lib/supabase";
 import { fetchAll, PAGE_SIZE } from "../lib/pagination";
 import usePagedQuery from "../lib/usePagedQuery";
 import Pagination from "../components/Pagination";
+import EmptyState from "../components/EmptyState";
 
 const TEMPLATE_FILENAME = "rapor-mutabaah-template.docx";
 const WORD_MIME =
@@ -1377,7 +1378,7 @@ export default function ReportCards({ school }) {
         ) : !classId || !semesterId ? (
           <p className="mut-rapor-muted">Pilih kelas dan semester.</p>
         ) : !archives.length ? (
-          <p className="mut-rapor-muted">Belum ada rapor yang diarsipkan untuk semester ini.</p>
+          <EmptyState kind="school" title="Belum ada rapor" description="Rapor yang telah diterbitkan akan muncul di arsip semester ini." />
         ) : (
           <div className="mut-rapor-list">
             {archives.map((entry) => (
