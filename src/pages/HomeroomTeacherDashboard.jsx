@@ -125,9 +125,6 @@ export default function HomeroomTeacherDashboard({
   const earliestDate = daysBefore(today, 365);
 
   const [activeTab, setActiveTab] = useState("daily");
-  const { push: pushPage } = usePanelHistory("homeroom", "daily", (page) => {
-    if (TABS.some((item) => item.id === page)) { setActiveTab(page); setError(""); if (page === "daily") setRefresh((n) => n + 1); }
-  });
   const [classes, setClasses] = useState([]);
   const [classId, setClassId] = useState("");
   const [selectedDate, setSelectedDate] = useState(today);
@@ -139,6 +136,9 @@ export default function HomeroomTeacherDashboard({
   const [error, setError] = useState("");
   const [loggingOut, setLoggingOut] = useState(false);
   const [refresh, setRefresh] = useState(0);
+  const { push: pushPage } = usePanelHistory("homeroom", "daily", (page) => {
+    if (TABS.some((item) => item.id === page)) { setActiveTab(page); setError(""); if (page === "daily") setRefresh((n) => n + 1); }
+  });
 
   useEffect(() => {
     let cancelled = false;

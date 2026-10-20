@@ -1,8 +1,5 @@
 name: UI checks
 on:
-  push:
-    branches:
-      - fix/clean-ui-android-back-login-keyboard-20261020
   pull_request:
     branches: [main]
 jobs:

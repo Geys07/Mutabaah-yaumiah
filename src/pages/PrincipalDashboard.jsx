@@ -178,9 +178,6 @@ export default function PrincipalDashboard({
   const clock = useJakartaClock();
 
   const [tab, setTab] = useState("overview");
-  const { push: pushPage } = usePanelHistory("principal", "overview", (page) => {
-    if (MENUS.some((item) => item.id === page)) { setTab(page); if (page === "overview") setReload((n) => n + 1); }
-  });
   const [classes, setClasses] = useState([]);
   const [year, setYear] = useState("");
   const [date, setDate] = useState(() => clock.date);
@@ -199,6 +196,9 @@ export default function PrincipalDashboard({
   const [detailError, setDetailError] = useState("");
   const [loggingOut, setLoggingOut] = useState(false);
   const [logoutError, setLogoutError] = useState("");
+  const { push: pushPage } = usePanelHistory("principal", "overview", (page) => {
+    if (MENUS.some((item) => item.id === page)) { setTab(page); if (page === "overview") setReload((n) => n + 1); }
+  });
 
   const schoolYears = useMemo(
     () => [...new Set(classes.map((c) => c.academic_year))],
