@@ -387,9 +387,6 @@ export default function StudentImport({
               Impor Data Siswa
             </h2>
 
-            <p>
-              Unggah Excel dan periksa sebelum menyimpan.
-            </p>
           </div>
 
           <button
