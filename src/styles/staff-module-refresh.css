@@ -360,3 +360,67 @@
   .staff-app .teacher-accounts-toolbar { grid-template-columns:1fr; }
   .staff-app .teacher-accounts-toolbar .teacher-accounts-primary { width:100%; }
 }
+
+/* UI responsif untuk layar kecil tanpa mengubah logika pengaturan. */
+.staff-app .report-target-table-wrap { min-width:0;max-width:100%; }
+.staff-app .report-target-group-tabs { gap:6px!important; }
+.staff-app .report-target-group-tabs button { white-space:nowrap; }
+@media (max-width:700px) {
+  .staff-app .report-target-table-wrap {
+    border:0!important;
+    overflow:visible!important;
+  }
+  .staff-app .report-target-table {display:block!important;width:100%!important;}
+  .staff-app .report-target-table thead {
+    position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);
+    white-space:nowrap;
+  }
+  .staff-app .report-target-table tbody {display:grid;gap:10px;}
+  .staff-app .report-target-row {
+    display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+    gap:12px;padding:14px;border:1px solid var(--module-line);
+    background:var(--module-card);border-radius:13px;min-width:0;
+  }
+  .staff-app .report-target-row td {display:block;border:0!important;padding:0!important;min-width:0!important;}
+  .staff-app .report-target-number {display:none!important;}
+  .staff-app .report-target-name {
+    grid-column:1/-1;font-weight:750;font-size:14px;padding-bottom:8px!important;
+    border-bottom:1px solid var(--module-line)!important;overflow-wrap:anywhere;
+  }
+  .staff-app .report-target-group,.staff-app .report-target-value {display:grid!important;gap:6px;}
+  .staff-app .report-target-group::before {
+    content:"Kelompok";font-size:11px;color:var(--module-muted);font-weight:600;
+  }
+  .staff-app .report-target-value::before {
+    content:"Target (%)";font-size:11px;color:var(--module-muted);font-weight:600;
+  }
+  .staff-app .report-target-group select {width:100%!important;min-width:0!important;max-width:100%;}
+  .staff-app .report-target-value input {width:min(100%,90px)!important;min-height:40px;}
+  .staff-app .report-target-group-tabs { flex-wrap:nowrap!important;overflow-x:auto;overscroll-behavior-x:contain;padding-bottom:5px; }
+  .staff-app .report-target-group-tabs button {flex:none;}
+  .staff-app .students-page {gap:0;}
+  .staff-app .students-page>.students-panel:first-child {
+    border-radius:15px 15px 0 0!important;
+    border-bottom:0!important;
+    padding-bottom:4px!important;
+  }
+  .staff-app .students-page>.students-panel:nth-child(2) {
+    border-radius:0 0 15px 15px!important;
+    border-top:0!important;
+    padding-top:14px!important;
+  }
+  .staff-app .students-page-heading h2 {display:none;}
+  .staff-app .students-filter-bar {margin-top:4px;}
+  .staff-app .monthly-report-heading h2 {font-size:15px;}
+  .staff-app .monthly-report-heading button {min-height:38px;}
+  .staff-app .monthly-report-subheading > div {width:auto;}
+  .staff-app .monthly-report-download {flex:0 1 auto;}
+  .staff-app .monthly-report-empty {min-height:95px;}
+}
+@media (max-width:440px) {
+ .staff-app .report-target-row {gap:10px;padding:12px;}
+ .staff-app .report-target-row .report-target-group select {font-size:11px;}
+ .staff-app .monthly-report-heading {align-items:center;}
+ .staff-app .monthly-report-filters {grid-template-columns:repeat(2,minmax(0,1fr));}
+ .staff-app .monthly-report-filters label:last-child {grid-column:1/-1;}
+}

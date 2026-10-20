@@ -338,7 +338,7 @@ export default function ReportTargetSettings() {
           Pilih Kelompok
         </div>
 
-        <div style={css.tabs}>
+        <div className="report-target-group-tabs" style={css.tabs}>
           {["Semua", ...GROUPS].map((group) => {
             const selected =
               activeGroup === group;
@@ -350,6 +350,7 @@ export default function ReportTargetSettings() {
                 onClick={() =>
                   setActiveGroup(group)
                 }
+                aria-pressed={selected}
                 style={{
                   border: selected
                     ? "1px solid #14744e"
@@ -400,8 +401,8 @@ export default function ReportTargetSettings() {
             Belum ada kegiatan aktif.
           </p>
         ) : (
-          <div style={css.tableWrap}>
-            <table style={css.table}>
+          <div className="report-target-table-wrap" style={css.tableWrap}>
+            <table className="report-target-table" style={css.table}>
               <thead>
                 <tr>
                   <th style={css.th}>No.</th>
@@ -419,12 +420,13 @@ export default function ReportTargetSettings() {
                     ] || GROUP_COLORS.Ibadah;
 
                   return (
-                    <tr key={item.id}>
-                      <td style={css.td}>
+                    <tr className="report-target-row" key={item.id}>
+                      <td className="report-target-number" style={css.td}>
                         {index + 1}
                       </td>
 
                       <td
+                        className="report-target-name"
                         style={{
                           ...css.td,
                           minWidth: 160,
@@ -433,7 +435,7 @@ export default function ReportTargetSettings() {
                         {item.title}
                       </td>
 
-                      <td style={css.td}>
+                      <td className="report-target-group" style={css.td}>
                         <select
                           value={item.report_group}
                           disabled={saving}
@@ -465,7 +467,7 @@ export default function ReportTargetSettings() {
                         </select>
                       </td>
 
-                      <td style={css.td}>
+                      <td className="report-target-value" style={css.td}>
                         <div
                           style={{
                             display: "flex",

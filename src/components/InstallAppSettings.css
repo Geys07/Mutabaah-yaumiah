@@ -12,3 +12,14 @@
 .install-settings .install-note { color: #63796c; font-size: 12px; }
 .install-menu-separator { border: 0; border-top: 1px solid #dce8e0; margin: 20px 0; }
 @media (max-width: 480px) { .install-settings { padding: 18px; border-radius: 14px; } }
+
+/* Panduan lebih ringkas di PWA staf dan tetap ramah tablet. */
+.staff-app .install-settings {max-width:100%;border-radius:15px;}
+.staff-app .install-settings h1 {font-size:clamp(19px,2.3vw,25px);}
+.staff-app .install-guide-tabs {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));width:100%;max-width:470px;}
+.staff-app .install-guide-tabs button {min-width:0;white-space:normal;min-height:43px;}
+@media(max-width:700px) {
+ .staff-app .install-settings {padding:17px 15px;}
+ .staff-app .install-settings ol {padding-left:22px;line-height:1.55;}
+ .staff-app .install-settings li {margin:0 0 8px;}
+}
