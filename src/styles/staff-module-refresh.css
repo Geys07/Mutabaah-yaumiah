@@ -424,3 +424,34 @@
  .staff-app .monthly-report-filters {grid-template-columns:repeat(2,minmax(0,1fr));}
  .staff-app .monthly-report-filters label:last-child {grid-column:1/-1;}
 }
+
+/* Dua aksi Target Kegiatan selalu berdampingan tanpa scroll horizontal. */
+.staff-app .report-target-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: stretch;
+  gap: 10px;
+  margin-top: 18px;
+  width: 100%;
+}
+.staff-app .report-target-actions > button {
+  min-width: 0;
+  width: 100%;
+  min-height: 44px;
+  margin: 0;
+  padding: 10px 12px;
+  line-height: 1.35;
+  text-align: center;
+  white-space: normal;
+  overflow-wrap: break-word;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 700;
+}
+.staff-app .report-target-actions .report-target-save {
+  background: var(--module-accent);
+}
+@media (max-width: 380px) {
+  .staff-app .report-target-actions { gap: 7px; }
+  .staff-app .report-target-actions > button { padding: 9px 6px; font-size: 11px; }
+}
