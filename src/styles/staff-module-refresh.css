@@ -585,3 +585,37 @@
   .staff-app .sb-dialog-actions > button { min-width: 0; width: 100%; white-space: normal; }
   .staff-app .activities-dialog-footer > button { min-width: 0; white-space: normal; }
 }
+
+/* Target Kegiatan: kategori mudah dipilih pada layar sempit. */
+.staff-app .report-target-group-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-width: 0;
+  max-width: 100%;
+}
+.staff-app .report-target-group-tabs > button {
+  min-width: 0;
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  line-height: 1.4;
+}
+.staff-app .teacher-accounts-dialog {
+  background: var(--sa-card);
+  color: var(--sa-ink);
+}
+.staff-app .teacher-accounts-dialog h2,
+.staff-app .teacher-accounts-field,
+.staff-app .teacher-accounts-check { color: var(--sa-ink); }
+.staff-app .teacher-accounts-field input {
+  background: var(--sa-card);
+  color: var(--sa-ink);
+  border-color: var(--sa-line);
+}
+.staff-app .teacher-accounts-check input { accent-color: var(--sa-accent); }
+@media (max-width: 650px) {
+  .staff-app .report-target-group-tabs > button { flex: 1 1 calc(50% - 8px); }
+  .staff-app .report-target-actions { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 8px; }
+  .staff-app .report-target-actions > button { width: 100%; min-width: 0; white-space: normal; overflow-wrap: anywhere; }
+}

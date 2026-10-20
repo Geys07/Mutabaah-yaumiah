@@ -332,7 +332,7 @@ export default function ReportTargetSettings() {
             marginBottom: 10,
             fontSize: 13,
             fontWeight: 600,
-            color: "#344b3d",
+            color: "var(--sa-ink, #344b3d)",
           }}
         >
           Pilih Kelompok
@@ -353,14 +353,14 @@ export default function ReportTargetSettings() {
                 aria-pressed={selected}
                 style={{
                   border: selected
-                    ? "1px solid #14744e"
-                    : "1px solid #e2e9e4",
+                    ? "1px solid var(--sa-accent, #14744e)"
+                    : "1px solid var(--sa-line, #e2e9e4)",
                   background: selected
-                    ? "#14744e"
-                    : "#f8faf8",
+                    ? "var(--sa-accent, #14744e)"
+                    : "var(--sa-card, #f8faf8)",
                   color: selected
                     ? "#ffffff"
-                    : "#526158",
+                    : "var(--sa-ink, #526158)",
                   borderRadius: 7,
                   padding: "8px 12px",
                   fontSize: 12,
