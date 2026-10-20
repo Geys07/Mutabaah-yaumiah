@@ -9,6 +9,7 @@ import { PAGE_SIZE } from "../lib/pagination";
 import { readNotification, notificationGroup } from "../lib/notificationRead";
 import useNotificationRead from "../hooks/useNotificationRead";
 import Pagination from "../components/Pagination";
+import EmptyState from "../components/EmptyState";
 import "./AdminNotifications.css";
 
 const STATUS_TEXT = {
@@ -487,9 +488,7 @@ export default function AdminNotifications({
       ) : !reader.current ? (
         <div className="notification-empty">Daftar belum tersedia.</div>
       ) : visibleItems.length === 0 ? (
-        <div className="notification-empty">
-          Tidak ada permintaan.
-        </div>
+        <EmptyState kind="notice" title="Tidak ada permintaan" description="Permintaan baru akan ditampilkan di sini." />
       ) : (
         <div className="notification-list">
           {visibleItems.map((item) => (

@@ -51,3 +51,11 @@
   .staff-app .my-empty-state { min-height: 180px; padding: 20px 14px; gap: 7px; }
   .staff-app .my-empty-state svg { width: 114px; height: 76px; }
 }
+
+/* Galeri empty state staf: satu sistem ilustrasi untuk semua modul dan tema WIB. */
+.staff-app .my-empty-state { border-style: solid; border-color: var(--sa-line); border-radius: 18px; background: var(--sa-soft); min-height: 212px; padding: 26px 18px; gap: 9px; }
+.staff-app .my-empty-state::before { width: 174px; height: 116px; top: 13px; background: var(--sa-card); opacity: .48; }
+.staff-app .my-empty-state svg { width: 152px; height: 101px; filter: drop-shadow(0 5px 8px rgba(25,45,80,.06)); }
+.staff-app .my-empty-state strong { font-size: 16px; letter-spacing: -.01em; }
+.staff-app .my-empty-state p { font-size: 13px; max-width: 310px; }
+@media(max-width:480px) { .staff-app .my-empty-state { min-height: 190px; padding: 20px 12px; } .staff-app .my-empty-state svg { width: 138px; height: 92px; } }
