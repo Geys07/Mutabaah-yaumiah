@@ -243,9 +243,7 @@ function DashboardHome({ account, onNavigate, pendingCount }) {
           <h2>
             Assalamu'alaikum, {account?.name || "Administrator"}
           </h2>
-          <p>
-            Ringkasan Mutabaah, {clock.date}.
-          </p>
+          
         </div>
 
         <button
