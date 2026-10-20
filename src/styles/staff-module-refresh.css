@@ -547,3 +547,41 @@
 }
 
 /* QA: tema modul mengikuti token StaffWorkspace; PR memicu lint, build, dan tes regresi. */
+
+/* Kegiatan Mutabaah dan pergantian semester: konsisten dengan tema aktif. */
+.staff-app :is(.activities-dialog,.sb-dialog) {
+  background: var(--sa-card);
+  color: var(--sa-ink);
+  border-color: var(--sa-line);
+}
+.staff-app :is(.activities-dialog > header,.activities-dialog-footer,.activities-group,.activities-table-wrap,.sb-preview > div) {
+  border-color: var(--sa-line);
+}
+.staff-app :is(.activities-dialog > header h2,.activities-heading h2,.sb-heading h2,.sb-dialog h3) {
+  color: var(--sa-ink);
+}
+.staff-app :is(.activities-check,.sb-dialog p) { color: var(--sa-ink); }
+.staff-app .activities-check input { accent-color: var(--sa-accent); }
+.staff-app :is(.activities-primary,.sb-fields button:not(.is-secondary)) {
+  background: var(--sa-accent);
+  border-color: var(--sa-accent);
+  color: #fff;
+}
+.staff-app :is(.activities-secondary,.sb-dialog-actions button.is-secondary) {
+  background: var(--sa-soft);
+  border-color: var(--sa-line);
+  color: var(--sa-accent);
+}
+.staff-app .activities-empty {
+  background: var(--sa-soft);
+  border-color: var(--sa-line);
+  color: var(--sa-muted);
+}
+.staff-app .sb-preview > div { background: var(--sa-card); }
+.staff-app .sb-dialog-actions { flex-wrap: wrap; }
+.staff-app .sb-dialog-actions > button { min-height: 42px; }
+@media (max-width: 650px) {
+  .staff-app .sb-dialog-actions { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .staff-app .sb-dialog-actions > button { min-width: 0; width: 100%; white-space: normal; }
+  .staff-app .activities-dialog-footer > button { min-width: 0; white-space: normal; }
+}
