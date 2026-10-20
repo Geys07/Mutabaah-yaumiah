@@ -426,11 +426,7 @@ export default function StudentImport({
           </div>
 
           <p className="student-import-help">
-            Template yang diunduh sudah berformat
-            .xlsx. Buka di Excel dan isi data sesuai
-            kolom yang tersedia. Pastikan kolom NIS
-            dan NISN berformat Teks agar angka nol
-            di depan tidak hilang.
+            Gunakan format Teks untuk NIS dan NISN di Excel agar angka nol di depan tetap ada.
           </p>
 
           {reading && (
@@ -500,11 +496,7 @@ export default function StudentImport({
               </div>
 
               <p className="student-import-help">
-                Pemeriksaan terakhir dilakukan
-                oleh Supabase. Jika ditemukan
-                satu konflik, seluruh file
-                dibatalkan. Data siswa lama
-                tidak ditimpa.
+                Jika ada data konflik, seluruh impor dibatalkan. Data lama tidak ditimpa.
               </p>
             </>
           )}
