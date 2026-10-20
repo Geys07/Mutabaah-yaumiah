@@ -455,3 +455,9 @@
   .staff-app .report-target-actions { gap: 7px; }
   .staff-app .report-target-actions > button { padding: 9px 6px; font-size: 11px; }
 }
+
+/* Penyempurnaan lintas modul: tampilan kosong tidak mengambil tinggi berlebihan. */
+.staff-app :is(.teacher-accounts-empty,.parents-empty,.students-empty){min-height:88px;max-width:100%;padding:20px 12px;}
+.staff-app :is(.teacher-accounts-actions,.sat-dialog-actions) button {border-radius:10px;}
+.staff-app :is(.teacher-accounts-actions,.sat-dialog-actions) button:focus-visible {outline:2px solid var(--module-accent);outline-offset:2px;}
+@media(max-width:700px){.staff-app .monthly-report-empty {min-height:84px;padding:19px 11px;}}

@@ -238,3 +238,8 @@
     );
   }
 }
+
+/* Tombol dialog akun staf tetap sejajar pada ponsel dan desktop. */
+.teacher-accounts-actions {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;width:100%;}
+.teacher-accounts-actions>button {min-width:0;width:100%;min-height:44px;margin:0;padding:9px 10px;white-space:normal;overflow-wrap:anywhere;line-height:1.35;}
+@media(max-width:360px){.teacher-accounts-actions{gap:7px}.teacher-accounts-actions>button{font-size:12px;padding:8px 6px}}
