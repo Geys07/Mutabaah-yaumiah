@@ -330,7 +330,7 @@ export default function Students() {
           <div className="students-empty">
             {search || classFilter
               ? "Tidak ada siswa yang sesuai."
-              : "Belum ada siswa. Gunakan Tambah Siswa atau Impor Excel."}
+              : "Belum ada siswa."}
           </div>
         ) : (
           <div className="students-groups">
