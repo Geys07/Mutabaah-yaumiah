@@ -35,19 +35,19 @@ const GROUP_COLORS = {
 
 const css = {
   panel: {
-    background: "#ffffff",
-    border: "1px solid #e5ebe7",
+    background: "var(--sa-card, #ffffff)",
+    border: "1px solid var(--sa-line, #e5ebe7)",
     borderRadius: 12,
     padding: 20,
   },
   title: {
-    color: "#173c2e",
+    color: "var(--sa-ink, #173c2e)",
     fontSize: 18,
     margin: 0,
   },
   description: {
     fontSize: 13,
-    color: "#687a70",
+    color: "var(--sa-muted, #687a70)",
     lineHeight: 1.6,
     margin: "6px 0 20px",
   },
@@ -59,7 +59,7 @@ const css = {
   },
   tableWrap: {
     overflowX: "auto",
-    border: "1px solid #e7eee9",
+    border: "1px solid var(--sa-line, #e7eee9)",
     borderRadius: 9,
   },
   table: {
@@ -69,22 +69,22 @@ const css = {
   },
   th: {
     padding: "12px 10px",
-    background: "#f5f8f6",
-    color: "#344b3d",
+    background: "var(--sa-soft, #f5f8f6)",
+    color: "var(--sa-ink, #344b3d)",
     fontWeight: 600,
     textAlign: "left",
-    borderBottom: "1px solid #e1e9e3",
+    borderBottom: "1px solid var(--sa-line, #e1e9e3)",
   },
   td: {
     padding: "10px",
-    borderBottom: "1px solid #edf1ee",
-    color: "#26382d",
+    borderBottom: "1px solid var(--sa-line, #edf1ee)",
+    color: "var(--sa-ink, #26382d)",
   },
   select: {
-    border: "1px solid #d8e4dc",
+    border: "1px solid var(--sa-line, #d8e4dc)",
     borderRadius: 7,
     padding: "7px 9px",
-    background: "#ffffff",
+    background: "var(--sa-card, #ffffff)",
     fontSize: 12,
     width: "100%",
     minWidth: 132,
@@ -92,13 +92,13 @@ const css = {
   input: {
     width: 75,
     padding: "7px 8px",
-    border: "1px solid #d8e4dc",
+    border: "1px solid var(--sa-line, #d8e4dc)",
     borderRadius: 7,
     fontSize: 13,
     textAlign: "center",
   },
   save: {
-    background: "#14744e",
+    background: "var(--sa-accent, #14744e)",
     color: "#fff",
     border: 0,
     borderRadius: 8,
