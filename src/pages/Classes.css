@@ -260,3 +260,10 @@
     padding-right: 13px;
   }
 }
+
+/* Jaga aksi kelas sejajar dan tidak meluber pada layar sempit. */
+@media (max-width: 600px) {
+ .staff-app .classes-actions { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); width:auto; min-width:0; }
+ .staff-app .classes-actions button { min-width:0; }
+ .staff-app .classes-item { min-width:0; }
+}
