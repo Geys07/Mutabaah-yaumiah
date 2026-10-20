@@ -276,7 +276,6 @@ function DashboardHome({ account, onNavigate, pendingCount }) {
         <StaffKpi
           label="Jumlah siswa"
           value={busy ? "…" : total}
-          detail="Terdaftar pada kelas terbaca"
         />
 
         <StaffKpi
@@ -362,7 +361,6 @@ function DashboardHome({ account, onNavigate, pendingCount }) {
               <strong>
                 {pendingCount} permintaan akun menunggu
               </strong>
-              <span>Permintaan pemulihan kata sandi.</span>
               <button
                 className="staff-plain-link"
                 type="button"
