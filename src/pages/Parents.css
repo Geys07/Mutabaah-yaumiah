@@ -142,4 +142,4 @@
 }
 
 /* Empty state orang tua selaras dengan panel staf lainnya. */
-.staff-app .parents-empty { margin-top: 16px; padding: 34px 16px; border: 1px dashed var(--staff-border, #dce5df); border-radius: 14px; background: var(--staff-tint, #e9f5ef); line-height: 1.6; }
+.staff-app .parents-empty { margin-top: 16px; padding: 34px 16px; border: 1px dashed var(--sa-line, #dce5df); border-radius: 14px; background: var(--sa-soft, #e9f5ef); line-height: 1.6; }
