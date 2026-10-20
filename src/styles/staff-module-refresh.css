@@ -468,3 +468,79 @@
 .staff-app .students-list-heading + .students-error + .my-empty-state,
 .staff-app .students-list-heading + .students-success + .my-empty-state { margin-top: 16px; }
 .staff-app .students-panel > .my-empty-state { margin-top: 14px; }
+
+/* Penyelarasan modul administrasi dengan empat tema waktu WIB. */
+.staff-app :is(.parents-empty,.notification-empty) {
+  color: var(--staff-muted);
+  border-color: var(--staff-border);
+  background: var(--staff-tint);
+}
+.staff-app :is(.parents-panel,.admin-notifications,.teacher-accounts,.academic-panel,.classes-panel) {
+  background: var(--staff-surface);
+  color: var(--staff-text);
+  border-color: var(--staff-border);
+}
+.staff-app :is(.parents-heading h2,.admin-notifications-heading h2,.teacher-accounts-heading h2,.academic-heading h2,.classes-heading h2) {
+  color: var(--staff-text);
+}
+.staff-app :is(.parents-filters label,.teacher-accounts-field,.academic-heading,.classes-field) {
+  color: var(--staff-text);
+}
+.staff-app :is(.parents-filters input,.parents-filters select,.teacher-accounts-field input) {
+  background: var(--staff-surface);
+  border-color: var(--staff-border);
+  color: var(--staff-text);
+}
+.staff-app :is(.parents-heading button,.parents-edit,.notification-outline-button,.teacher-accounts-secondary,.academic-secondary,.classes-secondary) {
+  background: var(--staff-surface);
+  border-color: var(--staff-border);
+  color: var(--staff-text);
+}
+.staff-app :is(.teacher-accounts-primary,.academic-primary,.classes-primary,.notification-approve-button) {
+  background: var(--staff-accent);
+  border-color: var(--staff-accent);
+  color: #fff;
+}
+.staff-app :is(.teacher-accounts-primary,.academic-primary,.classes-primary,.notification-approve-button):not(:disabled):hover {
+  background: var(--staff-accent-hover);
+}
+.staff-app :is(.classes-group,.academic-year-item,.parents-table-wrapper,.teacher-accounts-table-wrap) {
+  border-color: var(--staff-border);
+}
+.staff-app :is(.classes-group-header,.academic-semester,.parents-table-wrapper th) {
+  background: var(--staff-tint);
+  border-color: var(--staff-border);
+}
+.staff-app :is(.classes-group-header h3,.academic-year-title h3,.classes-item strong,.academic-semester-title strong,.parents-student-name) {
+  color: var(--staff-text);
+}
+.staff-app :is(.classes-group-header span,.academic-year-title span,.academic-semester-detail span,.parents-empty,.classes-empty) {
+  color: var(--staff-muted);
+}
+.staff-app :is(.teacher-accounts-dialog,.notification-modal) {
+  background: var(--staff-surface);
+  color: var(--staff-text);
+}
+.staff-app :is(.teacher-accounts-dialog h2,.notification-modal h3) { color: var(--staff-text); }
+.staff-app .notification-modal p { color: var(--staff-muted); }
+.staff-app .notification-verification-note {
+  background: var(--staff-tint);
+  color: var(--staff-muted) !important;
+}
+.staff-app .notification-issued-code {
+  background: var(--staff-tint);
+  border-color: var(--staff-border);
+  color: var(--staff-accent);
+}
+.staff-app .notification-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.staff-app .notification-filters > button { min-width: 0; }
+@media (max-width: 650px) {
+  .staff-app .notification-filters { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .staff-app .notification-filters > button { width: 100%; white-space: normal; }
+  .staff-app .teacher-accounts-toolbar + .my-empty-state,
+  .staff-app .teacher-accounts-toolbar + .teacher-accounts-empty { margin-top: 16px; }
+}
