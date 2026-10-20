@@ -1,6 +1,7 @@
 import "./Pagination.css";
 export default function Pagination({page,total,pageSize=50,loading,onChange}) {
 const pages=Math.max(1,Math.ceil(total/pageSize)),current=Math.min(Math.max(page,0),pages-1);
+if (!Number.isFinite(total) || total <= 0) return null;
 return <nav className="data-pagination" aria-label="Navigasi halaman data"><span className="data-pagination-total">{total} data</span>
 <div className="data-pagination-controls">
 <button type="button" aria-label="Halaman sebelumnya" disabled={loading||current===0} onClick={()=>onChange(current-1)}><span aria-hidden="true">‹</span></button>
