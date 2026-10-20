@@ -216,3 +216,75 @@
   .staff-app .students-filter-bar { grid-template-columns: 1fr; }
   .staff-app .students-search-field { grid-column: auto; }
 }
+
+/* Pelengkap audit: rapor, target, akun dan semester juga mengikuti tema staf. */
+.staff-app :is(.mut-rapor-page, .account-security, .sb-panel, .admin-panel) {
+  background: var(--module-card);
+  border-color: var(--module-line);
+  color: var(--module-ink);
+  border-radius: 15px;
+}
+.staff-app :is(.mut-rapor-page h2, .mut-rapor-archives h3,
+  .account-security-heading h2, .account-security-identity strong,
+  .account-security-form h3, .sb-heading h2, .admin-section-heading h2) {
+  color: var(--module-ink);
+}
+.staff-app :is(.mut-rapor-muted, .mut-rapor-record small,
+  .account-security-identity span, .sb-hint) {
+  color: var(--module-muted);
+}
+.staff-app :is(.mut-rapor-filters select, .account-security-field input,
+  .sb-fields input, .sb-fields select, .admin-field input, .admin-field select) {
+  color: var(--module-ink);
+  border-color: var(--module-line);
+  background: var(--module-card);
+  border-radius: 10px;
+}
+.staff-app :is(.mut-rapor-filters select, .account-security-field input,
+  .sb-fields input, .sb-fields select, .admin-field input, .admin-field select):focus {
+  border-color: var(--module-accent);
+  box-shadow: 0 0 0 3px var(--module-soft);
+  outline: none;
+}
+.staff-app :is(.mut-rapor-button:not(.secondary),
+  .account-security-actions button, .sb-fields button, .admin-primary-button) {
+  background: var(--module-accent);
+  border-color: var(--module-accent);
+  color: #fff;
+  border-radius: 10px;
+}
+.staff-app :is(.mut-rapor-button.secondary,
+  .mut-rapor-record button:not(.delete), .admin-secondary-button) {
+  background: var(--module-card);
+  border-color: var(--module-line);
+  color: var(--module-ink);
+  border-radius: 10px;
+}
+.staff-app :is(.mut-rapor-button.secondary,
+  .mut-rapor-record button:not(.delete), .admin-secondary-button):hover:not(:disabled) {
+  background: var(--module-soft);
+}
+.staff-app :is(.mut-rapor-archives, .mut-rapor-list, .mut-rapor-record,
+  .account-security-identity) {
+  border-color: var(--module-line);
+}
+.staff-app .mut-rapor-record strong { color: var(--module-ink); }
+.staff-app .mut-rapor-record:hover { background: var(--module-soft); }
+.staff-app .account-security-field,
+.staff-app .account-security-check { color: var(--module-ink); }
+.staff-app .account-security-check input { accent-color: var(--module-accent); }
+.staff-app :is(.sb-heading > span, .sb-success) {
+  background: var(--module-soft);
+  color: var(--module-accent);
+}
+@media (max-width: 700px) {
+  .staff-app :is(.account-security, .sb-panel, .mut-rapor-page, .admin-panel) {
+    padding: 15px;
+  }
+  .staff-app .mut-rapor-actions {
+    gap: 9px;
+  }
+  .staff-app .mut-rapor-actions button {
+    min-height: 42px;
+  }
+}
