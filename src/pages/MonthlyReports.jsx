@@ -9,6 +9,7 @@ import useDisplayPage from "../lib/useDisplayPage";
 import Pagination from "../components/Pagination";
 import { fetchAll } from "../lib/pagination";
 import "./MonthlyReports.css";
+import "./SectionTabs.css";
 
 function jakartaToday() {
   const parts = new Intl.DateTimeFormat("en-GB", {
@@ -117,6 +118,7 @@ export default function MonthlyReports() {
   const [students, setStudents] = useState([]);
   const [bonusTypes, setBonusTypes] = useState([]);
   const [search, setSearch] = useState("");
+  const [reportSection, setReportSection] = useState("required");
 
   const [loadingClasses, setLoadingClasses] =
     useState(true);
@@ -993,10 +995,13 @@ export default function MonthlyReports() {
         </p>
       )}
 
+      <nav className="section-tabs" aria-label="Jenis laporan Mutabaah" style={{margin:"14px 0"}}>
+        <button type="button" className={reportSection==="required"?"is-active":""} aria-current={reportSection==="required"?"page":undefined} onClick={()=>setReportSection("required")}>Kegiatan Wajib</button>
+        <button type="button" className={reportSection==="bonus"?"is-active":""} aria-current={reportSection==="bonus"?"page":undefined} onClick={()=>setReportSection("bonus")}>Kegiatan Tambahan</button>
+      </nav>
+      {reportSection==="required" && (<>
       <div className="monthly-report-subheading">
-        <strong>
-          Kegiatan Wajib · {monthLabel(month)}
-        </strong>
+        <strong>Kegiatan Wajib · {monthLabel(month)}</strong>
 
         <div
           style={{
@@ -1187,10 +1192,9 @@ export default function MonthlyReports() {
         </div>
       )}
 
-      <div
-        className="monthly-report-subheading"
-        style={{ marginTop: 26 }}
-      >
+      </>)}
+      {reportSection==="bonus" && (<>
+      <div className="monthly-report-subheading" style={{marginTop:12}}>
         <strong>
           Kegiatan Tambahan · Jumlah kali
         </strong>
@@ -1293,6 +1297,7 @@ export default function MonthlyReports() {
           </table>
         </div>
       )}
+      </>)}
       <Pagination page={display.page} total={filtered.length} loading={loadingReport || searchResult.loading} onChange={display.setPage} />
     </section>
   );

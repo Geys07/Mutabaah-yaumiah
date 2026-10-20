@@ -129,6 +129,8 @@ export default function Students() {
       groups.get(student.class_id).students.push(student);
     }
 
+    const collator=new Intl.Collator("id",{sensitivity:"base",numeric:true});
+    for(const group of groups.values()) group.students.sort((a,b)=>collator.compare(a.full_name||"",b.full_name||""));
     return [...groups.values()];
   }, [filteredRows]);
 
