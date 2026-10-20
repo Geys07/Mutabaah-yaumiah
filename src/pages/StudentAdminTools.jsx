@@ -36,6 +36,7 @@ export default function StudentAdminTools({ onChanged }) {
   const [year, setYear] = useState("");
   const [currentYear, setCurrentYear] = useState("");
   const [mode, setMode] = useState("combined");
+  const [scope, setScope] = useState("all");
   const [modal, setModal] = useState(false);
   const [importConfig, setImportConfig] = useState(null);
 
@@ -112,49 +113,36 @@ export default function StudentAdminTools({ onChanged }) {
 
   async function prepareImport() {
     if (!year || busy) return;
-
     setBusy(true);
     setError("");
-
     try {
-      const academic = years.find(
-        (y) => y.id === year
-      );
+      const academic = years.find((item) => item.id === year);
+      if (!academic) throw new Error("Tahun ajaran belum dipilih.");
+      let picked = classes.filter((item) => item.academic_year_id === year);
 
-      const { data, error: problem } =
-        await supabase.rpc(
+      if (scope === "grade7") {
+        // Persiapan ini hanya membuat kelas VII A/B bila belum ada;
+        // tidak mengubah rombel atau siswa kelas lain.
+        const { data, error: problem } = await supabase.rpc(
           "prepare_mutabaah_grade_seven",
-          {
-            p_start_year: academic.start_year,
-            p_split: mode === "split",
-          }
+          { p_start_year: academic.start_year, p_split: mode === "split" }
         );
+        if (problem) throw problem;
+        const ids = [data.class_a, data.class_b].filter(Boolean);
+        const { data: gradeClasses, error: classError } = await supabase
+          .from("classes").select("id,name,grade").in("id", ids).order("name");
+        if (classError) throw classError;
+        picked = gradeClasses || [];
+      } else {
+        picked = picked.map(({id,name,grade}) => ({id,name,grade}))
+          .sort((a,b) => a.grade - b.grade || a.name.localeCompare(b.name));
+      }
 
-      if (problem) throw problem;
-
-      const classIds = [
-        data.class_a,
-        data.class_b,
-      ].filter(Boolean);
-
-      const {
-        data: picked,
-        error: queryError,
-      } = await supabase
-        .from("classes")
-        .select("id,name,grade")
-        .in("id", classIds)
-        .order("name");
-
-      if (queryError) throw queryError;
-
-      setImportConfig({
-        yearId: year,
-        classes: picked || [],
-      });
-
+      if (!picked.length) throw new Error(
+        "Belum ada kelas pada tahun ajaran ini. Buat kelas dahulu atau pilih Khusus Kelas VII."
+      );
+      setImportConfig({ yearId: year, classes: picked, scope });
       setModal(false);
-      reload("");
     } catch (cause) {
       setError(err(cause));
     } finally {
@@ -245,7 +233,7 @@ export default function StudentAdminTools({ onChanged }) {
         {[
           {
             id: "intake",
-            label: "Siswa Baru VII",
+            label: "Impor Siswa",
           },
           {
             id: "exit",
@@ -291,9 +279,7 @@ export default function StudentAdminTools({ onChanged }) {
       {tab === "intake" && (
         <div className="sat-intake">
           <div>
-            <strong>
-              Impor Excel khusus kelas VII
-            </strong>
+            <strong>Impor Siswa dari Excel</strong>
 
           </div>
 
@@ -302,7 +288,7 @@ export default function StudentAdminTools({ onChanged }) {
             disabled={busy || loading}
             onClick={() => setModal(true)}
           >
-            Siapkan Impor VII
+            Siapkan Impor
           </button>
         </div>
       )}
@@ -443,7 +429,7 @@ export default function StudentAdminTools({ onChanged }) {
             aria-labelledby="sat-modal-title"
           >
             <h3 id="sat-modal-title">
-              Siapkan impor siswa kelas VII
+              Siapkan Impor Siswa
             </h3>
 
             <label>
@@ -468,36 +454,37 @@ export default function StudentAdminTools({ onChanged }) {
             </label>
 
             <fieldset>
-              <legend>
-                Model rombongan belajar
-              </legend>
-
+              <legend>Data yang akan diimpor</legend>
               <label>
-                <input
-                  type="radio"
-                  checked={
-                    mode === "combined"
-                  }
-                  onChange={() =>
-                    setMode("combined")
-                  }
-                />
-                Gabungan — VII A saja
+                <input type="radio" name="import-scope" checked={scope === "all"}
+                  onChange={() => setScope("all")} />
+                Semua Kelas (VII, VIII, IX)
               </label>
-
               <label>
-                <input
-                  type="radio"
-                  checked={mode === "split"}
-                  onChange={() =>
-                    setMode("split")
-                  }
-                />
-                Terpisah — VII A dan VII B
+                <input type="radio" name="import-scope" checked={scope === "grade7"}
+                  onChange={() => setScope("grade7")} />
+                Khusus Kelas VII
               </label>
             </fieldset>
 
-            <p>Isi kolom Kelas: VII A atau VII B sesuai pilihan.</p>
+            {scope === "grade7" && (
+              <fieldset>
+                <legend>Rombongan Belajar Kelas VII</legend>
+                <label>
+                  <input type="radio" name="class-formation" checked={mode === "combined"}
+                    onChange={() => setMode("combined")} />
+                  Gabungan — VII A
+                </label>
+                <label>
+                  <input type="radio" name="class-formation" checked={mode === "split"}
+                    onChange={() => setMode("split")} />
+                  Terpisah — VII A dan VII B
+                </label>
+              </fieldset>
+            )}
+            <p className="sat-import-safe" role="note">
+              Hanya siswa dalam file yang ditambahkan. Data siswa lain tidak dihapus.
+            </p>
 
             <div className="sat-dialog-actions">
               <button
@@ -529,13 +516,14 @@ export default function StudentAdminTools({ onChanged }) {
         <Suspense fallback={<p role="status">Memuat…</p>}><StudentImport
           academicYearId={importConfig.yearId}
           classes={importConfig.classes}
+          scope={importConfig.scope}
           onClose={() =>
             setImportConfig(null)
           }
           onImported={() => {
             setImportConfig(null);
             reload(
-              "Impor kelas VII berhasil disimpan."
+              "Impor berhasil. Data siswa lama tetap tersimpan."
             );
           }}
         /></Suspense>

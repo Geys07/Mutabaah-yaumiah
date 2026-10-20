@@ -5,27 +5,20 @@ import { detachPushDevice } from "./pushDevice";
 export function normalizeLoginIdentifier(value) {
   const raw = String(value || "").trim().toLowerCase();
 
-  if (raw === "admin") {
-    return "admin";
-  }
+  if (/^[a-z][a-z0-9._-]{3,23}$/.test(raw)) return raw;
 
-  let phone = raw.replace(/\D/g, "");
-
-  if (phone.startsWith("62")) {
-    phone = `0${phone.slice(2)}`;
-  }
-
-  return phone;
+  const phone = raw.replace(/\D/g, "");
+  return phone.startsWith("62") ? `0${phone.slice(2)}` : phone;
 }
 
 export async function signIn(identifier, password) {
   const normalized = normalizeLoginIdentifier(identifier);
 
   if (
-    normalized !== "admin" &&
+    !/^[a-z][a-z0-9._-]{3,23}$/.test(normalized) &&
     !/^08\d{8,11}$/.test(normalized)
   ) {
-    throw new Error("Masukkan nomor HP yang valid.");
+    throw new Error("Masukkan nama pengguna atau nomor HP yang valid.");
   }
 
   if (!password) {

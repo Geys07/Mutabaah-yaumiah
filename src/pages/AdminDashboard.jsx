@@ -18,6 +18,7 @@ import Classes from "./Classes";
 import Students from "./Students";
 import Activities from "./Activities";
 import HomeroomAssignments from "./HomeroomAssignments";
+import TeacherAccounts from "./TeacherAccounts";
 import Parents from "./Parents";
 const MonthlyReports = lazy(() => import("./MonthlyReports"));
 const ReportCards = lazy(() => import("./ReportCards"));
@@ -58,6 +59,7 @@ const GROUPS = [
         mobileLabel: "Siswa",
       },
       { id: "teachers", label: "Wali Kelas", icon: "user" },
+      { id: "principal-accounts", label: "Kepala Madrasah", icon: "school" },
       { id: "parents", label: "Orang Tua", icon: "users" },
     ],
   },
@@ -1002,6 +1004,7 @@ export default function AdminDashboard({
       )}
 
       {activeMenu === "parents" && <Parents />}
+      {activeMenu === "principal-accounts" && <TeacherAccounts role="principal" />}
       {activeMenu === "activities" && <Activities />}
 
       {activeMenu === "reports" && <Suspense fallback={<p role="status">Memuat…</p>}><MonthlyReports /></Suspense>}

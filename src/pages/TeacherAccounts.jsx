@@ -1,526 +1,226 @@
-
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "../lib/supabase";
-import { teacherPage } from "../lib/teacherPagination";
+import { staffPage } from "../lib/teacherPagination";
 import usePagedQuery from "../lib/usePagedQuery";
 import Pagination from "../components/Pagination";
 import "./TeacherAccounts.css";
 
+const BLANK = {
+  full_name: "", username: "", phone: "",
+  password: "", confirm_password: "", active: true,
+};
 function normalizePhone(value) {
   const digits = String(value || "").replace(/\D/g, "");
-
-  if (digits.startsWith("62")) {
-    return `0${digits.slice(2)}`;
-  }
-
-  return digits;
+  return digits.startsWith("62") ? `0${digits.slice(2)}` : digits;
 }
-
-async function getFunctionError(error) {
+async function errorMessage(error) {
   if (error?.context) {
     try {
-      const response = await error.context.json();
-      return response?.error || response?.message || error.message;
-    } catch {
-      return error?.message || "Terjadi kesalahan server.";
-    }
+      const data = await error.context.json();
+      return data?.error || data?.message || error.message;
+    } catch { /* Gunakan pesan default */ }
   }
-
-  return error?.message || "Terjadi kesalahan server.";
+  if (error?.code === "23505") return "Nama pengguna atau nomor HP sudah dipakai.";
+  return error?.message || "Permintaan gagal.";
 }
 
-const EMPTY_FORM = {
-  full_name: "",
-  phone: "",
-  password: "",
-  confirm_password: "",
-  active: true,
-};
-
-export default function TeacherAccounts() {
-  const [page, setPage] = useState(0);
-  const [search, setSearch] = useState("");
-
-  const [refresh, setRefresh] = useState(0);
-
-  const [modal, setModal] = useState("");
-  const [editingId, setEditingId] = useState("");
-  const [form, setForm] = useState(EMPTY_FORM);
-
-  const [saving, setSaving] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState("");
-  const [formError, setFormError] = useState("");
-  const [notice, setNotice] = useState("");
-
-  const load = useCallback((signal) => teacherPage(supabase, search, page, signal), [search, page]);
-  const accountPage = usePagedQuery(load, page, setPage, 200, 0, refresh);
-  const availableAccounts = accountPage.data;
-  const loading = accountPage.loading;
+export default function TeacherAccounts({ role = "homeroom_teacher" }) {
+  const isPrincipal = role === "principal";
+  const roleLabel = isPrincipal ? "Kepala Madrasah" : "Guru";
+  const [page,setPage] = useState(0);
+  const [search,setSearch] = useState("");
+  const [refresh,setRefresh] = useState(0);
+  const [modal,setModal] = useState("");
+  const [editingId,setEditingId] = useState("");
+  const [form,setForm] = useState(BLANK);
+  const [saving,setSaving] = useState(false);
+  const [showPassword,setShowPassword] = useState(false);
+  const [formError,setFormError] = useState("");
+  const [notice,setNotice] = useState("");
+  const load = useCallback((signal) => staffPage(supabase,search,page,signal,role),[search,page,role]);
+  const accounts = usePagedQuery(load,page,setPage,200,0,refresh);
+  const rows = accounts.data || [];
 
   const closeModal = useCallback(() => {
     if (saving) return;
-
     setModal("");
     setEditingId("");
-    setForm({ ...EMPTY_FORM });
+    setForm({ ...BLANK });
     setFormError("");
     setShowPassword(false);
   }, [saving]);
-
   useEffect(() => {
     if (!modal) return undefined;
-
-    function onKeyDown(event) {
-      if (event.key === "Escape" && !saving) {
-        closeModal();
-      }
-    }
-
-    window.addEventListener("keydown", onKeyDown);
-
-    return () => {
-      window.removeEventListener("keydown", onKeyDown);
-    };
-  }, [modal, saving, closeModal]);
+    function escape(e) { if (e.key === "Escape") closeModal(); }
+    window.addEventListener("keydown",escape);
+    return () => window.removeEventListener("keydown",escape);
+  }, [modal,closeModal]);
 
   function openCreate() {
     setEditingId("");
-    setModal("create");
-    setForm({ ...EMPTY_FORM });
-    setShowPassword(false);
+    setForm({ ...BLANK });
     setFormError("");
-    setError("");
     setNotice("");
+    setModal("create");
   }
-
-  function openEdit(profile) {
-    setEditingId(profile.user_id);
-    setModal("edit");
+  function openEdit(person) {
+    setEditingId(person.user_id);
     setForm({
-      full_name: profile.full_name || "",
-      phone: profile.phone || "",
-      password: "",
-      confirm_password: "",
-      active: profile.account_status === "active",
+      full_name: person.full_name || "",
+      username: person.username || "",
+      phone: person.phone || "",
+      password: "", confirm_password: "",
+      active: person.account_status === "active",
     });
     setFormError("");
-    setError("");
     setNotice("");
+    setModal("edit");
   }
-
-
-  function updateField(field, value) {
-    setForm((previous) => ({
-      ...previous,
-      [field]: value,
-    }));
+  function updateField(field,value) {
+    setForm((old) => ({ ...old, [field]:value }));
     setFormError("");
-  }
-
-  function reloadAccounts() {
-    setError("");
-    setRefresh((previous) => previous + 1);
-  }
-
-  async function handleCreate(name, phone) {
-    const { data, error: invokeError } =
-      await supabase.functions.invoke(
-        "create-teacher-account",
-        {
-          body: {
-            full_name: name,
-            phone,
-            password: form.password,
-          },
-        }
-      );
-
-    if (invokeError) {
-      throw new Error(await getFunctionError(invokeError));
-    }
-
-    if (!data?.success) {
-      throw new Error(
-        data?.error || "Gagal membuat akun guru."
-      );
-    }
-
-    return data;
-  }
-
-  async function handleEdit(name, phone) {
-    const { error: saveError } = await supabase.rpc(
-      "manage_existing_teacher",
-      {
-        p_user_id: editingId,
-        p_full_name: name,
-        p_phone: phone,
-        p_active: form.active,
-      }
-    );
-
-    if (saveError) {
-      throw saveError;
-    }
   }
 
   async function saveAccount(event) {
     event.preventDefault();
-
     if (saving) return;
-
-    const name = form.full_name
-      .trim()
-      .replace(/\s+/g, " ");
-
+    const name = form.full_name.trim().replace(/\s+/g," ");
+    const username = form.username.trim().toLowerCase();
     const phone = normalizePhone(form.phone);
-
-    if (name.length < 2 || name.length > 150) {
-      setFormError("Nama harus terdiri dari 2–150 karakter.");
-      return;
-    }
-
-    if (!/^08\d{8,11}$/.test(phone)) {
-      setFormError(
-        "Nomor HP harus menggunakan format 08xxxxxxxxxx."
-      );
-      return;
-    }
-
-    if (modal === "create") {
-      if (
-        form.password.length < 10 ||
-        form.password.length > 72
-      ) {
-        setFormError(
-          "Kata sandi harus terdiri dari 10–72 karakter."
-        );
-        return;
-      }
-
-      if (form.password !== form.confirm_password) {
-        setFormError("Konfirmasi kata sandi tidak cocok.");
-        return;
-      }
-    }
+    if (name.length < 2 || name.length > 150) return setFormError("Nama harus 2–150 karakter.");
+    if (!/^[a-z][a-z0-9._-]{3,23}$/.test(username) || username === "admin")
+      return setFormError("Nama pengguna: 4–24 karakter, diawali huruf, tidak boleh 'admin'.");
+    if (phone && !/^08\d{8,11}$/.test(phone))
+      return setFormError("Nomor HP opsional, tetapi jika diisi gunakan 08xxxxxxxxxx.");
+    if (modal === "create" &&
+      (form.password.length < 10 || form.password.length > 72 ||
+       form.password !== form.confirm_password))
+      return setFormError("Kata sandi harus 10–72 karakter dan konfirmasinya cocok.");
 
     setSaving(true);
     setFormError("");
     setNotice("");
-
     try {
       if (modal === "create") {
-        await handleCreate(name, phone);
+        const {data,error} = await supabase.functions.invoke("create-teacher-account", {
+          body: { role, full_name:name, username, phone:phone || null, password:form.password },
+        });
+        if (error) throw new Error(await errorMessage(error));
+        if (!data?.success) throw new Error(data?.error || "Gagal membuat akun.");
       } else {
-        await handleEdit(name, phone);
+        const {error} = await supabase.rpc("manage_staff_account", {
+          p_user_id: editingId,
+          p_full_name: name,
+          p_username: username,
+          p_phone: phone || null,
+          p_active: form.active,
+          p_role: role,
+        });
+        if (error) throw error;
       }
-
       setModal("");
       setEditingId("");
-      setForm({ ...EMPTY_FORM });
+      setForm({ ...BLANK });
       setShowPassword(false);
-
-      setNotice(
-        modal === "create"
-          ? "Akun guru berhasil dibuat."
-          : "Akun guru berhasil diperbarui."
-      );
-
-      reloadAccounts();
-    } catch (saveError) {
-      setFormError(
-        saveError.message || "Gagal menyimpan akun guru."
-      );
-    } finally {
-      setSaving(false);
-    }
+      setNotice(modal === "create" ? "Akun berhasil dibuat." : "Akun berhasil diperbarui.");
+      setRefresh((n) => n + 1);
+    } catch(error) { setFormError(await errorMessage(error)); }
+    finally { setSaving(false); }
   }
 
   return (
     <section className="teacher-accounts">
       <header className="teacher-accounts-heading">
-        <h2>Akun Guru</h2>
-
+        <h2>Akun {roleLabel}</h2>
         <div className="teacher-accounts-toolbar">
-          <input
-            type="search"
-            value={search}
-            placeholder="Cari guru atau nomor HP"
-            aria-label="Cari guru"
-            onChange={(event) => { setPage(0); setSearch(event.target.value); }}
-          />
-
-          <button
-            type="button"
-            className="teacher-accounts-primary"
-            onClick={openCreate}
-          >
-            Tambah Guru
+          <input type="search" aria-label="Cari akun staf"
+            placeholder="Cari nama atau nama pengguna" value={search}
+            onChange={(e) => { setPage(0);setSearch(e.target.value); }} />
+          <button type="button" className="teacher-accounts-primary" onClick={openCreate}>
+            Tambah {roleLabel}
           </button>
         </div>
       </header>
-
-      {notice && (
-        <p
-          className="teacher-accounts-success"
-          role="status"
-        >
-          {notice}
-        </p>
-      )}
-
-      {(error || accountPage.error) && (
-        <p
-          className="teacher-accounts-error"
-          role="alert"
-        >
-          {error || accountPage.error}
-        </p>
-      )}
-
-      {loading ? (
-        <div className="teacher-accounts-empty">
-          Memuat...
-        </div>
-      ) : availableAccounts.length === 0 ? (
-        <div className="teacher-accounts-empty">
-          Belum ada akun guru.
-        </div>
-      ) : (
-        <div className="teacher-accounts-table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Nama Guru</th>
-                <th>Nomor HP</th>
-                <th>Peran</th>
-                <th>Status</th>
-                <th>Tindakan</th>
-              </tr>
-            </thead>
-
-            <tbody>
-              {availableAccounts.map((profile) => (
-                <tr key={profile.user_id}>
-                  <td className="teacher-accounts-name">
-                    {profile.full_name}
-                  </td>
-
-                  <td>{profile.phone || "—"}</td>
-
-                  <td>
-                    {profile.isTeacher
-                      ? "Wali Kelas"
-                      : "Belum Ditentukan"}
-                  </td>
-
-                  <td>
-                    {profile.account_status === "active"
-                      ? "Aktif"
-                      : profile.account_status === "disabled"
-                        ? "Nonaktif"
-                        : "Menunggu"}
-                  </td>
-
-                  <td>
-                    <button
-                      type="button"
-                      className="teacher-accounts-secondary"
-                      onClick={() => openEdit(profile)}
-                    >
-                      Edit
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-
-      <Pagination page={page} total={accountPage.total} loading={loading} onChange={setPage} />
-
-      {modal && (
-        <div
-          className="teacher-accounts-backdrop"
-          onMouseDown={(event) => {
-            if (
-              event.target === event.currentTarget &&
-              !saving
-            ) {
-              closeModal();
-            }
-          }}
-        >
-          <section
-            className="teacher-accounts-dialog"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="teacher-account-title"
-          >
-            <h2 id="teacher-account-title">
-              {modal === "create"
-                ? "Tambah Akun Guru"
-                : "Edit Akun Guru"}
-            </h2>
-
-            <form onSubmit={saveAccount}>
+      {notice && <p className="teacher-accounts-success" role="status">{notice}</p>}
+      {accounts.error && <p className="teacher-accounts-error" role="alert">{String(accounts.error.message || accounts.error)}</p>}
+      {accounts.loading ? <div className="teacher-accounts-empty">Memuat akun…</div>
+       : rows.length === 0 ? <div className="teacher-accounts-empty">Belum ada akun.</div>
+       : <div className="teacher-accounts-table-wrap">
+           <table>
+             <thead><tr><th>Nama</th><th>Nama Pengguna</th><th>Nomor HP</th><th>Status</th><th>Tindakan</th></tr></thead>
+             <tbody>
+               {rows.map((person) => <tr key={person.user_id}>
+                 <td className="teacher-accounts-name">{person.full_name}</td>
+                 <td>{person.username || "Belum diatur"}</td>
+                 <td>{person.phone || "—"}</td>
+                 <td>{person.account_status === "active" ? "Aktif" :
+                     person.account_status === "disabled" ? "Nonaktif" : "Menunggu"}</td>
+                 <td><button type="button" className="teacher-accounts-secondary"
+                     onClick={() => openEdit(person)}>Edit</button></td>
+               </tr>)}
+             </tbody>
+           </table>
+         </div>}
+      <Pagination page={page} total={accounts.total} loading={accounts.loading} onChange={setPage}/>
+      {modal && <div className="teacher-accounts-backdrop"
+        onMouseDown={(e) => { if(e.target===e.currentTarget)closeModal(); }}>
+        <section className="teacher-accounts-dialog" role="dialog" aria-modal="true"
+          aria-labelledby="staff-account-title">
+          <h2 id="staff-account-title">{modal === "create" ? "Tambah" : "Edit"} Akun {roleLabel}</h2>
+          <form onSubmit={saveAccount}>
+            <label className="teacher-accounts-field">
+              <span>Nama Lengkap</span>
+              <input autoFocus required maxLength={150} disabled={saving}
+                value={form.full_name} onChange={(e)=>updateField("full_name",e.target.value)}/>
+            </label>
+            <label className="teacher-accounts-field">
+              <span>Nama Pengguna</span>
+              <input type="text" autoComplete="off" autoCapitalize="none" spellCheck={false}
+                required minLength={4} maxLength={24} disabled={saving}
+                placeholder="contoh: guru_ahmad" value={form.username}
+                onChange={(e)=>updateField("username",e.target.value.toLowerCase())}/>
+            </label>
+            <label className="teacher-accounts-field">
+              <span>Nomor HP (opsional)</span>
+              <input type="tel" inputMode="numeric" maxLength={17} disabled={saving}
+                placeholder="08xxxxxxxxxx" value={form.phone}
+                onChange={(e)=>updateField("phone",e.target.value)}/>
+            </label>
+            {modal === "create" && <>
               <label className="teacher-accounts-field">
-                <span>Nama Lengkap</span>
-
-                <input
-                  autoFocus
-                  required
-                  maxLength={150}
-                  value={form.full_name}
-                  disabled={saving}
-                  onChange={(event) =>
-                    updateField(
-                      "full_name",
-                      event.target.value
-                    )
-                  }
-                />
+                <span>Kata Sandi Awal</span>
+                <input required minLength={10} maxLength={72} autoComplete="new-password"
+                  type={showPassword ? "text" : "password"} disabled={saving}
+                  value={form.password} onChange={(e)=>updateField("password",e.target.value)}/>
               </label>
-
               <label className="teacher-accounts-field">
-                <span>Nomor HP</span>
-
-                <input
-                  type="tel"
-                  required
-                  maxLength={17}
-                  value={form.phone}
-                  disabled={saving}
-                  placeholder="08xxxxxxxxxx"
-                  onChange={(event) =>
-                    updateField(
-                      "phone",
-                      event.target.value
-                    )
-                  }
-                />
+                <span>Konfirmasi Kata Sandi</span>
+                <input required minLength={10} maxLength={72} autoComplete="new-password"
+                  type={showPassword ? "text" : "password"} disabled={saving}
+                  value={form.confirm_password} onChange={(e)=>updateField("confirm_password",e.target.value)}/>
               </label>
-
-              {modal === "create" && (
-                <>
-                  <label className="teacher-accounts-field">
-                    <span>Kata Sandi Awal</span>
-
-                    <input
-                      type={
-                        showPassword
-                          ? "text"
-                          : "password"
-                      }
-                      required
-                      minLength={10}
-                      maxLength={72}
-                      autoComplete="new-password"
-                      value={form.password}
-                      disabled={saving}
-                      onChange={(event) =>
-                        updateField(
-                          "password",
-                          event.target.value
-                        )
-                      }
-                    />
-                  </label>
-
-                  <label className="teacher-accounts-field">
-                    <span>Ulangi Kata Sandi</span>
-
-                    <input
-                      type={
-                        showPassword
-                          ? "text"
-                          : "password"
-                      }
-                      required
-                      minLength={10}
-                      maxLength={72}
-                      autoComplete="new-password"
-                      value={form.confirm_password}
-                      disabled={saving}
-                      onChange={(event) =>
-                        updateField(
-                          "confirm_password",
-                          event.target.value
-                        )
-                      }
-                    />
-                  </label>
-
-                  <label className="teacher-accounts-check">
-                    <input
-                      type="checkbox"
-                      checked={showPassword}
-                      disabled={saving}
-                      onChange={(event) =>
-                        setShowPassword(
-                          event.target.checked
-                        )
-                      }
-                    />
-                    <span>Tampilkan kata sandi</span>
-                  </label>
-                </>
-              )}
-
-              {modal === "edit" && (
-                <label className="teacher-accounts-check">
-                  <input
-                    type="checkbox"
-                    checked={form.active}
-                    disabled={saving}
-                    onChange={(event) =>
-                      updateField(
-                        "active",
-                        event.target.checked
-                      )
-                    }
-                  />
-                  <span>Akun Aktif</span>
-                </label>
-              )}
-
-              {formError && (
-                <p
-                  className="teacher-accounts-error"
-                  role="alert"
-                >
-                  {formError}
-                </p>
-              )}
-
-              <footer className="teacher-accounts-actions">
-                <button
-                  type="button"
-                  className="teacher-accounts-secondary"
-                  disabled={saving}
-                  onClick={closeModal}
-                >
-                  Batal
-                </button>
-
-                <button
-                  type="submit"
-                  className="teacher-accounts-primary"
-                  disabled={saving}
-                >
-                  {saving
-                    ? "Menyimpan..."
-                    : modal === "create"
-                      ? "Buat Akun"
-                      : "Simpan"}
-                </button>
-              </footer>
-            </form>
-          </section>
-        </div>
-      )}
+              <label className="teacher-accounts-check">
+                <input type="checkbox" checked={showPassword} disabled={saving}
+                  onChange={(e)=>setShowPassword(e.target.checked)}/>
+                <span>Tampilkan kata sandi</span>
+              </label>
+            </>}
+            {modal === "edit" && <label className="teacher-accounts-check">
+              <input type="checkbox" checked={form.active} disabled={saving}
+                onChange={(e)=>updateField("active",e.target.checked)}/>
+              <span>Akun Aktif</span>
+            </label>}
+            {formError && <p className="teacher-accounts-error" role="alert">{formError}</p>}
+            <footer className="teacher-accounts-actions">
+              <button className="teacher-accounts-secondary" type="button"
+                disabled={saving} onClick={closeModal}>Batal</button>
+              <button className="teacher-accounts-primary" type="submit" disabled={saving}>
+                {saving ? "Menyimpan…" : modal === "create" ? "Buat Akun" : "Simpan"}
+              </button>
+            </footer>
+          </form>
+        </section>
+      </div>}
     </section>
   );
 }

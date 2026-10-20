@@ -92,6 +92,7 @@ async function downloadTemplate(classes) {
 export default function StudentImport({
   academicYearId,
   classes,
+  scope = "all",
   onClose,
   onImported,
 }) {
@@ -384,7 +385,7 @@ export default function StudentImport({
         <header className="student-import-header">
           <div>
             <h2 id="student-import-title">
-              Impor Data Siswa
+              {scope === "grade7" ? "Impor Siswa Kelas VII" : "Impor Data Siswa"}
             </h2>
 
           </div>
