@@ -840,10 +840,6 @@ export default function Activities() {
               Kegiatan & Form Mutabaah
             </h2>
 
-            <p className="activities-intro">
-              Kelola kegiatan yang muncul
-              pada pengisian orang tua.
-            </p>
           </div>
 
           {tab === "master" && (
