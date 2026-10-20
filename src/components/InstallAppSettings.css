@@ -23,3 +23,15 @@
  .staff-app .install-settings ol {padding-left:22px;line-height:1.55;}
  .staff-app .install-settings li {margin:0 0 8px;}
 }
+
+/* Panduan pemasangan: tipografi dan langkah selaras dengan galeri desain staf. */
+.staff-app .install-settings { background: var(--sa-card); border: 1px solid var(--sa-line); color: var(--sa-ink); border-radius: 20px; box-shadow: 0 8px 28px rgba(20,36,68,.035); }
+.staff-app .install-settings h1 { color: var(--sa-ink); font-weight: 750; letter-spacing: -.025em; }
+.staff-app .install-settings h2 { color: var(--sa-ink); font-weight: 750; letter-spacing: -.015em; }
+.staff-app .install-settings li { padding: 4px 0 4px 5px; color: var(--sa-ink); }
+.staff-app .install-settings li::marker { color: var(--sa-accent); font-weight: 750; }
+.staff-app .install-guide-tabs { max-width: 100%; gap: 10px; }
+.staff-app .install-guide-tabs button { min-height: 46px; border-radius: 12px; font-weight: 650; }
+.staff-app .install-settings .install-status { border-radius: 13px; padding: 15px 17px; background: var(--sa-soft); color: var(--sa-ink); }
+.staff-app .install-settings .install-note { color: var(--sa-muted); }
+@media(max-width:650px) { .staff-app .install-settings { padding: 20px 17px; } .staff-app .install-settings ol { padding-left: 24px; } }
