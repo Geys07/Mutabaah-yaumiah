@@ -697,3 +697,9 @@ and (max-height: 480px) {
     animation: none !important;
   }
 }
+
+/* Peralihan singkat tipe akun. Orang Tua menggunakan inputMode numeric. */
+.mut-login-account-type {display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:4px;margin-bottom:12px;border-radius:12px;background:rgba(244,250,246,.80);border:1px solid rgba(40,104,70,.13)}
+.mut-login-account-type button{border:0;border-radius:9px;background:transparent;color:#315842;font:inherit;font-size:13px;font-weight:600;padding:8px 12px;cursor:pointer}
+.mut-login-account-type button.is-active{background:#fff;color:#155a37;box-shadow:0 1px 5px rgba(12,58,31,.11)}
+.mut-login-account-type button:focus-visible{outline:2px solid #18714a;outline-offset:1px}

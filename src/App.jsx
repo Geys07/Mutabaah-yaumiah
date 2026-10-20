@@ -22,6 +22,7 @@ import PanelReadyGate from "./components/PanelReadyGate";
 import AuthAmbient from "./components/AuthAmbient";
 
 import useJakartaClock from "./hooks/useJakartaClock";
+import usePanelHistory from "./hooks/usePanelHistory";
 import { getTimeTheme } from "./lib/jakartaTheme";
 import { getRandomQuote } from "./data/islamicQuotes";
 import { SCHOOL_LOGO_URL, getSchoolLogoUrl } from "./lib/branding";
@@ -84,12 +85,19 @@ function LoginPage({
 }) {
   const [mode, setMode] = useState("login");
   const [username, setUsername] = useState("");
+  const [loginAs, setLoginAs] = useState("parent");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] =
     useState(false);
 
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState(null);
+  const { push: pushLoginHistory, replace: replaceLoginHistory } = usePanelHistory("login", "login", (page) => {
+    setMode(page === "activation" || page === "forgot" ? page : "login");
+    setPassword("");
+    setShowPassword(false);
+    setNotice(null);
+  });
 
   useEffect(() => {
     if (!notice) {
@@ -109,6 +117,7 @@ function LoginPage({
       return;
     }
 
+    if (next !== mode) pushLoginHistory(next);
     setMode(next);
     setPassword("");
     setShowPassword(false);
@@ -116,6 +125,7 @@ function LoginPage({
   }
 
   function returnAfter(message) {
+    replaceLoginHistory("login");
     setMode("login");
     setUsername("");
     setPassword("");
@@ -127,6 +137,19 @@ function LoginPage({
         message ||
         "Berhasil. Silakan masuk.",
     });
+  }
+
+  function backToLogin() {
+    const route = window.history.state?.__mutabaahNav;
+    if (route?.scope === "login" && route.page !== "login") window.history.back();
+    else changeMode("login");
+  }
+  function switchAccountType(next) {
+    if (busy || loginAs === next) return;
+    setLoginAs(next);
+    setUsername("");
+    setPassword("");
+    setNotice(null);
   }
 
   async function handleLogin(event) {
@@ -205,16 +228,12 @@ function LoginPage({
         >
           {mode === "activation" ? (
             <ParentActivation
-              onBack={() =>
-                changeMode("login")
-              }
+              onBack={backToLogin}
               onSuccess={returnAfter}
             />
           ) : mode === "forgot" ? (
             <ForgotPassword
-              onBack={() =>
-                changeMode("login")
-              }
+              onBack={backToLogin}
               onSuccess={returnAfter}
             />
           ) : (
@@ -223,6 +242,10 @@ function LoginPage({
                 Selamat Datang
               </h2>
 
+              <div className="mut-login-account-type" role="group" aria-label="Jenis akun">
+                <button type="button" className={loginAs === "parent" ? "is-active" : ""} aria-pressed={loginAs === "parent"} disabled={busy} onClick={() => switchAccountType("parent")}>Orang Tua</button>
+                <button type="button" className={loginAs === "staff" ? "is-active" : ""} aria-pressed={loginAs === "staff"} disabled={busy} onClick={() => switchAccountType("staff")}>Staf</button>
+              </div>
               <form
                 className="mut-login-form"
                 onSubmit={handleLogin}
@@ -254,23 +277,22 @@ function LoginPage({
 
                   <span className="mut-login-field-body">
                     <span className="mut-login-field-label">
-                      Nomor HP / Pengguna
+                      {loginAs === "parent" ? "Nomor HP" : "Nama Pengguna / Nomor HP"}
                     </span>
 
                     <input
                       id="phone"
                       type="text"
-                      inputMode="tel"
+                      inputMode={loginAs === "parent" ? "numeric" : "text"}
+                      pattern={loginAs === "parent" ? "[0-9]*" : undefined}
                       autoComplete="username"
                       autoCapitalize="none"
                       spellCheck={false}
-                      placeholder="08xxxxxxxxxx"
+                      placeholder={loginAs === "parent" ? "08xxxxxxxxxx" : "admin atau nomor HP"}
                       value={username}
                       disabled={busy}
                       onChange={(event) =>
-                        setUsername(
-                          event.target.value
-                        )
+                        setUsername(loginAs === "parent" ? event.target.value.replace(/\D/g, "") : event.target.value)
                       }
                     />
                   </span>

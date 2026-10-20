@@ -6,6 +6,7 @@ import useDisplayPage from "../lib/useDisplayPage";
 import Pagination from "../components/Pagination";
 import { fetchAll } from "../lib/pagination";
 import { signOut } from "../lib/auth";
+import usePanelHistory from "../hooks/usePanelHistory";
 const MonthlyReports = lazy(() => import("./MonthlyReports"));
 const ReportCards = lazy(() => import("./ReportCards"));
 import AccountSecurity from "./AccountSecurity";
@@ -124,6 +125,9 @@ export default function HomeroomTeacherDashboard({
   const earliestDate = daysBefore(today, 365);
 
   const [activeTab, setActiveTab] = useState("daily");
+  const { push: pushPage } = usePanelHistory("homeroom", "daily", (page) => {
+    if (TABS.some((item) => item.id === page)) { setActiveTab(page); setError(""); if (page === "daily") setRefresh((n) => n + 1); }
+  });
   const [classes, setClasses] = useState([]);
   const [classId, setClassId] = useState("");
   const [selectedDate, setSelectedDate] = useState(today);
@@ -299,10 +303,8 @@ export default function HomeroomTeacherDashboard({
   }
 
   function selectTab(tabId) {
-    if (!TABS.some((item) => item.id === tabId)) {
-      return;
-    }
-
+    if (!TABS.some((item) => item.id === tabId) || tabId === activeTab) return;
+    pushPage(tabId);
     setActiveTab(tabId);
     setError("");
 

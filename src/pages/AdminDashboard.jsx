@@ -6,6 +6,7 @@ import { fetchAll } from "../lib/pagination";
 import { readNotification, notificationGroup } from "../lib/notificationRead";
 import useNotificationRead from "../hooks/useNotificationRead";
 import { signOut } from "../lib/auth";
+import usePanelHistory from "../hooks/usePanelHistory";
 import useJakartaClock from "../hooks/useJakartaClock";
 import StaffWorkspace, {
   StaffKpi,
@@ -870,6 +871,9 @@ export default function AdminDashboard({
   onLogout,
 }) {
   const [activeMenu, setActiveMenu] = useState("dashboard");
+  const { push: pushPage } = usePanelHistory("admin", "dashboard", (page) => {
+    if (MENU.some((item) => item.id === page)) setActiveMenu(page);
+  });
   const [loggingOut, setLoggingOut] = useState(false);
   const [logoutError, setLogoutError] = useState("");
   const readCounts = useCallback(async (signal) => {
@@ -897,7 +901,8 @@ export default function AdminDashboard({
   }, [refreshCounts]);
 
   function navigate(id) {
-    if (MENU.some((item) => item.id === id)) {
+    if (MENU.some((item) => item.id === id) && id !== activeMenu) {
+      pushPage(id);
       setActiveMenu(id);
     }
   }

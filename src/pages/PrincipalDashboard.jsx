@@ -6,6 +6,7 @@ import useDisplayPage from "../lib/useDisplayPage";
 import Pagination from "../components/Pagination";
 import { fetchAll } from "../lib/pagination";
 import { signOut } from "../lib/auth";
+import usePanelHistory from "../hooks/usePanelHistory";
 import useJakartaClock from "../hooks/useJakartaClock";
 const MonthlyReports = lazy(() => import("./MonthlyReports"));
 const ReportCards = lazy(() => import("./ReportCards"));
@@ -177,6 +178,9 @@ export default function PrincipalDashboard({
   const clock = useJakartaClock();
 
   const [tab, setTab] = useState("overview");
+  const { push: pushPage } = usePanelHistory("principal", "overview", (page) => {
+    if (MENUS.some((item) => item.id === page)) { setTab(page); if (page === "overview") setReload((n) => n + 1); }
+  });
   const [classes, setClasses] = useState([]);
   const [year, setYear] = useState("");
   const [date, setDate] = useState(() => clock.date);
@@ -429,10 +433,8 @@ export default function PrincipalDashboard({
   }
 
   function changeTab(id) {
-    if (!MENUS.some((item) => item.id === id)) {
-      return;
-    }
-
+    if (!MENUS.some((item) => item.id === id) || id === tab) return;
+    pushPage(id);
     setTab(id);
 
     if (id === "overview") {

@@ -5,6 +5,7 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "../lib/supabase";
 import { fetchAll } from "../lib/pagination";
 import { signOut } from "../lib/auth";
+import usePanelHistory from "../hooks/usePanelHistory";
 import { SCHOOL_LOGO_URL } from "../lib/branding";
 import { getRandomQuote } from "../data/islamicQuotes";
 import StudentAvatar from "../components/StudentAvatar";
@@ -321,6 +322,16 @@ export default function ParentDashboard({
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
 
+  const { push: pushPage, replace: replacePage } = usePanelHistory("parent", "today", (page) => {
+    setDailyOpen(false);
+    setChooserOpen(false);
+    setLinkOpen(false);
+    setNoticeOpen(false);
+    if (page.startsWith("daily:")) { setSelectedDate(page.slice(6)); setDailyOpen(true); }
+    else if (page === "chooser") setChooserOpen(true);
+    else if (page === "link") setLinkOpen(true);
+    else if (MENU.some((item) => item.id === page) || page === "install-app") setTab(page);
+  });
   const [quote] = useState(() => getRandomQuote());
   const noticeRef = useRef(null);
 
@@ -783,6 +794,7 @@ export default function ParentDashboard({
     setSelectedDate(today);
     setChooserOpen(false);
     setDailyOpen(false);
+    replacePage(tab);
     setError("");
     setMessage("");
     setStatusRevision((n) => n + 1);
@@ -790,7 +802,7 @@ export default function ParentDashboard({
 
   function navigate(next) {
     if (next === tab) return;
-
+    pushPage(next);
     setTab(next);
     setDailyOpen(false);
     setNoticeOpen(false);
@@ -818,6 +830,7 @@ export default function ParentDashboard({
   }
 
   function openLink() {
+    pushPage("link");
     setChooserOpen(false);
     setError("");
     setMessage("");
@@ -839,6 +852,7 @@ export default function ParentDashboard({
       return;
     }
 
+    pushPage(`daily:${date}`);
     setSelectedDate(date);
     setDailyOpen(true);
     setNoticeOpen(false);
@@ -1013,7 +1027,7 @@ export default function ParentDashboard({
       <button
         type="button"
         className="pd-current-child pd-current-child-button"
-        onClick={() => setChooserOpen(true)}
+        onClick={() => { pushPage("chooser"); setChooserOpen(true); }}
         aria-label="Pilih anak"
       >
         <StudentAvatar
