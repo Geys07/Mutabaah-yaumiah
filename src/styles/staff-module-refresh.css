@@ -684,3 +684,14 @@
   }
   .staff-app .staff-mobile-nav > button { min-width: 0; }
 }
+
+/* EmptyState menggunakan .my-empty-state, bukan .teacher-accounts-empty.
+   Jarak nyata di bawah tombol tambah akun untuk Guru dan Kepala Madrasah. */
+.staff-app .teacher-accounts > .my-empty-state {
+  margin-top: 18px;
+}
+@media (max-width: 650px) {
+  .staff-app .teacher-accounts > .my-empty-state {
+    margin-top: 16px;
+  }
+}
