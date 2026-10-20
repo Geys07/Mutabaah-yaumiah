@@ -213,3 +213,16 @@
 .staff-app .homeroom-tabs {width:100%;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));background:var(--sa-soft,#eef5f0);border-color:var(--sa-line,#dfe9e4);border-radius:15px;}
 .staff-app .homeroom-tabs button {color:var(--sa-ink,#294339);border-radius:11px;min-width:0;min-height:43px;}
 .staff-app .homeroom-tabs button.active {background:var(--sa-accent,#178166);color:white;}
+
+@media(max-width:700px){
+.homeroom-table-wrap{overflow:visible!important;max-width:100%}
+.homeroom-table-wrap table{display:block!important;width:100%!important;min-width:0!important}
+.homeroom-table-wrap thead{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.homeroom-table-wrap tbody{display:grid;gap:10px;padding:2px 0}
+.homeroom-table-wrap .homeroom-assignment-row{display:grid;grid-template-columns:1fr;gap:11px;padding:14px;border:1px solid var(--sa-line,#dee5e1);border-radius:13px;background:var(--sa-card,#fff)}
+.homeroom-table-wrap .homeroom-assignment-row td{display:block!important;width:100%!important;min-width:0!important;padding:0!important;border:0!important}
+.homeroom-table-wrap .homeroom-assignment-row .homeroom-class{font-size:15px;font-weight:750;color:var(--sa-ink,#26394c);padding-bottom:7px!important;border-bottom:1px solid var(--sa-line,#dee5e1)!important}
+.homeroom-table-wrap .homeroom-assignment-teacher::before{content:"Wali Kelas";display:block;font-size:11px;color:var(--sa-muted,#78878c);margin-bottom:6px}
+.homeroom-table-wrap .homeroom-assignment-teacher select{display:block;box-sizing:border-box;width:100%!important;min-width:0!important;max-width:100%!important;min-height:43px}
+.homeroom-table-wrap .homeroom-assignment-action button{width:100%;min-height:42px}
+}

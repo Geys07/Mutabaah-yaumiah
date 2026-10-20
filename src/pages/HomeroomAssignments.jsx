@@ -377,14 +377,14 @@ export default function HomeroomAssignments() {
                         current !== selected;
 
                       return (
-                        <tr
+                        <tr className="homeroom-assignment-row"
                           key={schoolClass.id}
                         >
-                          <td className="homeroom-class">
+                          <td className="homeroom-class" data-label="Kelas">
                             {schoolClass.name}
                           </td>
 
-                          <td>
+                          <td className="homeroom-assignment-teacher" data-label="Wali Kelas">
                             <select
                               aria-label={`Wali kelas ${schoolClass.name}`}
                               value={selected}
@@ -419,7 +419,7 @@ export default function HomeroomAssignments() {
                             </select>
                           </td>
 
-                          <td>
+                          <td className="homeroom-assignment-action" data-label="Tindakan">
                             <button
                               type="button"
                               className="homeroom-primary"

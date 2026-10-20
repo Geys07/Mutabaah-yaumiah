@@ -6,6 +6,7 @@ import usePagedQuery from "../lib/usePagedQuery";
 import Pagination from "../components/Pagination";
 import StudentFamily from "./StudentFamily";
 import "./Students.css";
+import EmptyState from "../components/EmptyState";
 
 const EMPTY_FORM = {
   id: null,
@@ -284,11 +285,7 @@ export default function Students() {
         <div className="students-list-heading">
           <div className="students-list-title">
             <h2>Daftar Siswa</h2>
-            <p>
-              {loading
-                ? "Memuat data..."
-                : `${studentPage.total} siswa ditemukan`}
-            </p>
+            {loading ? <p>Memuat data...</p> : studentPage.total > 0 ? <p>{studentPage.total} siswa</p> : null}
           </div>
 
           <div className="students-list-actions">
@@ -329,11 +326,10 @@ export default function Students() {
             Buat rombongan belajar melalui menu Kelas.
           </div>
         ) : filteredRows.length === 0 ? (
-          <div className="students-empty">
-            {search || classFilter
-              ? "Tidak ada siswa yang sesuai."
-              : "Belum ada siswa."}
-          </div>
+          <EmptyState kind="people"
+            title={search || classFilter ? "Siswa tidak ditemukan" : "Belum ada siswa"}
+            description={search || classFilter ? "Ubah pencarian atau filter kelas." : "Tambahkan siswa baru atau lakukan impor data."}
+          />
         ) : (
           <div className="students-groups">
             {groupedRows.map((group) => (

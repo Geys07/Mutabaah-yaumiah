@@ -10,6 +10,7 @@ import Pagination from "../components/Pagination";
 import { fetchAll } from "../lib/pagination";
 import "./MonthlyReports.css";
 import "./SectionTabs.css";
+import EmptyState from "../components/EmptyState";
 
 function jakartaToday() {
   const parts = new Intl.DateTimeFormat("en-GB", {
@@ -1038,27 +1039,12 @@ export default function MonthlyReports() {
         </div>
       </div>
 
-      <p
-        style={{
-          fontSize: 12,
-          color: "#6b7c75",
-          margin: "0 0 12px",
-        }}
-      >
-        Persentase hanya dari kegiatan
-        Wajib yang berlaku. Capaian
-        Ya dihitung setelah hari
-        difinalisasi.
-      </p>
-
       {loadingClasses || loadingReport || searchResult.loading ? (
         <div className="monthly-report-empty">
           Memuat laporan...
         </div>
       ) : filtered.length === 0 ? (
-        <div className="monthly-report-empty">
-          Tidak ada data siswa.
-        </div>
+        <EmptyState title="Belum ada data laporan" description="Pilih kelas atau bulan lain, atau tunggu data tersedia." />
       ) : (
         <div className="monthly-report-table-wrap">
           <table>
@@ -1207,9 +1193,7 @@ export default function MonthlyReports() {
           Memuat rekap Tambahan...
         </div>
       ) : filtered.length === 0 ? (
-        <div className="monthly-report-empty">
-          Tidak ada data siswa.
-        </div>
+        <EmptyState title="Belum ada data laporan" description="Pilih kelas atau bulan lain, atau tunggu data tersedia." />
       ) : bonusTypes.length === 0 ? (
         <div className="monthly-report-empty">
           Belum ada kegiatan Tambahan.
