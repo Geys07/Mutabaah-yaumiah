@@ -19,7 +19,16 @@ export default function AdminReminderSettings({ onPreview, onChanged }) {
     setLoading(false);
   }
 
-  useEffect(() => { void load(); }, []);
+  useEffect(() => {
+    let active = true;
+    void supabase.rpc("admin_reminder_status").then(({ data, error: problem }) => {
+      if (!active) return;
+      if (problem) setError(problem.message || "Status pengingat tidak dapat dibaca.");
+      else setStatus(data);
+      setLoading(false);
+    });
+    return () => { active = false; };
+  }, []);
 
   async function setEnabled(enabled) {
     if (busy) return;
