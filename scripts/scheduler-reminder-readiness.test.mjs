@@ -20,7 +20,7 @@ test("scheduler 20 WIB uses cron and Vault only, no hardcoded secret", async () 
   assert.match(sql, /grant execute on function public\.verify_parent_reminder_secret\(text\) to service_role/);
   assert.match(sql, /a\.value->>'enabled' = 'true'/);
   assert.match(sql, /r\.transport_ready = true/);
-  assert.match(sql, /'"dry_run":false,"confirm_send":true'/);
+  assert.match(sql, /\{"dry_run":false,"confirm_send":true\}/);
   assert.doesNotMatch(sql, /update\s+public\.app_settings\s+set\s+value/i);
   assert.doesNotMatch(sql, /update\s+public\.reminder_delivery_readiness\s+set\s+transport_ready/i);
   assert.match(edge, /verify_parent_reminder_secret/);
