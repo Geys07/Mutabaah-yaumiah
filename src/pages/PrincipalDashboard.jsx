@@ -770,7 +770,7 @@ export default function PrincipalDashboard({
                 !detailError &&
                 detail.length === 0 && (
                   <EmptyState kind="student" illustration="student" title="Belum ada siswa" description="Belum ada siswa pada tanggal tersebut." />
-                )
+                )}
             </div>
           )}
         </section>
