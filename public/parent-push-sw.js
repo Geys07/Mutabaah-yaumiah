@@ -45,11 +45,16 @@ self.addEventListener("fetch", (event) => {
   if (!isStatic) return;
   event.respondWith((async () => {
     const cache = await caches.open(STATIC_CACHE);
+    const isEmptyStateWebP = /\/empty-states\/.*\.webp$/.test(url.pathname);
+    const isValidWebP = (response) => /^image\/webp(?:\s*;|$)/i.test(response.headers.get("content-type") || "");
     const saved = await cache.match(request);
-    if (saved) return saved;
+    // Hosting SPA bisa mengembalikan HTML 200 untuk gambar yang belum ada.
+    // Jangan pernah memakai HTML yang terlanjur tersimpan sebagai WebP.
+    if (saved && (!isEmptyStateWebP || isValidWebP(saved))) return saved;
+    if (saved && isEmptyStateWebP) await cache.delete(request);
     const response = await fetch(request);
-    if (response.ok && response.type === "basic") {
-      // Jangan simpan aset pihak lain atau respons API.
+    if (response.ok && response.type === "basic" && (!isEmptyStateWebP || isValidWebP(response))) {
+      // Jangan cache respons HTML atau JSON dengan URL berakhiran .webp.
       await cache.put(request, response.clone());
     }
     return response;
