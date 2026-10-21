@@ -1,3 +1,4 @@
+import EmptyState from "../components/EmptyState";
 
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "../lib/supabase";
@@ -468,6 +469,8 @@ export default function Classes() {
             <p className="classes-empty">
               Memuat kelas...
             </p>
+          ) : classes.length === 0 ? (
+            <EmptyState kind="school" illustration="class" title="Belum ada rombongan belajar" description="Gunakan formulir Tambah Kelas untuk membuat rombongan belajar." />
           ) : (
             <div className="classes-groups">
               {groupedClasses.map((group) => (
