@@ -18,4 +18,12 @@ jobs:
         env:
           VITE_SUPABASE_URL: https://example.supabase.co
           VITE_SUPABASE_PUBLISHABLE_KEY: ci-public-placeholder
-      - run: node --test scripts/push-error-messages.test.mjs scripts/pwa-build.test.mjs scripts/staff-account-import-regression.test.mjs
+      # Pastikan Vite tetap memasang WebP saat build dijalankan langsung,
+      # sebagaimana mungkin dilakukan oleh Cloudflare Pages.
+      - run: |
+          rm -rf public/empty-states dist
+          npx vite build
+        env:
+          VITE_SUPABASE_URL: https://example.supabase.co
+          VITE_SUPABASE_PUBLISHABLE_KEY: ci-public-placeholder
+      - run: node --test scripts/push-error-messages.test.mjs scripts/pwa-build.test.mjs scripts/staff-account-import-regression.test.mjs scripts/empty-state-build.test.mjs

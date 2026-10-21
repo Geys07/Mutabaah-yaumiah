@@ -1,6 +1,16 @@
 import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
+import { execFileSync } from 'node:child_process'
+import { resolve } from 'node:path'
+import process from 'node:process'
 import { pwaStaticAssets } from './scripts/pwa-build.mjs'
+
+// Persiapkan aset juga saat Cloudflare atau CLI menjalankan `vite build`
+// secara langsung, bukan hanya lewat `npm run build`.
+execFileSync(process.execPath, [resolve(process.cwd(), 'scripts/prepare-empty-state-assets.mjs')], {
+  cwd: process.cwd(),
+  stdio: 'inherit',
+})
 
 export default defineConfig({
   build: {
