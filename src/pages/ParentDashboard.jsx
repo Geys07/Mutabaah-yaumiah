@@ -1,5 +1,6 @@
 import { setParentEditorOpen } from "../lib/parentEditorState";
 import InstallAppSettings from "../components/InstallAppSettings";
+import EmptyState from "../components/EmptyState";
 
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "../lib/supabase";
@@ -991,8 +992,7 @@ export default function ParentDashboard({
     if (children.length === 0) {
       return (
         <div className="pd-no-child">
-          <p>Belum ada anak yang terhubung.</p>
-
+          <EmptyState kind="people" illustration="parent" title="Belum ada anak terhubung" />
           <button type="button" onClick={openLink}>
             <Icon name="plus" size={18} />
             Hubungkan Anak
