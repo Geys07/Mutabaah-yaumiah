@@ -1,4 +1,5 @@
 import InstallAppSettings from "../components/InstallAppSettings";
+import EmptyState from "../components/EmptyState";
 
 import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import { supabase } from "../lib/supabase";
@@ -679,9 +680,7 @@ export default function PrincipalDashboard({
               </div>
 
               {summaries.length === 0 && (
-                <p className="principal-info">
-                  Belum ada kelas atau data untuk periode ini.
-                </p>
+                <EmptyState kind="school" illustration="class" title="Belum ada data kelas" description="Belum ada kelas atau data untuk periode ini." />
               )}
             </>
           )}
@@ -770,10 +769,8 @@ export default function PrincipalDashboard({
               {!loadingDetail &&
                 !detailError &&
                 detail.length === 0 && (
-                  <p className="principal-info">
-                    Belum ada siswa pada tanggal tersebut.
-                  </p>
-                )}
+                  <EmptyState kind="student" illustration="student" title="Belum ada siswa" description="Belum ada siswa pada tanggal tersebut." />
+                )
             </div>
           )}
         </section>
