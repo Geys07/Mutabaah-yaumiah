@@ -2,6 +2,9 @@ import { useState } from "react";
 import useJakartaClock from "../hooks/useJakartaClock";
 import { getTimeTheme } from "../lib/jakartaTheme";
 import "./EmptyState.css";
+// Ganti versi ini bila paket 32 ilustrasi WebP diperbarui.
+// URL baru juga melewati Cache API lama yang sempat menyimpan respons salah.
+const EMPTY_STATE_ASSET_VERSION = "f225df8894e1";
 const ILLUSTRATION_FILES = {
   student: "01-data-siswa/data-siswa",
   teacher: "02-akun-guru/akun-guru",
@@ -21,7 +24,7 @@ export default function EmptyState({ title, description, kind = "document", illu
   const [failedImage, setFailedImage] = useState(null);
   const asset = ILLUSTRATION_FILES[illustration];
   const imageSrc = asset
-    ? `${import.meta.env.BASE_URL}empty-states/${asset}-${theme}.webp`
+    ? `${import.meta.env.BASE_URL}empty-states/${asset}-${theme}.webp?v=${EMPTY_STATE_ASSET_VERSION}`
     : null;
   const showImage = Boolean(imageSrc && failedImage !== imageSrc);
 
