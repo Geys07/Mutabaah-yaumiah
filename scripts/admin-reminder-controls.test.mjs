@@ -6,7 +6,7 @@ const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 
 test("reminder controls are fail-closed; sample never sends to guardians", async () => {
   const [migration, component, core] = await Promise.all([
-    read("supabase/migrations/20261021162000_admin_reminder_controls_inbox.sql"),
+    read("supabase/migrations/20261021162313_admin_reminder_controls_inbox.sql"),
     read("src/pages/AdminReminderSettings.jsx"),
     read("supabase/functions/parent-reminder-send/core.mjs"),
   ]);
@@ -29,7 +29,7 @@ test("admin inbox retains original request records and provides safe actions", a
     read("src/pages/AdminNoticeInbox.jsx"),
     read("src/pages/AdminNotificationSections.jsx"),
     read("src/pages/AdminDashboard.jsx"),
-    read("supabase/migrations/20261021162000_admin_reminder_controls_inbox.sql"),
+    read("supabase/migrations/20261021162313_admin_reminder_controls_inbox.sql"),
   ]);
   assert.match(tabs, /AdminNoticeInbox/);
   assert.match(tabs, /AdminReminderSettings/);
