@@ -2,6 +2,7 @@ import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
 import { execFileSync } from 'node:child_process'
 import { resolve } from 'node:path'
+import process from 'node:process'
 import { pwaStaticAssets } from './scripts/pwa-build.mjs'
 
 // Persiapkan aset juga saat Cloudflare atau CLI menjalankan `vite build`
