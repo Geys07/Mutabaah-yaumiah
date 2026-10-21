@@ -6,7 +6,7 @@ const read = (file) => readFile(new URL("../" + file, import.meta.url), "utf8");
 
 test("scheduler 20 WIB uses cron and Vault only, no hardcoded secret", async () => {
   const [sql, edge, core] = await Promise.all([
-    read("supabase/migrations/20261022060000_daily_parent_reminder_cron_vault.sql"),
+    read("supabase/migrations/20261021230353_daily_parent_reminder_cron_vault.sql"),
     read("supabase/functions/parent-reminder-send/index.ts"),
     read("supabase/functions/parent-reminder-send/core.mjs"),
   ]);
