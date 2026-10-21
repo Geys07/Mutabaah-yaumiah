@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabase";
+import { checkPushDevice, invokePush, pushAvailable } from "../lib/pushDevice";
 import "./AdminReminderSettings.css";
 
 export default function AdminReminderSettings({ onPreview, onChanged }) {
@@ -58,12 +59,37 @@ export default function AdminReminderSettings({ onPreview, onChanged }) {
     setError("");
     setNotice("");
     try {
-      const { error: problem } = await supabase.rpc("admin_reminder_preview");
-      if (problem) throw problem;
-      onChanged?.();
-      onPreview?.();
+      if (!pushAvailable() || !("serviceWorker" in navigator) || Notification.permission !== "granted") {
+        throw new Error("Aktifkan izin Notifikasi Admin di perangkat ini terlebih dahulu.");
+      }
+      const { data: auth, error: authError } = await supabase.auth.getUser();
+      if (authError || !auth.user || !await checkPushDevice("admin", auth.user.id)) {
+        throw new Error("Perangkat ini belum terdaftar untuk notifikasi admin. Aktifkan di tab Notifikasi Push.");
+      }
+      const registration = await navigator.serviceWorker.getRegistration(import.meta.env.BASE_URL || "/");
+      const subscription = await registration?.pushManager.getSubscription();
+      if (!subscription?.endpoint) {
+        throw new Error("Langganan push tidak ditemukan. Aktifkan Notifikasi Admin pada perangkat ini.");
+      }
+      // Endpoint hanya dipakai untuk memilih perangkat yang terdaftar milik admin login.
+      // Kunci push tidak pernah dikirim dari browser untuk tindakan contoh.
+      const delivery = await invokePush("admin", "test_reminder_push", {
+        endpoint: subscription.endpoint,
+      });
+      if (delivery?.success !== true) {
+        throw new Error("Layanan push belum menerima pesan contoh.");
+      }
+      // Kotak masuk menyimpan riwayat contoh, tetapi tidak menggantikan push sungguhan.
+      const { error: archiveError } = await supabase.rpc("admin_reminder_preview");
+      if (archiveError) {
+        setNotice("Contoh push diterima layanan pengiriman. Penyimpanan ke kotak masuk gagal; coba muat ulang.");
+      } else {
+        setNotice("Contoh push dikirim ke perangkat ini. Periksa notifikasi Android/iOS; salinannya ada di Kotak Masuk.");
+        onPreview?.();
+        onChanged?.();
+      }
     } catch (caught) {
-      setError(caught.message || "Contoh notifikasi gagal dibuat.");
+      setError(caught.message || "Pengiriman contoh push gagal.");
     } finally {
       setBusy("");
     }
@@ -131,7 +157,7 @@ export default function AdminReminderSettings({ onPreview, onChanged }) {
       <div className="reminder-settings-preview">
         <div>
           <h3>Cek Contoh Notifikasi</h3>
-          <p>Masukkan contoh pesan yang akan diterima wali ke Kotak Masuk Admin. Tidak mengirim ke perangkat atau akun wali murid.</p>
+          <p>Kirim push notification sungguhan ke perangkat admin yang sedang digunakan, sekaligus simpan salinannya di Kotak Masuk. Tidak ada pesan yang dikirim ke wali murid.</p>
         </div>
         <div className="reminder-settings-sample">
           <strong>Mutabaah Yaumiah — MTs Al-Khairiyah</strong>
@@ -140,13 +166,13 @@ export default function AdminReminderSettings({ onPreview, onChanged }) {
         <button type="button" className="reminder-settings-preview-button"
           disabled={loading || Boolean(busy)}
           onClick={() => void sendPreview()}>
-          {busy === "preview" ? "Menyiapkan Contoh…" : "Kirim Contoh ke Admin"}
+          {busy === "preview" ? "Mengirim Push…" : "Kirim Push Contoh ke Perangkat Ini"}
         </button>
       </div>
 
       <div className="reminder-settings-footer">
         <button type="button" onClick={() => void load()} disabled={loading || Boolean(busy)}>Perbarui Status</button>
-        <small>Status disimpan di server. Pengiriman pengingat nyata tidak diuji dengan tombol contoh.</small>
+        <small>Tombol contoh hanya menguji penerimaan push pada perangkat admin ini; pengingat otomatis wali murid tetap OFF.</small>
       </div>
       {error && <p className="reminder-settings-error" role="alert">{error}</p>}
       {notice && <p className="reminder-settings-success" role="status">{notice}</p>}
