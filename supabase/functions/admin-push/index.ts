@@ -377,7 +377,8 @@ Deno.serve(
             keys: { p256dh: device.p256dh, auth: device.auth_key },
           }, message, { TTL: 120, urgency: "normal", timeout: 8000 });
         } catch (sendError) {
-          const expired = sendError?.statusCode === 404 || sendError?.statusCode === 410;
+          const code = (sendError as { statusCode?: number } | null)?.statusCode;
+          const expired = code === 404 || code === 410;
           await supabase.from("admin_push_subscriptions")
             .update({ last_error: expired ? "subscription_expired" : "sample_push_failed" })
             .eq("id", device.id).eq("user_id", adminId);
