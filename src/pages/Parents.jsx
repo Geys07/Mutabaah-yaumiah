@@ -111,7 +111,7 @@ export default function Parents() {
           Memuat...
         </div>
       ) : filtered.length === 0 ? (
-        <EmptyState kind="people" title="Tidak ada data orang tua" description="Data orang tua atau wali akan ditampilkan di sini ketika tersedia." />
+        <EmptyState kind="people" illustration="parent" title="Tidak ada data orang tua" description="Data orang tua atau wali akan ditampilkan di sini ketika tersedia." />
       ) : (
         <div className="parents-table-wrapper">
           <table>
