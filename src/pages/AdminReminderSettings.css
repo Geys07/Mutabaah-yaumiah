@@ -1,0 +1,40 @@
+.reminder-settings-header{display:flex;align-items:flex-start;justify-content:space-between;gap:14px}
+.reminder-settings-eyebrow{color:#3b7956;font-size:10px;letter-spacing:.1em;font-weight:800}
+.reminder-settings-header h2{font-size:19px;color:#213f31;margin:8px 0}
+.reminder-settings-header p{font-size:13px;color:#65796b;max-width:490px;line-height:1.65;margin:0}
+.reminder-settings-status{display:inline-flex;flex:none;align-items:center;gap:7px;border-radius:99px;font-size:12px;font-weight:800;padding:8px 12px;background:#f2f4f3;color:#68776e}
+.reminder-settings-status.is-enabled{color:#1c7546;background:#e2f6e7}
+.reminder-settings-dot{width:7px;height:7px;border-radius:50%;background:currentColor}
+.reminder-settings-schedule{display:flex;align-items:center;gap:17px;margin:23px 0;padding:18px;border:1px solid #dfeae3;border-radius:14px;background:#f5faf7}
+.reminder-settings-clock{flex:none;display:grid;place-items:center;border-radius:12px;min-width:93px;height:65px;background:#255f46;color:#fff;font-size:26px;font-weight:850;font-variant-numeric:tabular-nums}
+.reminder-settings-schedule strong{display:block;font-size:15px;color:#21402f}
+.reminder-settings-schedule p{font-size:12px;line-height:1.6;margin:5px 0 0;color:#637a69}
+.reminder-settings-control{display:flex;align-items:center;justify-content:space-between;gap:17px;padding:16px 0;border-top:1px solid #e4ebe6;border-bottom:1px solid #e4ebe6}
+.reminder-settings-control-text strong{display:block;font-size:14px;color:#244633}
+.reminder-settings-control-text small{display:block;color:#647c6c;line-height:1.6;margin-top:5px;font-size:12px}
+.reminder-settings-switch{border:0;border-radius:99px;background:#d1d9d3;color:#536b5b;display:flex;align-items:center;flex:none;gap:5px;padding:5px 10px 5px 5px;min-width:76px;min-height:39px;justify-content:space-between}
+.reminder-settings-switch.is-on{background:#238052;color:#fff;flex-direction:row-reverse;padding:5px 5px 5px 10px}
+.reminder-settings-switch-thumb{width:29px;height:29px;border-radius:50%;background:#fff;box-shadow:0 2px 6px #0002}
+.reminder-settings-switch-label{font-weight:850;font-size:12px;letter-spacing:.03em}
+.reminder-settings-checklist{padding:18px 0;border-bottom:1px solid #e6ede8}
+.reminder-settings-checklist h3,.reminder-settings-preview h3{color:#274936;font-size:15px;margin:0 0 13px}
+.reminder-settings-checklist>div{display:flex;align-items:center;gap:8px;padding:11px 12px;border-radius:9px;background:#f5f8f6;margin-top:7px;font-size:12px;color:#536c5b}
+.reminder-settings-checklist>div span:first-child{font-size:16px;font-weight:800;flex:none}
+.reminder-settings-checklist>div strong{margin-left:auto;font-size:11px;white-space:nowrap}
+.reminder-settings-checklist>div.is-ready{background:#eaf8ed;color:#237446}
+.reminder-settings-checklist>div.is-pending{background:#f5f6f5;color:#67776b}
+.reminder-settings-explainer{margin:12px 0 0;font-size:12px;line-height:1.65;color:#906321;background:#fff8e8;border-radius:10px;padding:12px}
+.reminder-settings-preview{margin-top:24px}
+.reminder-settings-preview>div>p{color:#64776b;font-size:12px;line-height:1.65;margin:0 0 15px}
+.reminder-settings-sample{display:flex;flex-direction:column;gap:7px;border:1px solid #dbe7df;border-radius:13px;background:#f5faf7;padding:15px;font-size:13px;line-height:1.6}
+.reminder-settings-sample strong{color:#245c3f}
+.reminder-settings-sample span{color:#576e5f}
+.reminder-settings-preview-button{margin-top:13px;background:#255f46;color:#fff;border:1px solid #255f46;border-radius:10px;padding:12px 18px;min-height:43px;font-size:13px;font-weight:750}
+.reminder-settings-footer{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:20px}
+.reminder-settings-footer button,.reminder-settings-dialog button{min-height:38px;padding:9px 14px;border:1px solid #dce7de;border-radius:10px;background:#fff;color:#285b40;font-size:12px;font-weight:750}
+.reminder-settings-footer small{color:#758479;line-height:1.5;font-size:11px}
+.reminder-settings-error,.reminder-settings-success{font-size:12px;line-height:1.6;padding:12px 14px;border-radius:10px;margin-top:13px}
+.reminder-settings-error{color:#a33d43;background:#fff0f2}
+.reminder-settings-success{color:#286a44;background:#eaf7ef}
+.reminder-settings-dialog .is-primary{background:#255f46;color:white;border-color:#255f46}
+@media(max-width:650px){.reminder-settings-header{flex-wrap:wrap}.reminder-settings-status{margin-top:0}.reminder-settings-schedule{gap:12px;padding:13px}.reminder-settings-clock{min-width:75px;height:58px;font-size:21px}.reminder-settings-control{gap:10px}.reminder-settings-checklist>div{flex-wrap:wrap}.reminder-settings-checklist>div strong{margin-left:auto}}
