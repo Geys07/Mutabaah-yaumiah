@@ -1378,7 +1378,7 @@ export default function ReportCards({ school }) {
         ) : !classId || !semesterId ? (
           <p className="mut-rapor-muted">Pilih kelas dan semester.</p>
         ) : !archives.length ? (
-          <EmptyState kind="school" title="Belum ada rapor" description="Rapor yang telah diterbitkan akan muncul di arsip semester ini." />
+          <EmptyState kind="school" illustration="report-card" title="Belum ada rapor" description="Rapor yang telah diterbitkan akan muncul di arsip semester ini." />
         ) : (
           <div className="mut-rapor-list">
             {archives.map((entry) => (
