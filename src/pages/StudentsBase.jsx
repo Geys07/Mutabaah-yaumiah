@@ -326,7 +326,7 @@ export default function Students() {
             Buat rombongan belajar melalui menu Kelas.
           </div>
         ) : filteredRows.length === 0 ? (
-          <EmptyState kind="people"
+          <EmptyState kind="people" illustration="student"
             title={search || classFilter ? "Siswa tidak ditemukan" : "Belum ada siswa"}
             description={search || classFilter ? "Ubah pencarian atau filter kelas." : "Tambahkan siswa baru atau lakukan impor data."}
           />
