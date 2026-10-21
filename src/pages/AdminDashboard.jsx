@@ -878,22 +878,29 @@ export default function AdminDashboard({
   const [loggingOut, setLoggingOut] = useState(false);
   const [logoutError, setLogoutError] = useState("");
   const readCounts = useCallback(async (signal) => {
-    const [password, phone] = await notificationGroup([
+    const [password, phone, inbox] = await notificationGroup([
       readNotification((requestSignal) => supabase.rpc("password_reset_pending_count")
         .abortSignal(requestSignal), signal),
       readNotification((requestSignal) => supabase.from("parent_phone_change_requests")
         .select("id", { count: "exact", head: true }).eq("status", "pending")
         .abortSignal(requestSignal), signal),
+      readNotification((requestSignal) => supabase.from("admin_notice_inbox")
+        .select("id", { count: "exact", head: true }).is("read_at", null)
+        .abortSignal(requestSignal), signal),
     ]);
     if (password.data === null || !Number.isFinite(Number(password.data)) ||
-        Number(password.data) < 0 || typeof phone.count !== "number" || phone.count < 0) {
+        Number(password.data) < 0 || typeof phone.count !== "number" || phone.count < 0 ||
+        typeof inbox.count !== "number" || inbox.count < 0) {
       throw new Error("Jumlah notifikasi belum tersedia.");
     }
-    return { password: Number(password.data), phone: phone.count,
-      total: Number(password.data) + phone.count };
+    return { password: Number(password.data), phone: phone.count, inbox: inbox.count,
+      requestsTotal: Number(password.data) + phone.count,
+      total: Number(password.data) + phone.count + inbox.count };
   }, []);
   const counts = useNotificationRead("admin-counts:" + account?.id, readCounts, !loggingOut);
-  const pendingCount = counts.current ? counts.data?.total ?? null : null;
+  const pendingCount = counts.current ? counts.data?.requestsTotal ?? null : null;
+  const bellCount = counts.current ? counts.data?.total ?? null : null;
+  const unreadCount = counts.current ? counts.data?.inbox ?? null : null;
   const passwordPendingCount = counts.current ? counts.data?.password ?? null : null;
   const refreshCounts = counts.refresh;
   const loadPendingCount = useCallback(() => refreshCounts({ force: true }), [refreshCounts]);
@@ -942,15 +949,14 @@ export default function AdminDashboard({
         "classes",
         "reports",
       ]}
-      pendingCount={pendingCount}
+      pendingCount={bellCount}
       noticeItems={
-        pendingCount === null
+        pendingCount === null || unreadCount === null
           ? ["Jumlah notifikasi belum tersedia."]
-          : pendingCount
-          ? [
-              `${pendingCount} permintaan akun sedang menunggu penanganan.`,
+          : [
+              ...(unreadCount ? [`${unreadCount} notifikasi baru di kotak masuk.`] : []),
+              ...(pendingCount ? [`${pendingCount} permintaan memerlukan penanganan.`] : []),
             ]
-          : []
       }
       onNoticeAction={() => navigate("notifications")}
       onLogout={handleLogout}
