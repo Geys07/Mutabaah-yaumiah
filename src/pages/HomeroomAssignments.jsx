@@ -1,3 +1,4 @@
+import EmptyState from "../components/EmptyState";
 
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "../lib/supabase";
@@ -349,9 +350,7 @@ export default function HomeroomAssignments() {
               Memuat...
             </div>
           ) : visibleClasses.length === 0 ? (
-            <div className="homeroom-empty">
-              Belum ada kelas.
-            </div>
+            <EmptyState kind="school" illustration="class" title="Belum ada kelas" description="Tambahkan kelas sebelum menentukan wali kelas." />
           ) : (
             <div className="homeroom-table-wrap">
               <table>

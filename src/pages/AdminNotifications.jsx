@@ -488,7 +488,7 @@ export default function AdminNotifications({
       ) : !reader.current ? (
         <div className="notification-empty">Daftar belum tersedia.</div>
       ) : visibleItems.length === 0 ? (
-        <EmptyState kind="notice" title="Tidak ada permintaan" description="Permintaan baru akan ditampilkan di sini." />
+        <EmptyState kind="notice" illustration="notification" title="Tidak ada permintaan" description="Permintaan baru akan ditampilkan di sini." />
       ) : (
         <div className="notification-list">
           {visibleItems.map((item) => (

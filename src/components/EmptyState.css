@@ -59,3 +59,29 @@
 .staff-app .my-empty-state strong { font-size: 16px; letter-spacing: -.01em; }
 .staff-app .my-empty-state p { font-size: 13px; max-width: 310px; }
 @media(max-width:480px) { .staff-app .my-empty-state { min-height: 190px; padding: 20px 12px; } .staff-app .my-empty-state svg { width: 138px; height: 92px; } }
+
+
+/* WebP transparan untuk empty state lintas panel dan seluruh tema WIB. */
+.my-empty-state .my-empty-state-image {
+  display: block;
+  flex: none;
+  width: min(230px, 80%);
+  height: auto;
+  max-height: 168px;
+  object-fit: contain;
+  filter: drop-shadow(0 6px 9px rgba(19, 45, 32, .08));
+}
+.staff-app .my-empty-state:has(.my-empty-state-image) {
+  min-height: 265px;
+  padding: 18px 16px 20px;
+}
+@media(max-width:480px) {
+  .my-empty-state .my-empty-state-image {
+    width: min(190px, 78%);
+    max-height: 138px;
+  }
+  .staff-app .my-empty-state:has(.my-empty-state-image) {
+    min-height: 230px;
+    padding: 14px 10px 16px;
+  }
+}

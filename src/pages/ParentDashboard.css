@@ -828,3 +828,37 @@
     width: min(300px, calc(100vw - 28px));
   }
 }
+/* Empty state untuk orang tua tetap kompak agar tombol Hubungkan Anak terlihat. */
+.pd-no-child .my-empty-state {
+  min-width: 0;
+  min-height: 0;
+  flex: 1 1 auto;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  justify-content: flex-start;
+  text-align: left;
+}
+.pd-no-child .my-empty-state::before { display: none; }
+.pd-no-child .my-empty-state-image {
+  width: 60px;
+  height: 55px;
+  max-height: 55px;
+  flex: 0 0 60px;
+}
+.pd-no-child .my-empty-state svg {
+  width: 55px;
+  height: 40px;
+}
+.pd-no-child .my-empty-state strong {
+  font-size: 12px;
+  line-height: 1.4;
+}
+@media (max-width: 400px) {
+  .pd-no-child { flex-wrap: wrap; }
+  .pd-no-child .my-empty-state { flex-basis: 100%; }
+}

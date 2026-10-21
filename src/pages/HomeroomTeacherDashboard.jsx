@@ -1,4 +1,5 @@
 import InstallAppSettings from "../components/InstallAppSettings";
+import EmptyState from "../components/EmptyState";
 
 import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import { supabase } from "../lib/supabase";
@@ -540,13 +541,9 @@ export default function HomeroomTeacherDashboard({
               Memuat...
             </div>
           ) : !classId ? (
-            <div className="teacher-empty">
-              Belum ada kelas yang ditugaskan.
-            </div>
+            <EmptyState kind="school" illustration="class" title="Belum ada kelas yang ditugaskan" description="Hubungi administrator untuk penugasan kelas." />
           ) : students.length === 0 ? (
-            <div className="teacher-empty">
-              Belum ada siswa.
-            </div>
+            <EmptyState kind="student" illustration="student" title="Belum ada siswa" description="Siswa yang terdaftar pada kelas ini akan muncul di sini." />
           ) : (
             <div className="teacher-table-wrap">
               <table>
