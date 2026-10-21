@@ -5,10 +5,11 @@ import { test } from "node:test";
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 
 test("reminder controls are fail-closed; sample never sends to guardians", async () => {
-  const [migration, component, core] = await Promise.all([
+  const [migration, component, core, adminPush] = await Promise.all([
     read("supabase/migrations/20261021162313_admin_reminder_controls_inbox.sql"),
     read("src/pages/AdminReminderSettings.jsx"),
     read("supabase/functions/parent-reminder-send/core.mjs"),
+    read("supabase/functions/admin-push/index.ts"),
   ]);
   assert.match(migration, /transport_ready boolean not null default false/);
   assert.match(migration, /'can_enable', \(v_transport and v_schedule\)/);
@@ -19,6 +20,14 @@ test("reminder controls are fail-closed; sample never sends to guardians", async
   assert.match(migration, /Pengisian Mutabaah ananda hari ini belum selesai\. Silakan lengkapi dan finalisasi\./);
   assert.match(core, /Pengisian Mutabaah ananda hari ini belum selesai\. Silakan lengkapi dan finalisasi\./);
   assert.match(component, /supabase\.rpc\("admin_reminder_preview"\)/);
+  assert.match(component, /invokePush\("admin", "test_reminder_push"/);
+  assert.match(component, /checkPushDevice\("admin", auth\.user\.id\)/);
+  assert.match(adminPush, /if \(action === "test_reminder_push"\)/);
+  assert.match(adminPush, /\.from\("admin_push_subscriptions"\)/);
+  assert.match(adminPush, /\.eq\("user_id", adminId\)/);
+  assert.match(adminPush, /\.eq\("endpoint", endpoint\)/);
+  assert.match(adminPush, /webpush\.sendNotification/);
+  assert.doesNotMatch(adminPush, /from\("parent_push_subscriptions"\)/);
   assert.match(component, /supabase\.rpc\("admin_reminder_set_enabled"/);
   assert.doesNotMatch(component, /functions\.invoke\("parent-reminder-send"/);
   assert.doesNotMatch(migration, /cron\.schedule\s*\(/);
