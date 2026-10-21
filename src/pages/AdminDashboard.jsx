@@ -1,3 +1,4 @@
+import EmptyState from "../components/EmptyState";
 import InstallAppSettings from "../components/InstallAppSettings";
 
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
@@ -343,9 +344,9 @@ function DashboardHome({ account, onNavigate, pendingCount }) {
                 {valid.length === 0 && (
                   <tr>
                     <td colSpan="4" className="staff-muted">
-                      {busy
-                        ? "Memuat rekap…"
-                        : "Belum ada data kelas aktif."}
+                      {busy ? "Memuat rekap…" : (
+                        <EmptyState kind="school" illustration="class" title="Belum ada kelas aktif" description="Kelas aktif akan muncul dalam rekap pengisian." />
+                      )}
                     </td>
                   </tr>
                 )}
