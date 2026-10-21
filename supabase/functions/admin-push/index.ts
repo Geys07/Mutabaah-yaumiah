@@ -1,6 +1,7 @@
 // Integrated backend source. Deployment status is recorded in the implementation report.
 
 import { createClient } from "npm:@supabase/supabase-js@2";
+import webpush from "npm:web-push@3.6.7";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "";
 
@@ -318,6 +319,77 @@ Deno.serve(
           message:
             "Notifikasi perangkat berhasil diaktifkan.",
         });
+      }
+
+      if (action === "test_reminder_push") {
+        // Push uji ditujukan hanya kepada endpoint yang aktif dan dimiliki
+        // pengguna admin yang terautentikasi. Tidak membaca perangkat wali.
+        const endpoint = body.endpoint;
+        if (!validEndpoint(endpoint)) {
+          return respond({ error: "Perangkat admin tidak valid." }, 400);
+        }
+
+        const privateKey = Deno.env.get("VAPID_PRIVATE_KEY") || "";
+        const subject = Deno.env.get("VAPID_SUBJECT") || "";
+        if (!privateKey || !subject) {
+          return respond({ error: "Konfigurasi pengiriman push belum lengkap." }, 503);
+        }
+
+        const { data: device, error: deviceError } = await supabase
+          .from("admin_push_subscriptions")
+          .select("id,endpoint,p256dh,auth_key,last_sent_at")
+          .eq("user_id", adminId)
+          .eq("endpoint", endpoint)
+          .maybeSingle();
+        if (deviceError) throw new Error("admin_device_lookup_failed");
+        if (!device) {
+          return respond({
+            error: "Perangkat ini belum terdaftar untuk push Admin. Aktifkan notifikasi perangkat terlebih dahulu.",
+          }, 404);
+        }
+
+        // Cooldown dijaga oleh update berkondisi untuk mencegah klik berulang
+        // dari beberapa tab yang dapat memicu spam push bersamaan.
+        const cutoff = new Date(Date.now() - 30000).toISOString();
+        const { data: reserved, error: reserveError } = await supabase
+          .from("admin_push_subscriptions")
+          .update({ last_sent_at: new Date().toISOString(), last_error: null })
+          .eq("id", device.id)
+          .eq("user_id", adminId)
+          .or(`last_sent_at.is.null,last_sent_at.lt.${cutoff}`)
+          .select("id")
+          .maybeSingle();
+        if (reserveError) throw new Error("admin_push_rate_limit_failed");
+        if (!reserved) {
+          return respond({ error: "Tunggu 30 detik sebelum mengirim contoh berikutnya." }, 429);
+        }
+
+        webpush.setVapidDetails(subject, VAPID_PUBLIC_KEY, privateKey);
+        const message = JSON.stringify({
+          title: "Mutabaah Yaumiah — MTs Al-Khairiyah",
+          body: "Pengisian Mutabaah ananda hari ini belum selesai. Silakan lengkapi dan finalisasi.",
+          tag: "contoh-mutabaah-admin",
+          url: "/",
+        });
+        try {
+          await webpush.sendNotification({
+            endpoint: device.endpoint,
+            keys: { p256dh: device.p256dh, auth: device.auth_key },
+          }, message, { TTL: 120, urgency: "normal", timeout: 8000 });
+        } catch (sendError) {
+          const code = (sendError as { statusCode?: number } | null)?.statusCode;
+          const expired = code === 404 || code === 410;
+          await supabase.from("admin_push_subscriptions")
+            .update({ last_error: expired ? "subscription_expired" : "sample_push_failed" })
+            .eq("id", device.id).eq("user_id", adminId);
+          return respond({
+            error: expired
+              ? "Langganan push perangkat sudah kedaluwarsa. Nonaktifkan lalu aktifkan kembali notifikasi admin."
+              : "Layanan push belum menerima contoh. Periksa koneksi dan pengaturan izin notifikasi.",
+          }, expired ? 410 : 502);
+        }
+        // Respons diterima penyedia Web Push, bukan bukti notifikasi dibaca.
+        return respond({ success: true, accepted: true, target: "current_admin_device" });
       }
 
       if (action === "unsubscribe") {
