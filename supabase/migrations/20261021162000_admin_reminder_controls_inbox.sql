@@ -17,7 +17,8 @@ create index if not exists admin_notice_inbox_owner_unread_idx
 
 alter table public.admin_notice_inbox enable row level security;
 revoke all on public.admin_notice_inbox from public, anon;
-grant select, update, delete on public.admin_notice_inbox to authenticated;
+grant select, delete on public.admin_notice_inbox to authenticated;
+grant update (read_at) on public.admin_notice_inbox to authenticated;
 -- Notifikasi hanya dapat dibuat oleh trigger atau RPC. Admin tak perlu izin INSERT langsung.
 drop policy if exists admin_notice_owner_select on public.admin_notice_inbox;
 create policy admin_notice_owner_select on public.admin_notice_inbox
