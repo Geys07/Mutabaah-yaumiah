@@ -113,8 +113,11 @@
 }
 
 .staff-sidebar-brand strong {
-  font-size: 14px;
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: -.025em;
   line-height: 1.2;
+  overflow-wrap: anywhere;
 }
 
 .staff-sidebar-brand small {
@@ -241,7 +244,7 @@
   backdrop-filter: blur(8px);
 }
 
-.staff-top-title span {
+.staff-top-title .staff-top-role {
   font-size: 10px;
   color: var(--sa-accent);
   font-weight: 800;
@@ -249,6 +252,9 @@
   text-transform: uppercase;
 }
 
+.staff-top-title .staff-top-app-name {
+  display: none;
+}
 .staff-top-title h1 {
   margin: 2px 0 0;
   font-size: 19px;
@@ -695,6 +701,18 @@
     padding: 10px 14px;
   }
 
+  .staff-top-title .staff-top-role {
+    display: none;
+  }
+  .staff-top-title .staff-top-app-name {
+    display: block;
+    color: var(--sa-accent);
+    font-size: clamp(15px, 4.1vw, 18px);
+    line-height: 1.2;
+    letter-spacing: -.025em;
+    text-transform: none;
+    font-weight: 850;
+  }
   .staff-top-title h1 {
     font-size: 16px;
   }

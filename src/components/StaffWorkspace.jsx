@@ -257,7 +257,8 @@ export default function StaffWorkspace({
       <div className="staff-workspace">
         <header className="staff-topbar">
           <div className="staff-top-title">
-            <span>{role}</span>
+            <span className="staff-top-app-name">{school?.appName || "Mutabaah Yaumiah"}</span>
+            <span className="staff-top-role">{role}</span>
             <h1>{activeId === "install-app" ? "Panduan Aplikasi" : title || selected?.label || "Beranda"}</h1>
           </div>
 

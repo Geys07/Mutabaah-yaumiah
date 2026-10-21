@@ -8,27 +8,29 @@ type Device = { id: string; endpoint: string; p256dh: string; auth_key: string }
 const reply = (body: unknown, status = 200) => new Response(JSON.stringify(body), {
   status, headers: { "content-type": "application/json", "cache-control": "no-store" },
 });
-function sameSecret(a: string, b: string) {
-  const aa = new TextEncoder().encode(a), bb = new TextEncoder().encode(b);
-  let diff = aa.length ^ bb.length;
-  for (let i = 0; i < Math.max(aa.length, bb.length); i++) diff |= (aa[i] || 0) ^ (bb[i] || 0);
-  return diff === 0;
-}
 Deno.serve(async req => {
   if (req.method !== "POST") return reply({ error: "Metode tidak didukung" }, 405);
-  const secret = Deno.env.get("PARENT_REMINDER_SECRET") || "";
-  if (secret.length < 32 || !sameSecret(secret, req.headers.get("x-reminder-secret") || "")) return reply({ error: "Tidak berwenang" }, 401);
-  if (!inWindow(new Date())) return reply({ error: "Jadwal hanya 20.00–20.15 WIB" }, 409);
-  // Default OFF. A dry run only reads targets and cannot send, claim or delete.
-  const enabled = Deno.env.get("PARENT_REMINDER_ENABLED") === "true";
-  const body = await req.json().catch(() => ({}));
-  const dryRun = body?.dry_run !== false;
-  if (!dryRun && body?.confirm_send !== true) return reply({ error: "Konfirmasi pengiriman belum diberikan" }, 409);
-  if (!dryRun && !enabled) return reply({ error: "Pengiriman belum diaktifkan" }, 409);
   const url = Deno.env.get("SUPABASE_URL") || "";
   const key = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
   if (!url || !key) return reply({ error: "Konfigurasi belum lengkap" }, 503);
   const db = createClient(url, key, { auth: { persistSession: false, autoRefreshToken: false } });
+
+  // Rahasia dibuat acak di Supabase Vault dan tidak pernah masuk frontend,
+  // GitHub, atau isi perintah Cron. Hanya backend service_role yang dapat
+  // memvalidasinya. Bahkan dry-run/health-check wajib terautentikasi.
+  const candidate = req.headers.get("x-reminder-secret") || "";
+  if (candidate.length < 32 || candidate.length > 256) return reply({ error: "Tidak berwenang" }, 401);
+  const { data: authorized, error: authError } = await db.rpc("verify_parent_reminder_secret", {
+    p_candidate: candidate,
+  });
+  if (authError || authorized !== true) return reply({ error: "Tidak berwenang" }, 401);
+
+  // Pada saat OFF, dry-run dan health-check boleh berjalan di luar jam 20.00;
+  // keduanya tidak boleh mengirim push ataupun mengubah ledger pengiriman.
+  const body = await req.json().catch(() => ({}));
+  const dryRun = body?.dry_run !== false;
+  if (!dryRun && !inWindow(new Date())) return reply({ error: "Jadwal hanya 20.00–20.15 WIB" }, 409);
+  if (!dryRun && body?.confirm_send !== true) return reply({ error: "Konfirmasi pengiriman belum diberikan" }, 409);
   async function rpc(name: string, params: Record<string, unknown>) {
     const { data, error } = await db.rpc(name, params);
     if (error) throw new Error("database_operation_failed");
@@ -36,14 +38,35 @@ Deno.serve(async req => {
     return data;
   }
   try {
-    // Fail closed: both the environment switch and the persisted switch must allow sending.
-    // Read-only dry-run remains available while delivery is OFF.
+    // Hanya ADMIN yang dapat mengubah setting; scheduler dan Edge harus sama-sama
+    // melihat status aktif dan kesiapan. Semua nilai default adalah OFF.
     if (!dryRun) {
-      const { data: setting, error: settingError } = await db.from("app_settings")
-        .select("value").eq("key", "daily_reminder").maybeSingle();
-      if (settingError || setting?.value?.enabled !== true) {
-        return reply({ error: "Pengiriman belum diaktifkan" }, 409);
+      const [settingResult, readinessResult] = await Promise.all([
+        db.from("app_settings").select("value").eq("key", "daily_reminder").maybeSingle(),
+        db.from("reminder_delivery_readiness").select("transport_ready").eq("id", true).maybeSingle(),
+      ]);
+      if (settingResult.error || settingResult.data?.value?.enabled !== true ||
+          readinessResult.error || readinessResult.data?.transport_ready !== true) {
+        return reply({ error: "Pengiriman belum diaktifkan atau belum siap" }, 409);
       }
+    }
+
+    if (body?.health_only === true && dryRun) {
+      const pub = Deno.env.get("VAPID_PUBLIC_KEY") || "";
+      const priv = Deno.env.get("VAPID_PRIVATE_KEY") || "";
+      const subject = Deno.env.get("VAPID_SUBJECT") || "";
+      const { error: devicesError } = await db.from("parent_push_subscriptions")
+        .select("id", { head: true, count: "exact" });
+      const { error: targetError } = await db.rpc("list_parent_reminder_targets_page", {
+        p_date: new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Jakarta" }),
+        p_after: null, p_limit: 1,
+      });
+      if (devicesError || targetError) {
+        return reply({ error: "Koneksi data pengingat belum siap" }, 503);
+      }
+      const configured = Boolean(pub && priv && subject);
+      return reply({ success: configured, health_check: true,
+        transport_ready: configured, sends_to_parents: false }, configured ? 200 : 503);
     }
     const { jakartaTime } = await import("./core.mjs");
     const date = jakartaTime().date;
