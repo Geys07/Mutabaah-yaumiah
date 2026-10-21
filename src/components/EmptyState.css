@@ -61,6 +61,12 @@
 @media(max-width:480px) { .staff-app .my-empty-state { min-height: 190px; padding: 20px 12px; } .staff-app .my-empty-state svg { width: 138px; height: 92px; } }
 
 
+/* Hilangkan oval dekoratif SVG lama saat ilustrasi WebP transparan tampil.
+   SVG cadangan tetap mempertahankan desain sebelumnya. */
+.staff-app .my-empty-state:has(.my-empty-state-image)::before {
+  content: none;
+}
+
 /* WebP transparan untuk empty state lintas panel dan seluruh tema WIB. */
 .my-empty-state .my-empty-state-image {
   display: block;
