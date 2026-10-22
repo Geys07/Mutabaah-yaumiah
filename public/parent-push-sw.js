@@ -1,8 +1,8 @@
 // Service Worker bersama: PWA ringan + push notifikasi.
 // Tidak pernah mencache jawaban Mutabaah, token, atau API Supabase.
-const VERSION = "mutabaah-pwa-v4-status-badge-20261022";
+const VERSION = "mutabaah-pwa-v5-readable-status-icon-20261022";
 const STATIC_CACHE = `${VERSION}-public`;
-const SHELL = ["/", "/manifest.webmanifest", "/favicon.svg", "/logo-sekolah-loading.png", "/pwa/icon-192.png", "/pwa/icon-512.png"];
+const SHELL = ["/", "/manifest.webmanifest", "/favicon.svg", "/logo-sekolah-loading.png", "/pwa/icon-192.png", "/pwa/icon-512.png", "/notification/mutabaah-status-v3.png"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil((async () => {
@@ -67,9 +67,9 @@ self.addEventListener("push", (event) => {
     try { payload = event.data?.json() || {}; } catch { /* teks cadangan */ }
     const scope = self.registration.scope;
     const icon = new URL("logo-sekolah-loading.png", scope).href;
-    // Aset khusus status bar: dua baris teks besar, hitam dan transparan.
-    // Android akan menentukan ukuran akhir dan warna ikon yang ditampilkan.
-    const badge = new URL("notification/mutabaah-status-v2.png", scope).href;
+    // Ukuran badge status bar ditetapkan Android (sekitar 24dp).
+    // Monogram MY mengisi kanvas lebih efektif daripada dua nama lengkap.
+    const badge = new URL("notification/mutabaah-status-v3.png", scope).href;
     await self.registration.showNotification(payload.title || "Mutabaah Yaumiah", {
       body: payload.body || "Ada pemberitahuan Mutabaah.", icon, badge,
       tag: payload.tag || "mutabaah-harian", renotify: false,
