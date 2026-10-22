@@ -1,0 +1,59 @@
+/* Portal fixed berada di luar header/card sehingga tidak terpotong
+   oleh overflow, blur, transform maupun stacking context induk. */
+.viewport-popover {
+  position: fixed !important;
+  inset: auto;
+  z-index: 3200;
+  display: block;
+  min-width: 0;
+  max-width: calc(100vw - 24px);
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  border: 1px solid #dfe9e4;
+  border-radius: 15px;
+  background: #fff;
+  box-shadow: 0 18px 48px rgba(18, 56, 37, .20);
+  box-sizing: border-box;
+  font-family: "Segoe UI", Inter, system-ui, sans-serif;
+  -webkit-overflow-scrolling: touch;
+}
+.viewport-popover * { box-sizing: border-box; }
+.viewport-popover button { font-family: inherit; }
+.viewport-popover strong { overflow-wrap: anywhere; }
+.viewport-popover p { overflow-wrap: anywhere; }
+.viewport-popover:focus-within { outline-color: #178166; }
+.viewport-popover :is(button, a):focus-visible {
+  outline: 3px solid #dfb75c;
+  outline-offset: 2px;
+}
+.viewport-popover.staff-notice-pop {
+  padding: 16px;
+  color: #253c36;
+  --sa-accent: #178166;
+  --sa-soft: #e9f6ee;
+  --sa-muted: #718079;
+}
+.viewport-popover.staff-notice-pop[data-theme="siang"] {
+  --sa-accent: #148399; --sa-soft: #e9f6f9;
+}
+.viewport-popover.staff-notice-pop[data-theme="sore"] {
+  --sa-accent: #a66c49; --sa-soft: #fff2e8;
+}
+.viewport-popover.staff-notice-pop[data-theme="malam"] {
+  --sa-accent: #526da5; --sa-soft: #edf1fb;
+}
+.viewport-popover.pd-notice-popover {
+  position: fixed !important;
+  padding: 16px;
+  color: #183d2e;
+  border-color: #d9ebe3;
+  background: #fff;
+}
+.viewport-popover :is(.staff-notice-action, .pd-notice-popover button) {
+  min-height: 42px;
+  cursor: pointer;
+}
+@media(max-width:520px) {
+  .viewport-popover { border-radius: 14px; }
+}

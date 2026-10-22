@@ -1,7 +1,8 @@
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import useJakartaClock from "../hooks/useJakartaClock";
 import { getTimeTheme } from "../lib/jakartaTheme";
+import ViewportPopover from "./ViewportPopover";
 import "./StaffWorkspace.css";
 
 const ICONS = {
@@ -145,6 +146,7 @@ export default function StaffWorkspace({
   const theme = getTimeTheme(clock.hour);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [noticeOpen, setNoticeOpen] = useState(false);
+  const noticeAnchorRef = useRef(null);
 
   const items = useMemo(
     () => groups.flatMap((group) => group.items),
@@ -263,7 +265,7 @@ export default function StaffWorkspace({
           </div>
 
           <div className="staff-top-actions">
-            <div className="staff-notice-anchor">
+            <div className="staff-notice-anchor" ref={noticeAnchorRef}>
               <button
                 type="button"
                 className="staff-bell"
@@ -278,7 +280,13 @@ export default function StaffWorkspace({
               </button>
 
               {noticeOpen && (
-                <section className="staff-notice-pop" role="status">
+                <ViewportPopover
+                  className="staff-notice-pop"
+                  label="Pemberitahuan"
+                  theme={theme.key}
+                  anchorRef={noticeAnchorRef}
+                  onClose={() => setNoticeOpen(false)}
+                >
                   <strong>Pemberitahuan</strong>
 
                   {noticeItems.length === 0 ? (
@@ -304,7 +312,7 @@ export default function StaffWorkspace({
                       <StaffIcon name="arrow" size={14} />
                     </button>
                   )}
-                </section>
+                </ViewportPopover>
               )}
             </div>
 

@@ -1,6 +1,6 @@
 // Service Worker bersama: PWA ringan + push notifikasi.
 // Tidak pernah mencache jawaban Mutabaah, token, atau API Supabase.
-const VERSION = "mutabaah-pwa-v3-safe-20261018";
+const VERSION = "mutabaah-pwa-v4-status-badge-20261022";
 const STATIC_CACHE = `${VERSION}-public`;
 const SHELL = ["/", "/manifest.webmanifest", "/favicon.svg", "/logo-sekolah-loading.png", "/pwa/icon-192.png", "/pwa/icon-512.png"];
 
@@ -67,7 +67,9 @@ self.addEventListener("push", (event) => {
     try { payload = event.data?.json() || {}; } catch { /* teks cadangan */ }
     const scope = self.registration.scope;
     const icon = new URL("logo-sekolah-loading.png", scope).href;
-    const badge = new URL("notification/mutabaah-status.png", scope).href;
+    // Aset khusus status bar: dua baris teks besar, hitam dan transparan.
+    // Android akan menentukan ukuran akhir dan warna ikon yang ditampilkan.
+    const badge = new URL("notification/mutabaah-status-v2.png", scope).href;
     await self.registration.showNotification(payload.title || "Mutabaah Yaumiah", {
       body: payload.body || "Ada pemberitahuan Mutabaah.", icon, badge,
       tag: payload.tag || "mutabaah-harian", renotify: false,
