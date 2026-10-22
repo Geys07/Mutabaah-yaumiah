@@ -1,46 +1,55 @@
-"""Render monogram MY untuk badge status bar Android.
+"""Buat badge PNG kecil berisi nama lengkap untuk status bar Android.
 
-Ukuran fisik ikon status bar ditetapkan oleh Android (sekitar 24dp).
-Dua nama panjang akan menjadi mikro-teks. Karena itu gunakan dua huruf
-besar yang menutupi ruang ikon; nama penuh tetap pada judul notifikasi.
-Script ini hanya untuk menyiapkan aset PNG, bukan dijalankan di runtime.
+Android menentukan ukuran fisik area badge (~24dp). Supaya dua baris tetap
+sejelas mungkin, gambar menggunakan teks pekat, condensed, dan hampir tanpa
+margin. Berkas hasil jadi juga disimpan di repositori sehingga tidak perlu
+menghasilkan aset secara dinamis pada perangkat.
 """
 from pathlib import Path
-import os
 
 from PIL import Image, ImageDraw, ImageFont
 
+SIZE = 96
+SCALE = 5
+WORDS = [
+    ("Mutabaah", 90, 38, 7),
+    ("Yaumiah", 88, 38, 50),
+]
 FONT_CANDIDATES = [
+    "/usr/share/fonts/truetype/noto/NotoSansDisplay-ExtraCondensedBlack.ttf",
     "/usr/share/fonts/truetype/dejavu/DejaVuSansCondensed-Bold.ttf",
-    "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
     "/usr/share/fonts/truetype/liberation2/LiberationSans-Bold.ttf",
 ]
-font_path = next((path for path in FONT_CANDIDATES if Path(path).exists()), None)
+font_path = next((p for p in FONT_CANDIDATES if Path(p).exists()), None)
 if not font_path:
-    raise RuntimeError("Font bold diperlukan untuk badge Android")
+    raise RuntimeError("Tidak ada font tebal untuk membuat ikon")
 
-font = ImageFont.truetype(font_path, 1500)
-scratch = Image.new("L", (2048, 2048), 0)
-bbox = ImageDraw.Draw(scratch).textbbox((0, 0), "MY", font=font)
-glyph = Image.new("L", (bbox[2] - bbox[0] + 40, bbox[3] - bbox[1] + 40), 0)
-ImageDraw.Draw(glyph).text(
-    (20 - bbox[0], 20 - bbox[1]), "MY", fill=255, font=font
-)
-glyph = glyph.crop(glyph.getbbox()).resize((456, 400), Image.Resampling.LANCZOS)
+font = ImageFont.truetype(font_path, 230)
+mask_large = Image.new("L", (SIZE * SCALE, SIZE * SCALE), 0)
 
-mask = Image.new("L", (512, 512), 0)
-mask.paste(glyph, (28, 56))
-mask = mask.resize((96, 96), Image.Resampling.LANCZOS)
-image = Image.new("RGBA", (96, 96), (0, 0, 0, 0))
+for word, width, height, top in WORDS:
+    bbox = ImageDraw.Draw(mask_large).textbbox((0, 0), word, font=font)
+    glyph = Image.new("L", (bbox[2] - bbox[0] + 12, bbox[3] - bbox[1] + 12), 0)
+    ImageDraw.Draw(glyph).text(
+        (6 - bbox[0], 6 - bbox[1]), word, font=font, fill=255
+    )
+    glyph = glyph.crop(glyph.getbbox())
+    glyph = glyph.resize((width * SCALE, height * SCALE), Image.Resampling.LANCZOS)
+    mask_large.paste(
+        glyph, ((SIZE * SCALE - width * SCALE) // 2, top * SCALE)
+    )
+
+mask = mask_large.resize((SIZE, SIZE), Image.Resampling.LANCZOS)
+# Batasi level transparansi agar edges tetap tajam saat icon dikecilkan.
+mask = mask.point(lambda x: max(0, min(255, round(x / 8) * 8)) if x > 4 else 0)
+image = Image.new("RGBA", (SIZE, SIZE), (0, 0, 0, 0))
 image.putalpha(mask)
 
-target = Path("public/notification/mutabaah-status-v3.png")
+target = Path("public/notification/mutabaah-status-v4.png")
 target.parent.mkdir(parents=True, exist_ok=True)
-image.save(target, optimize=True)
-
-assert image.mode == "RGBA"
+image.save(target, optimize=True, compress_level=9)
+assert image.size == (96, 96) and image.mode == "RGBA"
 assert image.getpixel((0, 0))[3] == 0
 assert image.getpixel((95, 95))[3] == 0
-assert image.getbbox() is not None
-assert target.stat().st_size > 1000
-print(f"Badge MY: {target}, {image.size}, {target.stat().st_size} bytes")
+assert image.getchannel("A").getbbox() is not None
+print(f"PNG badge dibuat: {target} ({target.stat().st_size} byte)")
