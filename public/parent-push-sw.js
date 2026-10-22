@@ -67,10 +67,8 @@ self.addEventListener("push", (event) => {
     try { payload = event.data?.json() || {}; } catch { /* teks cadangan */ }
     const scope = self.registration.scope;
     const icon = new URL("logo-sekolah-loading.png", scope).href;
-    // Aset khusus status bar: dua baris teks besar, hitam dan transparan.
-    // Android akan menentukan ukuran akhir dan warna ikon yang ditampilkan.
-    // Android membatasi ukuran ikon status bar. Monogram MY di badge khusus
-    // lebih terbaca daripada teks panjang dalam kanvas 24dp.
+    // Ukuran badge status bar ditetapkan Android (sekitar 24dp).
+    // Monogram MY mengisi kanvas lebih efektif daripada dua nama lengkap.
     const badge = new URL("notification/mutabaah-status-v3.png", scope).href;
     await self.registration.showNotification(payload.title || "Mutabaah Yaumiah", {
       body: payload.body || "Ada pemberitahuan Mutabaah.", icon, badge,
