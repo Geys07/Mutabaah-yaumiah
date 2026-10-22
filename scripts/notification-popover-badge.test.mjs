@@ -29,7 +29,7 @@ test("both staff and parent bell menus use portal instead of clipped header", as
 });
 
 test("push status badge is a high-contrast readable MY monogram", async () => {
-  const [png, worker, renderer] = await Promise.all([
+  const [png, worker, manifest] = await Promise.all([
     read("public/notification/mutabaah-status-v3.png"),
     read("public/parent-push-sw.js"),
     read("public/manifest.webmanifest"),
