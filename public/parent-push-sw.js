@@ -1,8 +1,8 @@
 // Service Worker bersama: PWA ringan + push notifikasi.
 // Tidak pernah mencache jawaban Mutabaah, token, atau API Supabase.
-const VERSION = "mutabaah-pwa-v6-full-name-badge-20261022";
+const VERSION = "mutabaah-pwa-v7-amal-harian-black-20261022";
 const STATIC_CACHE = `${VERSION}-public`;
-const SHELL = ["/", "/manifest.webmanifest", "/favicon.svg", "/logo-sekolah-loading.png", "/pwa/icon-192.png", "/pwa/icon-512.png", "/notification/mutabaah-status-v4.png"];
+const SHELL = ["/", "/manifest.webmanifest", "/favicon.svg", "/logo-sekolah-loading.png", "/pwa/icon-192.png", "/pwa/icon-512.png", "/notification/amal-harian-status-v1.png"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil((async () => {
@@ -67,9 +67,9 @@ self.addEventListener("push", (event) => {
     try { payload = event.data?.json() || {}; } catch { /* teks cadangan */ }
     const scope = self.registration.scope;
     const icon = new URL("logo-sekolah-loading.png", scope).href;
-    // Badge transparan menampilkan nama lengkap dalam dua baris tebal.
-    // Android tetap menentukan ukuran fisik simbol di status bar.
-    const badge = new URL("notification/mutabaah-status-v4.png", scope).href;
+    // Badge hitam "Amal Harian" mengikuti desain yang disetujui.
+    // Ikon status bar tetap dibatasi ukuran fisik oleh Android.
+    const badge = new URL("notification/amal-harian-status-v1.png", scope).href;
     await self.registration.showNotification(payload.title || "Mutabaah Yaumiah", {
       body: payload.body || "Ada pemberitahuan Mutabaah.", icon, badge,
       tag: payload.tag || "mutabaah-harian", renotify: false,
