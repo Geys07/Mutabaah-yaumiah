@@ -28,9 +28,9 @@ test("both staff and parent bell menus use portal instead of clipped header", as
   assert.match(parent.toString(), /aria-expanded=\{noticeOpen\}/);
 });
 
-test("Android notification status badge uses approved black Amal Harian typography", async () => {
+test("Android notification badge uses smaller and slimmer Amal Harian wordmark", async () => {
   const [png, worker, manifest] = await Promise.all([
-    read("public/notification/amal-harian-status-v1.png"),
+    read("public/notification/amal-harian-status-v2.png"),
     read("public/parent-push-sw.js"),
     read("public/manifest.webmanifest"),
   ]);
@@ -40,9 +40,10 @@ test("Android notification status badge uses approved black Amal Harian typograp
   assert.equal(png[25], 6, "PNG should have RGBA transparency");
   assert.ok(png.length > 1500, "badge cannot be empty");
   assert.ok(png.includes(Buffer.from("Amal Harian")), "badge provenance metadata is missing");
+  assert.ok(png.includes(Buffer.from("safe padding")), "badge should include safe-padding revision metadata");
 
-  assert.match(worker.toString(), /mutabaah-pwa-v7-amal-harian-black-20261022/);
-  assert.match(worker.toString(), /notification\/amal-harian-status-v1\.png/);
+  assert.match(worker.toString(), /mutabaah-pwa-v8-amal-harian-slim-20261022/);
+  assert.match(worker.toString(), /notification\/amal-harian-status-v2\.png/);
   assert.match(worker.toString(), /showNotification\(payload\.title \|\| "Mutabaah Yaumiah"/);
   assert.match(worker.toString(), /const icon = new URL\("logo-sekolah-loading\.png"/);
   assert.doesNotMatch(worker.toString(), /badge = new URL\("notification\/mutabaah-status-v4\.png"/);
