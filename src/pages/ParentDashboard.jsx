@@ -1,6 +1,7 @@
 import { setParentEditorOpen } from "../lib/parentEditorState";
 import InstallAppSettings from "../components/InstallAppSettings";
 import EmptyState from "../components/EmptyState";
+import ViewportPopover from "../components/ViewportPopover";
 
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "../lib/supabase";
@@ -684,27 +685,6 @@ export default function ParentDashboard({
     };
   }, [studentId, today]);
 
-  useEffect(() => {
-    if (!noticeOpen) return undefined;
-
-    function outside(event) {
-      if (
-        noticeRef.current &&
-        !noticeRef.current.contains(event.target)
-      ) {
-        setNoticeOpen(false);
-      }
-    }
-
-    document.addEventListener("pointerdown", outside);
-
-    return () =>
-      document.removeEventListener(
-        "pointerdown",
-        outside
-      );
-  }, [noticeOpen]);
-
   const closeOverlay = useCallback(() => {
     const route = window.history.state?.__mutabaahNav;
     if (route?.scope === "parent" &&
@@ -1202,9 +1182,11 @@ export default function ParentDashboard({
                   </button>
 
                   {noticeOpen && (
-                    <div
+                    <ViewportPopover
                       className="pd-notice-popover"
-                      role="status"
+                      label="Pengingat Mutabaah"
+                      anchorRef={noticeRef}
+                      onClose={() => setNoticeOpen(false)}
                     >
                       <strong>
                         Pengingat Mutabaah
@@ -1228,7 +1210,7 @@ export default function ParentDashboard({
                       >
                         Buka Notifikasi
                       </button>
-                    </div>
+                    </ViewportPopover>
                   )}
                 </div>
 
