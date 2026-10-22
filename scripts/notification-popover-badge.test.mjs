@@ -40,7 +40,7 @@ test("push status badge is a high-contrast readable MY monogram", async () => {
   assert.equal(png[25], 6, "PNG needs RGBA alpha");
   assert.ok(png.length > 1500);
   assert.match(worker.toString(), /notification\/mutabaah-status-v3\.png/);
-  assert.match(renderer.toString(), /"name": "Mutabaah Yaumiah/);
+  assert.match(manifest.toString(), /"name": "Mutabaah Yaumiah/);
   assert.match(worker.toString(), /showNotification\(payload\.title \|\| "Mutabaah Yaumiah"/);
   assert.doesNotMatch(worker.toString(), /badge = new URL\("notification\/mutabaah-status-v2\.png"/);
   assert.doesNotMatch(worker.toString(), /badge = new URL\("notification\/mutabaah-status\.png"/);
