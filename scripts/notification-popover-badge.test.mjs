@@ -28,20 +28,25 @@ test("both staff and parent bell menus use portal instead of clipped header", as
   assert.match(parent.toString(), /aria-expanded=\{noticeOpen\}/);
 });
 
-test("push status badge is a high-contrast readable MY monogram", async () => {
-  const [png, worker, manifest] = await Promise.all([
-    read("public/notification/mutabaah-status-v3.png"),
+test("push status badge uses the full Mutabaah Yaumiah name", async () => {
+  const [png, worker, manifest, renderer] = await Promise.all([
+    read("public/notification/mutabaah-status-v4.png"),
     read("public/parent-push-sw.js"),
     read("public/manifest.webmanifest"),
+    read("scripts/render-notification-badge.py"),
   ]);
   assert.equal(png.toString("ascii", 1, 4), "PNG");
   assert.equal(png.readUInt32BE(16), 96);
   assert.equal(png.readUInt32BE(20), 96);
   assert.equal(png[25], 6, "PNG needs RGBA alpha");
   assert.ok(png.length > 1500);
-  assert.match(worker.toString(), /notification\/mutabaah-status-v3\.png/);
+  assert.match(worker.toString(), /notification\/mutabaah-status-v4\.png/);
   assert.match(manifest.toString(), /"name": "Mutabaah Yaumiah/);
+  assert.match(renderer.toString(), /\("Mutabaah", 253\)/);
+  assert.match(renderer.toString(), /\("Yaumiah", 235\)/);
+  assert.doesNotMatch(renderer.toString(), /"MY"/);
   assert.match(worker.toString(), /showNotification\(payload\.title \|\| "Mutabaah Yaumiah"/);
+  assert.doesNotMatch(worker.toString(), /badge = new URL\("notification\/mutabaah-status-v3\.png"/);
   assert.doesNotMatch(worker.toString(), /badge = new URL\("notification\/mutabaah-status-v2\.png"/);
   assert.doesNotMatch(worker.toString(), /badge = new URL\("notification\/mutabaah-status\.png"/);
 });
