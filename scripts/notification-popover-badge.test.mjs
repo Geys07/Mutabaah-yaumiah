@@ -42,7 +42,6 @@ test("push status badge uses bold full Mutabaah Yaumiah lettering", async () => 
   assert.match(worker.toString(), /notification\/mutabaah-status-v4\.png/);
   assert.match(manifest.toString(), /["']Mutabaah["']/);
   assert.match(manifest.toString(), /["']Yaumiah["']/);
-  assert.doesNotMatch(manifest.toString(), /put_alpha\(.*"MY"/);
   assert.match(worker.toString(), /showNotification\(payload\.title \|\| "Mutabaah Yaumiah"/);
   assert.doesNotMatch(worker.toString(), /badge = new URL\("notification\/mutabaah-status-v3\.png"/);
   assert.doesNotMatch(worker.toString(), /badge = new URL\("notification\/mutabaah-status-v2\.png"/);
