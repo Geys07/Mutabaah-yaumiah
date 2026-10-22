@@ -19,6 +19,9 @@
   -webkit-overflow-scrolling: touch;
 }
 .viewport-popover * { box-sizing: border-box; }
+.viewport-popover button { font-family: inherit; }
+.viewport-popover strong { overflow-wrap: anywhere; }
+.viewport-popover p { overflow-wrap: anywhere; }
 .viewport-popover:focus-within { outline-color: #178166; }
 .viewport-popover :is(button, a):focus-visible {
   outline: 3px solid #dfb75c;
@@ -41,6 +44,7 @@
   --sa-accent: #526da5; --sa-soft: #edf1fb;
 }
 .viewport-popover.pd-notice-popover {
+  position: fixed !important;
   padding: 16px;
   color: #183d2e;
   border-color: #d9ebe3;
