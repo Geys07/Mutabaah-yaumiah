@@ -143,7 +143,7 @@ async function sendPushToAdmins(kind: "request" | "message") {
     title: "Pemulihan Kata Sandi",
     body: kind === "request" ? "Ada permintaan pemulihan kata sandi baru."
       : "Ada pesan baru pada chat pemulihan kata sandi.",
-    tag: "chat-pemulihan-admin", url: "/",
+    tag: "chat-pemulihan-admin", url: "/?admin_recovery_chat=1",
   });
   await Promise.allSettled(devices.map(async (d: any) => {
     try {
@@ -166,7 +166,7 @@ async function sendPushToApplicant(ticketId: string) {
   const payload = JSON.stringify({
     title: "Pesan Baru dari Admin",
     body: "Admin telah menanggapi pemulihan kata sandi Anda. Buka percakapan untuk melihatnya.",
-    tag: "chat-pemulihan", url: "/",
+    tag: "chat-pemulihan", url: "/?recovery_chat=1",
   });
   await Promise.allSettled(devices.map(async (d: any) => {
     try {
