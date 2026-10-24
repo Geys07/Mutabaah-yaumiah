@@ -15,7 +15,7 @@ function errorText(error) {
   return error?.message || "Permintaan belum berhasil. Coba lagi.";
 }
 
-export default function ActivationBatch({ isTeacher = false }) {
+function ActivationBatchPanel({ isTeacher = false }) {
   const [classes, setClasses] = useState([]);
   const [classId, setClassId] = useState("");
   const [loadingClasses, setLoadingClasses] = useState(true);
@@ -93,6 +93,17 @@ export default function ActivationBatch({ isTeacher = false }) {
     return counts;
   }, { ready: 0, active: 0, linked: 0, needs_link: 0, incomplete: 0 }), [rows]);
 
+  const displayedClasses = useMemo(() => {
+    const groups = new Map();
+    for (const item of rows) {
+      if (item.code_state === "incomplete" || item.code_state === "linked") continue;
+      const className = item.class_name || "Tanpa Kelas";
+      if (!groups.has(className)) groups.set(className, []);
+      groups.get(className).push(item);
+    }
+    const collator = new Intl.Collator("id",{numeric:true,sensitivity:"base"});
+    return [...groups.entries()].sort((a,b)=>collator.compare(a[0],b[0]));
+  }, [rows]);
   const selectedClass = classes.find((item) => item.class_id === classId)?.class_name || "semua-kelas";
   const buttonsDisabled = loadingRows || busy || loadingClasses;
   const readyCount = summary.ready;
@@ -101,7 +112,6 @@ export default function ActivationBatch({ isTeacher = false }) {
   async function issue(student = null) {
     if (busy || loadingRows || !classId) return;
     setBusy(true);
-    setConfirmAll(false);
     setError("");
     setNotice("");
     try {
@@ -116,6 +126,7 @@ export default function ActivationBatch({ isTeacher = false }) {
       }
       const latest = await loadRows();
       setRows(latest);
+      setConfirmAll(false);
       setNotice(data.created > 0
         ? String(data.created) + " kode baru dibuat. Kode valid sebelumnya tetap dipertahankan."
         : "Tidak ada kode baru yang diperlukan. Kode valid dan akun aktif tidak berubah.");
@@ -188,7 +199,7 @@ export default function ActivationBatch({ isTeacher = false }) {
         <div><strong>{summary.ready}</strong><span>Perlu kode</span></div>
         <div><strong>{summary.active}</strong><span>Kode aktif</span></div>
         <div><strong>{summary.linked}</strong><span>Akun terhubung</span></div>
-        <div><strong>{summary.needs_link + summary.incomplete}</strong><span>Perlu ditinjau</span></div>
+        <div><strong>{summary.needs_link}</strong><span>Akun perlu dihubungkan</span></div>
       </div>
 
       <div className="activation-batch-actions">
@@ -208,9 +219,9 @@ export default function ActivationBatch({ isTeacher = false }) {
       {error && <p className="activation-batch-error" role="alert">{error}</p>}
       {notice && <p className="activation-batch-success" role="status">{notice}</p>}
 
-      {!loadingRows && !loadingClasses && rows.length === 0 ? (
+      {!loadingRows && !loadingClasses && displayedClasses.length === 0 ? (
         <p className="activation-batch-empty">
-          {classId ? "Belum ada kontak wali yang dapat ditampilkan di kelas ini." : "Wali kelas belum memiliki penugasan kelas."}
+          {classId ? "Tidak ada kode yang perlu dibuat atau dikelola di kelas ini." : "Wali kelas belum memiliki penugasan kelas."}
         </p>
       ) : (
         <div className="activation-batch-table-wrap">
@@ -224,8 +235,10 @@ export default function ActivationBatch({ isTeacher = false }) {
                 <th>Tindakan</th>
               </tr>
             </thead>
-            <tbody>
-              {rows.map((item) => (
+              {displayedClasses.map(([groupName, groupRows]) => (
+                <tbody key={groupName}>
+                  <tr className="activation-batch-class-heading"><th colSpan={5} scope="rowgroup">{groupName}</th></tr>
+                  {groupRows.map((item) => (
                 <tr key={item.student_id + "-" + item.relationship}>
                   <td><strong>{item.student_name}</strong><small>{item.class_name}</small></td>
                   <td>{item.contact_name}<small>{RELATIONSHIP[item.relationship] || "Wali"} · {item.phone || "Belum ada nomor HP"}</small></td>
@@ -241,12 +254,11 @@ export default function ActivationBatch({ isTeacher = false }) {
                     >Buat Kode</button>
                   ) : item.code_state === "needs_link" ? (
                     <small>Akun perlu dihubungkan ke siswa</small>
-                  ) : item.code_state === "incomplete" ? (
-                    <small>Lengkapi data melalui Admin</small>
                   ) : "—"}</td>
                 </tr>
+                  ))}
+                </tbody>
               ))}
-            </tbody>
           </table>
         </div>
       )}
@@ -266,5 +278,20 @@ export default function ActivationBatch({ isTeacher = false }) {
         </div>
       )}
     </section>
+  );
+}
+
+export default function ActivationBatch({ isTeacher = false }) {
+  const [open, setOpen] = useState(Boolean(isTeacher));
+  return (
+    <div className="activation-batch-shell">
+      {!isTeacher && <button className="activation-batch-toggle" type="button"
+        aria-expanded={open} onClick={()=>setOpen(previous=>!previous)}>
+        <span>Aktivasi Akun Massal</span>
+        <small>{open ? "Tutup pengelolaan kode" : "Buka untuk membuat atau mencetak kode"}</small>
+        <span className="activation-batch-chevron" aria-hidden="true">{open ? "⌃" : "⌄"}</span>
+      </button>}
+      {open && <ActivationBatchPanel isTeacher={isTeacher}/>}
+    </div>
   );
 }
