@@ -23,6 +23,7 @@ import HomeroomAssignments from "./HomeroomAssignments";
 import TeacherAccounts from "./TeacherAccounts";
 import Parents from "./Parents";
 const MonthlyReports = lazy(() => import("./MonthlyReports"));
+const AdminRecoveryChats = lazy(() => import("./AdminRecoveryChats"));
 const ReportCards = lazy(() => import("./ReportCards"));
 import ReportTargetSettings from "./ReportTargetSettings";
 import ReportGradingSettings from "./ReportGradingSettings";
@@ -45,6 +46,7 @@ const GROUPS = [
     items: [
       { id: "dashboard", label: "Beranda", icon: "home" },
       { id: "notifications", label: "Notifikasi", icon: "bell" },
+      { id: "recovery-chat", label: "Chat Pemulihan Kata Sandi", icon: "shield" },
     ],
   },
   {
@@ -872,7 +874,8 @@ export default function AdminDashboard({
   onSchoolUpdated,
   onLogout,
 }) {
-  const [activeMenu, setActiveMenu] = useState("dashboard");
+  const [activeMenu, setActiveMenu] = useState(() =>
+    new URLSearchParams(window.location.search).has("admin_recovery_chat") ? "recovery-chat" : "dashboard");
   const { push: pushPage } = usePanelHistory("admin", "dashboard", (page) => {
     if (MENU.some((item) => item.id === page)) setActiveMenu(page);
   });
@@ -991,6 +994,10 @@ export default function AdminDashboard({
           loadPendingCount={loadPendingCount}
           loggingOut={loggingOut}
         />
+      )}
+
+      {activeMenu === "recovery-chat" && (
+        <Suspense fallback={<p role="status">Memuat chat pemulihan…</p>}><AdminRecoveryChats /></Suspense>
       )}
 
       {activeMenu === "identity" && (
