@@ -106,6 +106,17 @@ export default function AdminRecoveryChats() {
     finally{setBusy("");}
   }
 
+  async function reissueCode(){
+    if(!selected||busy||!window.confirm("Terbitkan kode pemulihan baru? Kode lama langsung dibatalkan."))return;
+    setBusy("reissue");setError("");
+    try{
+      const result=await callChat({action:"admin_reissue",ticket_id:selected});
+      setNotice(result.warning||"Kode baru berhasil dikirim melalui chat.");
+      await Promise.all([loadDetail(selected),loadList()]);
+    }catch(problem){setError(problem.message||"Gagal menerbitkan kode baru.");}
+    finally{setBusy("");}
+  }
+
   async function confirmDecision(){
     if(!pending||!decision||!selected||busy)return;
     setBusy("decision");setError("");
@@ -177,6 +188,15 @@ export default function AdminRecoveryChats() {
                   <div className="arc-decision-actions">
                     <button type="button" className="arc-approve" onClick={()=>setDecision("approve")}>Setujui & Kirim Kode</button>
                     <button type="button" className="arc-reject" onClick={()=>setDecision("reject")}>Tolak</button>
+                  </div>
+                </div>
+              )}
+              {detail?.status==="approved" && detail.reviewed_at &&
+                (Date.now()-new Date(detail.reviewed_at).getTime()>=14*86400000) && (
+                <div className="arc-decision-bar">
+                  <div><strong>Kode pemulihan sudah kedaluwarsa</strong><small>Kode lama tidak dapat digunakan lagi.</small></div>
+                  <div className="arc-decision-actions">
+                    <button type="button" className="arc-approve" onClick={()=>void reissueCode()} disabled={Boolean(busy)}>Terbitkan Kode Baru</button>
                   </div>
                 </div>
               )}
