@@ -133,6 +133,11 @@ function LoginPage({
   }
 
   function returnAfter(message) {
+    const url = new URL(window.location.href);
+    if (url.searchParams.has("recovery_chat")) {
+      url.searchParams.delete("recovery_chat");
+      window.history.replaceState(window.history.state, "", url.pathname + url.search + url.hash);
+    }
     replaceLoginHistory("login");
     setMode("login");
     setUsername("");
@@ -148,6 +153,14 @@ function LoginPage({
   }
 
   function backToLogin() {
+    if (new URLSearchParams(window.location.search).has("recovery_chat")) {
+      const url = new URL(window.location.href);
+      url.searchParams.delete("recovery_chat");
+      window.history.replaceState(window.history.state, "", url.pathname + url.search + url.hash);
+      replaceLoginHistory("login");
+      setMode("login");
+      return;
+    }
     const route = window.history.state?.__mutabaahNav;
     if (route?.scope === "login" && route.page !== "login") window.history.back();
     else changeMode("login");
