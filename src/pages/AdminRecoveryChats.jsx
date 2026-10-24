@@ -3,8 +3,9 @@ import { supabase } from "../lib/supabase";
 import { edgeFunctionErrorMessage } from "../lib/edgeFunctionError";
 import {
   useRecoverySignal, useRecoveryOutbox, createOptimisticMessage,
-  combineRecoveryMessages, Receipt,
-} from "../lib/recoveryRealtime";
+  combineRecoveryMessages,
+} from "../lib/recoveryRealtime.js";
+import { Receipt } from "../lib/recoveryRealtime.jsx";
 import "./AdminRecoveryChats.css";
 
 async function callChat(body) {
