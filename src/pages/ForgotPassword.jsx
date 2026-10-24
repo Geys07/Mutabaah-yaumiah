@@ -160,7 +160,7 @@ export default function ForgotPassword({ onBack, onSuccess }) {
   async function transmitMessage(message) {
     try {
       const result=await invoke("recovery-chat", {
-        action:"my_send",token:message.scope,
+        action: "my_send",token:message.scope,
         message:message.body,client_id:message.client_id
       });
       ackMessage(message.client_id,result.message||{});
