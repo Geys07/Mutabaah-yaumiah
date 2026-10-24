@@ -36,7 +36,7 @@ function fullDate(value) {
 export default function AdminRecoveryChats() {
   const [tickets,setTickets]=useState([]);
   const [inboxTopic,setInboxTopic]=useState("");
-  const {outbox,add:queueMessage,ack:ackMessage,fail:failMessage}=useRecoveryOutbox();
+  const {outbox,add:queueMessage,ack:ackMessage,fail:failMessage,retry:retryMessage}=useRecoveryOutbox();
   const [listLoaded,setListLoaded]=useState(false);
   const [selected,setSelected]=useState("");
   const [detail,setDetail]=useState(null);
@@ -101,6 +101,7 @@ export default function AdminRecoveryChats() {
     return match&&statusMatch;
   }).sort((a,b)=>{
     function priority(t) {
+      if(["used","rejected","revoked"].includes(t.status)) return 4;
       if(t.unread > 0) return 0;
       if(t.status === "pending") return 1;
       if(t.status === "processing") return 2;
@@ -264,7 +265,7 @@ export default function AdminRecoveryChats() {
                     </small>
                     <div className="arc-message-tools">
                       {msg.local_state==="failed"&&<button type="button"
-                        onClick={()=>{ackMessage(msg.client_id,{local_state:"sending"});void transmit({...msg,local_state:"sending"});}}
+                        onClick={()=>{retryMessage(msg.client_id);void transmit(msg);}}
                       >Kirim Ulang</button>}
                       {!msg.local_state&&<button type="button" aria-label="Hapus pesan untuk Admin"
                         onClick={()=>void deleteMessage(msg.id)} disabled={Boolean(busy)}>Hapus</button>}
