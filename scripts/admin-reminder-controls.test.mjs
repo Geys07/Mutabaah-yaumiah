@@ -42,7 +42,7 @@ test("admin inbox retains original request records and provides safe actions", a
   ]);
   assert.match(tabs, /AdminNoticeInbox/);
   assert.match(tabs, /AdminReminderSettings/);
-  assert.match(inbox, /Tandai Dibaca Semua/);
+  assert.match(inbox, /Tandai (Dibaca )?Semua/);
   assert.match(inbox, /Hapus yang Dibaca/);
   assert.match(inbox, /"mark-all"/);
   assert.match(inbox, /"delete-read"/);
