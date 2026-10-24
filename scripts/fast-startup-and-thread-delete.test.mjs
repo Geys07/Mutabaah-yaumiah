@@ -39,7 +39,7 @@ test("deleting a whole chat requires terminal ticket and keeps recovery audit",a
  const [edge,admin,sql]=await Promise.all([
   read("supabase/functions/recovery-chat/index.ts"),
   read("src/pages/AdminRecoveryChats.jsx"),
-  read("supabase/migrations/20261024180000_recovery_chat_tickets.sql"),
+  read("supabase/migrations/20261024115814_recovery_chat_tickets_four_time_20261024.sql"),
  ]);
  assert.match(edge,/\["used","rejected","revoked"\]\.includes\(request\.status\)/);
  assert.match(edge,/\.from\("recovery_chat_tickets"\)\s*\.delete\(\)/);
