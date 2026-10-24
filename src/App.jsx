@@ -194,13 +194,14 @@ function LoginPage({
     setNotice(null);
 
     try {
-      await signIn(
+      const authenticated = await signIn(
         username.trim(),
         password
       );
 
-      const current =
-        await getCurrentAccount();
+      const current = await getCurrentAccount({
+        verifiedUser: authenticated?.user,
+      });
 
       if (!current) {
         throw new Error(
@@ -575,19 +576,9 @@ export default function App() {
     []
   );
 
-  // Loading awal memberikan waktu baca ayat.
-  // Setelah login, menunggu data panel siap.
-  const readingMs =
-    session === 0
-      ? Math.min(
-          18000,
-          Math.max(
-            10000,
-            9500 +
-              (quote?.arabic?.length || 0) * 65
-          )
-        )
-      : 2600;
+  // Intro pertama sekitar 5 detik termasuk progres akhir dan fade-out.
+  // Setelah login, tampilkan panel secepat mungkin tanpa mengunci RPC latar.
+  const readingMs = session === 0 ? 4300 : 250;
 
   useEffect(() => {
     if (startedAt.current === 0) {
@@ -692,9 +683,9 @@ export default function App() {
     ].includes(role)
   );
 
-  const dataReady =
-    bootReady &&
-    (!hasPanel || panelReady);
+  // Jangan menahan layar sampai semua RPC dashboard selesai.
+  // Tiap panel memiliki state memuat sendiri sehingga data tetap aman.
+  const dataReady = bootReady;
 
   // Progress menggunakan angka tertinggi
   // yang pernah dicapai dalam sesi berjalan.
@@ -796,7 +787,7 @@ export default function App() {
 
     const timer = window.setTimeout(
       () => setLoading(false),
-      800
+      460
     );
 
     return () => {
@@ -952,7 +943,7 @@ export default function App() {
                 ? "Gagal menghubungkan ke server."
                 : !bootReady
                   ? "Menghubungkan ke server..."
-                  : !dataReady
+                  : hasPanel && !panelReady
                     ? "Menyiapkan data beranda..."
                     : progress === 100
                       ? "Semua siap. Selamat datang!"
