@@ -97,7 +97,7 @@ test("refreshed guest chat stays separate from ordinary login, and account notic
   assert.match(app,/saved\?\.scope === "login" && saved\.page === "forgot"/);
   assert.match(app,/shouldRestorePasswordRecovery\(\) \? "forgot" : "login"/);
   assert.match(app,/url\.searchParams\.delete\("recovery_chat"\)/);
-  assert.match(server,/phone:owner\?\.phone\|\|""/);
+  assert.match(server,/phone:ownerProfile\?\.phone\|\|""/);
   assert.match(parent,/phone: chat\?\.phone \|\| old\.phone/);
   assert.match(notices,/onOpenRecoveryChats/);
   assert.doesNotMatch(notices,/<AdminNotifications/);
