@@ -268,7 +268,13 @@ async function listForAdmin() {
     .select("id,user_id,request_id,created_at,last_message_at,delete_after")
     .order("last_message_at", { ascending: false }).limit(200);
   if (error) throw error;
-  if (!tickets?.length) return reply({ success: true, tickets: [] });
+  if (!tickets?.length) {
+    const {data: emptySignal}=await db.from("recovery_chat_admin_signal")
+      .select("realtime_key").eq("singleton",true).maybeSingle();
+    return reply({success:true,tickets:[],
+      realtime_topic: emptySignal?.realtime_key
+        ? "recovery-chat-admin-" + emptySignal.realtime_key : null});
+  }
   // Perangkat Admin telah menerima pesan (2 centang), tetapi belum membacanya.
   const ticketIds = tickets.map((t: any) => t.id);
   await db.from("recovery_chat_messages").update({delivered_at:new Date().toISOString()})
