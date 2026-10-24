@@ -62,19 +62,21 @@ export default function AdminRecoveryChats() {
   },[]);
 
   useEffect(()=>{
-    void loadList();
+    let mounted=true;
+    Promise.resolve().then(()=>{if(mounted) void loadList();});
     const timer=window.setInterval(()=>{if(!document.hidden) void loadList();},12000);
     const visible=()=>{if(!document.hidden)void loadList();};
     window.addEventListener("focus",visible);
     document.addEventListener("visibilitychange",visible);
-    return ()=>{window.clearInterval(timer);window.removeEventListener("focus",visible);document.removeEventListener("visibilitychange",visible);};
+    return ()=>{mounted=false;window.clearInterval(timer);window.removeEventListener("focus",visible);document.removeEventListener("visibilitychange",visible);};
   },[loadList]);
 
   useEffect(()=>{
     if(!selected)return undefined;
-    void loadDetail(selected);
+    let mounted=true;
+    Promise.resolve().then(()=>{if(mounted) void loadDetail(selected);});
     const timer=window.setInterval(()=>{if(!document.hidden)void loadDetail(selected);},10000);
-    return ()=>window.clearInterval(timer);
+    return ()=>{mounted=false;window.clearInterval(timer);};
   },[selected,loadDetail]);
 
   useEffect(()=>{endRef.current?.scrollIntoView({block:"end"});},[selected,detail?.messages?.length]);
@@ -192,7 +194,7 @@ export default function AdminRecoveryChats() {
                 </div>
               )}
               {detail?.status==="approved" && detail.reviewed_at &&
-                (Date.now()-new Date(detail.reviewed_at).getTime()>=14*86400000) && (
+                detail.code_expired && (
                 <div className="arc-decision-bar">
                   <div><strong>Kode pemulihan sudah kedaluwarsa</strong><small>Kode lama tidak dapat digunakan lagi.</small></div>
                   <div className="arc-decision-actions">
