@@ -1,17 +1,14 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { supabase } from "../lib/supabase";
+import { edgeFunctionErrorMessage } from "../lib/edgeFunctionError";
 import "./AdminRecoveryChats.css";
 
 async function callChat(body) {
   const { data, error } = await supabase.functions.invoke("recovery-chat", { body });
   if (error) {
-    try {
-      const parsed = await error.context?.json();
-      throw new Error(parsed?.error || error.message);
-    } catch (problem) {
-      if (problem?.message && problem.message !== "Unexpected end of JSON input") throw problem;
-      throw error;
-    }
+    throw new Error(await edgeFunctionErrorMessage(
+      error, "Chat belum dapat dimuat. Periksa koneksi dan coba Perbarui."
+    ));
   }
   if (data?.success !== true) throw new Error(data?.error || "Gagal memuat chat.");
   return data;
