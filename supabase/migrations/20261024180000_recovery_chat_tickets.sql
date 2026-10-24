@@ -72,7 +72,7 @@ REVOKE ALL ON FUNCTION public.recovery_chat_mark_decision() FROM PUBLIC,anon,aut
 -- Ketika tiket dipangkas, batalkan kode approved yang tersisa supaya akun
 -- dapat membuat permohonan baru. Status audit permintaan tetap disimpan.
 CREATE OR REPLACE FUNCTION public.cleanup_recovery_chats()
-RETURNS void LANGUAGE plpgsql SECURITY DEFINER SET search_path TO '' AS $
+RETURNS void LANGUAGE plpgsql SECURITY DEFINER SET search_path TO '' AS $$
 BEGIN
   UPDATE public.password_reset_requests r
     SET status = 'revoked', lock_reason = 'Tiket chat melewati masa simpan 30 hari'
@@ -82,7 +82,7 @@ BEGIN
   DELETE FROM public.recovery_chat_tickets
     WHERE delete_after IS NOT NULL AND delete_after <= now();
 END;
-$;
+$$;
 REVOKE ALL ON FUNCTION public.cleanup_recovery_chats() FROM PUBLIC,anon,authenticated;
 
 -- Hapus chat, langganan push chat dan pesannya; pertahankan status audit.
