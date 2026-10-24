@@ -3,6 +3,7 @@ import { supabase } from "../lib/supabase";
 import { PAGE_SIZE } from "../lib/pagination";
 import Pagination from "../components/Pagination";
 import EmptyState from "../components/EmptyState";
+import useNotificationPulse from "../hooks/useNotificationPulse";
 import "./AdminNoticeInbox.css";
 
 const FILTERS = [
@@ -33,6 +34,8 @@ export default function AdminNoticeInbox({ onChanged, onOpenRequest }) {
   const [message, setMessage] = useState("");
 
   const reload = useCallback(() => setRevision((value) => value + 1), []);
+  // Saat permohonan selesai di tab lain, baca ulang status pesan tanpa reload halaman.
+  useNotificationPulse(reload);
 
   useEffect(() => {
     let active = true;

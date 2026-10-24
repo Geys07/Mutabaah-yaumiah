@@ -8,6 +8,8 @@ import { supabase } from "../lib/supabase";
 import { fetchAll } from "../lib/pagination";
 import { signOut } from "../lib/auth";
 import usePanelHistory from "../hooks/usePanelHistory";
+import useNotificationPulse from "../hooks/useNotificationPulse";
+import { announceNotificationChange } from "../lib/notificationUpdates";
 import { SCHOOL_LOGO_URL } from "../lib/branding";
 import { getRandomQuote } from "../data/islamicQuotes";
 import StudentAvatar from "../components/StudentAvatar";
@@ -316,6 +318,11 @@ export default function ParentDashboard({
   const [linking, setLinking] = useState(false);
   const [loggingOut, setLoggingOut] =
     useState(false);
+
+  useNotificationPulse(
+    () => setStatusRevision((value) => value + 1),
+    Boolean(studentId) && !loggingOut
+  );
 
   const [noticeOpen, setNoticeOpen] = useState(false);
   const [noticeRead, setNoticeRead] = useState(true);
@@ -683,7 +690,7 @@ export default function ParentDashboard({
     return () => {
       active = false;
     };
-  }, [studentId, today]);
+  }, [studentId, today, statusRevision]);
 
   const closeOverlay = useCallback(() => {
     const route = window.history.state?.__mutabaahNav;
@@ -949,6 +956,7 @@ export default function ParentDashboard({
 
     if (!failure) {
       setNoticeRead(true);
+      announceNotificationChange();
     }
   }
 
@@ -1767,9 +1775,7 @@ export default function ParentDashboard({
                 studentId={studentId}
                 selectedDate={selectedDate}
                 maxDate={today}
-                onSaved={() =>
-                  setStatusRevision((n) => n + 1)
-                }
+                onSaved={() => announceNotificationChange()}
               />
             </div>
           </section>

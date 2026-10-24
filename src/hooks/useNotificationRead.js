@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { supabase } from "../lib/supabase";
 import { isNotificationAbort } from "../lib/notificationRead";
+import { subscribeNotificationChanges } from "../lib/notificationUpdates";
 
 export default function useNotificationRead(key, loader, enabled = true) {
   const [state, setState] = useState({
@@ -84,6 +85,9 @@ export default function useNotificationRead(key, loader, enabled = true) {
     });
     window.addEventListener("focus", focus);
     window.addEventListener("online", online);
+    const unsubscribeUpdates = subscribeNotificationChanges(() => {
+      if (!document.hidden) void refresh({ force: true, replace: true });
+    });
     document.addEventListener("visibilitychange", visibility);
     return () => {
       item.active = false;
@@ -93,6 +97,7 @@ export default function useNotificationRead(key, loader, enabled = true) {
       window.clearInterval(interval);
       window.removeEventListener("focus", focus);
       window.removeEventListener("online", online);
+      unsubscribeUpdates();
       document.removeEventListener("visibilitychange", visibility);
     };
   }, [key, enabled, refresh, cancel]);
