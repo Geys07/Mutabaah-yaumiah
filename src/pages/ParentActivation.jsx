@@ -81,11 +81,11 @@ export default function ParentActivation({
     }
 
     if (
-      form.password.length < 10 ||
+      form.password.length < 6 ||
       form.password.length > 72
     ) {
       setError(
-        "Kata sandi harus terdiri dari 10–72 karakter."
+        "Kata sandi harus terdiri dari 6–72 karakter."
       );
       return;
     }
@@ -204,7 +204,7 @@ export default function ParentActivation({
             }
             autoComplete="new-password"
             required
-            minLength={10}
+            minLength={6}
             maxLength={72}
             value={form.password}
             disabled={submitting}
@@ -222,7 +222,7 @@ export default function ParentActivation({
             }
             autoComplete="new-password"
             required
-            minLength={10}
+            minLength={6}
             maxLength={72}
             value={form.confirm_password}
             disabled={submitting}
