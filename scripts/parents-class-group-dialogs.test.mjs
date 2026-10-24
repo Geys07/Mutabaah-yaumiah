@@ -92,3 +92,28 @@ test("student-related pickers group by class and update data across tabs without
   assert.match(signals,/45000/);
   assert.doesNotMatch(signals,/full_name|student_name|phone/);
 });
+
+
+test("history search groups student results under latest class without changing audit RPC",async()=>{
+  const [history,css]=await Promise.all([
+    read("src/pages/StudentHistoryPanel.jsx"),
+    read("src/pages/StudentHistoryPanel.css"),
+  ]);
+  assert.match(history,/groupedResults\.map\(\(\[className,items\]\)/);
+  assert.match(history,/\.from\("student_enrollments"\)/);
+  assert.match(history,/\.order\("starts_on",\{ascending:false\}\)/);
+  assert.match(history,/\.limit\(300\)/);
+  assert.match(history,/sh-class-group/);
+  assert.match(css,/var\(--sa-accent/);
+  assert.match(css,/\.sh-class-heading/);
+});
+test("daily finalize confirmation stays until backend result, and failures remain actionable",async()=>{
+  const daily=await read("src/pages/ParentDaily.jsx");
+  const begin=daily.indexOf("async function saveDay(finalize)");
+  const operation=daily.slice(begin,begin+2100);
+  assert.match(operation,/setFinalizing\(true\)/);
+  assert.doesNotMatch(operation,/setConfirmOpen\(false\)/);
+  assert.match(daily,/callbacks\.current\.onFinalized\?\.\(\)/);
+  assert.match(daily,/setConfirmOpen\(false\);\s*callbacks\.current\.onFinalized/);
+  assert.match(daily,/role="alert"/);
+});
