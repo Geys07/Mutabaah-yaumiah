@@ -7,7 +7,7 @@ test("chat uses optimistic delivery without waiting for backend before displayin
   const [applicant, admin, helper] = await Promise.all([
     read("src/pages/ForgotPassword.jsx"),
     read("src/pages/AdminRecoveryChats.jsx"),
-    read("src/lib/recoveryRealtime.jsx"),
+    read("src/lib/recoveryRealtime.js"),
   ]);
   for (const screen of [applicant, admin]) {
     assert.match(screen,/createOptimisticMessage/);
@@ -27,7 +27,8 @@ test("chat uses optimistic delivery without waiting for backend before displayin
 });
 
 test("one, two, blue ticks follow server ack, delivery and read fields", async () => {
-  const [ui,css] = await Promise.all([
+  const [ui,receipt,css] = await Promise.all([
+    read("src/lib/recoveryRealtime.js"),
     read("src/lib/recoveryRealtime.jsx"),
     read("src/styles/recovery-chat-receipts.css"),
   ]);
@@ -35,7 +36,7 @@ test("one, two, blue ticks follow server ack, delivery and read fields", async (
   assert.match(ui,/message\.local_state === "failed"/);
   assert.match(ui,/message\.read_at/);
   assert.match(ui,/message\.delivered_at/);
-  assert.match(ui,/✓✓/);
+  assert.match(receipt,/✓✓/);
   assert.match(css,/\.rc-receipt\.is-read \{color:#2585dd\}/);
   assert.match(css,/var\(--sa-muted/);
 });
