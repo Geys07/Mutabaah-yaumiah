@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { supabase } from "../lib/supabase";
+import { edgeFunctionErrorMessage } from "../lib/edgeFunctionError";
 import "./ForgotPassword.css";
 
 const TICKET_KEY = "mutabaah-password-recovery-chat-v1";
@@ -9,19 +10,9 @@ const normalizePhone = (value) => {
   return digits.startsWith("62") ? "0" + digits.slice(2) : digits;
 };
 
-async function readError(error) {
-  try {
-    if (error?.context) {
-      const data = await error.context.json();
-      return data?.error || data?.message || error.message;
-    }
-  } catch { /* Gunakan pesan standar. */ }
-  return error?.message || "Tidak dapat menghubungi layanan pemulihan.";
-}
-
 async function invoke(kind, body) {
   const { data, error } = await supabase.functions.invoke(kind, { body });
-  if (error) throw new Error(await readError(error));
+  if (error) throw new Error(await edgeFunctionErrorMessage(error, "Tidak dapat menghubungi layanan pemulihan."));
   if (data?.success !== true) throw new Error(data?.error || "Permintaan tidak berhasil.");
   return data;
 }

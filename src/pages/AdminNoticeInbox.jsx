@@ -120,7 +120,7 @@ export default function AdminNoticeInbox({ onChanged, onOpenRequest }) {
       <header className="notice-inbox-header">
         <div>
           <h2>Kotak Masuk</h2>
-          <p>Pesan sistem dan contoh pengingat. Menghapus pesan tidak menghapus permintaan aslinya.</p>
+          <p>Pesan sistem dan pengingat. Riwayat permintaan tetap tersimpan.</p>
         </div>
         <span className="notice-inbox-count" aria-label={`${unread} belum dibaca`}>{unread} baru</span>
       </header>
@@ -138,13 +138,13 @@ export default function AdminNoticeInbox({ onChanged, onOpenRequest }) {
         </div>
         <div className="notice-inbox-bulk">
           <button type="button" disabled={busy || loading || unread === 0}
-            onClick={() => void act("mark-all")}>Tandai Dibaca Semua</button>
+            onClick={() => void act("mark-all")}>Tandai Semua</button>
           <button type="button" className="notice-inbox-danger"
             disabled={busy || loading || total === 0 && filter === "read"}
             onClick={() => setConfirmation({ action: "delete-read", title: "Hapus seluruh notifikasi yang sudah dibaca?" })}>
-            Hapus yang Dibaca
+            Hapus Dibaca
           </button>
-          <button type="button" disabled={loading || busy} onClick={reload}>Muat Ulang</button>
+          <button type="button" disabled={loading || busy} onClick={reload}>Perbarui</button>
         </div>
       </div>
 

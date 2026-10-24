@@ -38,3 +38,42 @@
   .phone-request-phones{grid-template-columns:1fr;gap:10px}
   .phone-request-arrow{display:none}
 }
+
+/* Panel Admin: permohonan nomor dan izin push memakai palet waktu panel,
+   tanpa mengubah tampilan formulir milik Orang Tua. */
+.staff-app .phone-panel {
+  background:var(--sa-card,#fff);
+  border-color:var(--sa-line,#dfe9e4);
+  color:var(--sa-ink,#253c36);
+}
+.staff-app .phone-panel p,
+.staff-app .phone-panel label,
+.staff-app .phone-request small,
+.staff-app .phone-field-label,
+.staff-app .phone-request-student-list span,
+.staff-app .phone-request-arrow {
+  color:var(--sa-muted,#718079);
+}
+.staff-app .phone-panel input {
+  border-color:var(--sa-line,#dfe9e4);
+  background:var(--sa-card,#fff);
+  color:var(--sa-ink,#253c36);
+}
+.staff-app .phone-panel button:not(:disabled) {
+  background:var(--sa-accent,#178166);
+  color:#fff;
+}
+.staff-app .phone-request {
+  border-color:var(--sa-line,#dfe9e4);
+  background:var(--sa-card,#fff);
+}
+.staff-app .phone-dialog {
+  background:var(--sa-card,#fff);
+  color:var(--sa-ink,#253c36);
+}
+.staff-app .phone-verification-note {
+  background:var(--sa-soft,#e9f6ee);
+  color:var(--sa-ink,#253c36);
+}
+.staff-app .phone-status,
+.staff-app .phone-success { color:var(--sa-accent,#178166)!important; }

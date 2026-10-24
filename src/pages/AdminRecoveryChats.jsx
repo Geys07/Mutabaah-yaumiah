@@ -1,17 +1,14 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { supabase } from "../lib/supabase";
+import { edgeFunctionErrorMessage } from "../lib/edgeFunctionError";
 import "./AdminRecoveryChats.css";
 
 async function callChat(body) {
   const { data, error } = await supabase.functions.invoke("recovery-chat", { body });
   if (error) {
-    try {
-      const parsed = await error.context?.json();
-      throw new Error(parsed?.error || error.message);
-    } catch (problem) {
-      if (problem?.message && problem.message !== "Unexpected end of JSON input") throw problem;
-      throw error;
-    }
+    throw new Error(await edgeFunctionErrorMessage(
+      error, "Chat belum dapat dimuat. Periksa koneksi dan coba Perbarui."
+    ));
   }
   if (data?.success !== true) throw new Error(data?.error || "Gagal memuat chat.");
   return data;
@@ -34,6 +31,7 @@ function fullDate(value) {
 }
 export default function AdminRecoveryChats() {
   const [tickets,setTickets]=useState([]);
+  const [listLoaded,setListLoaded]=useState(false);
   const [selected,setSelected]=useState("");
   const [detail,setDetail]=useState(null);
   const [query,setQuery]=useState("");
@@ -50,7 +48,9 @@ export default function AdminRecoveryChats() {
     try {
       const result=await callChat({action:"admin_list"});
       setTickets(result.tickets || []);
+      setError("");
     } catch (problem) {setError(problem.message || "Tidak dapat memuat daftar pemulihan.");}
+    finally {setListLoaded(true);}
   },[]);
 
   const loadDetail=useCallback(async(ticketId)=>{
@@ -134,12 +134,12 @@ export default function AdminRecoveryChats() {
   return (
     <section className="arc-root" aria-label="Chat Pemulihan Kata Sandi">
       <header className="arc-page-title">
-        <div><h2>Chat Pemulihan Kata Sandi</h2><p>Kelola percakapan pribadi wali murid dan staf tanpa keluar dari chat.</p></div>
+        <div><h2>Percakapan</h2><p>Balas pesan dan proses pemulihan langsung dari chat.</p></div>
         <button type="button" onClick={()=>void Promise.all([loadList(),selected?loadDetail(selected):null])} disabled={Boolean(busy)}>Perbarui</button>
       </header>
       {error&&<p className="arc-error" role="alert">{error}</p>}
       {notice&&<p className="arc-notice" role="status">{notice}</p>}
-      <div className={`arc-layout ${mobileChat ? "is-open" : ""}`}>
+      <div className={`arc-layout ${mobileChat ? "is-open" : ""} ${listLoaded && filtered.length === 0 ? "is-empty" : ""}`}>
         <aside className="arc-list" aria-label="Daftar percakapan">
           <div className="arc-list-header">
             <strong>Percakapan <span>{unread>0? "(" + unread + " baru)":""}</span></strong>
@@ -152,7 +152,11 @@ export default function AdminRecoveryChats() {
             </div>
           </div>
           <div className="arc-contacts">
-            {filtered.length===0&&<p className="arc-empty">Belum ada percakapan untuk filter ini.</p>}
+            {filtered.length===0&&<div className="arc-empty-state" role="status">
+              <span aria-hidden="true">✉</span>
+              <strong>{!listLoaded ? "Memuat percakapan…" : error ? "Belum dapat memuat percakapan" : "Belum ada percakapan"}</strong>
+              <p>{!listLoaded ? "Menghubungkan ke layanan pemulihan." : error ? "Gunakan Perbarui untuk mencoba kembali." : "Permintaan baru akan muncul di sini. Anda juga dapat mengganti filter."}</p>
+            </div>}
             {filtered.map((item)=>(
               <button key={item.id} className={`arc-contact ${selected===item.id?"is-selected":""}`}
                 type="button" onClick={()=>openChat(item.id)}>

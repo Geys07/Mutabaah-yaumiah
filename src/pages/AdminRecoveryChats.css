@@ -124,3 +124,69 @@
   .arc-decision-actions button {font-size:10px;padding:8px 6px}
   .arc-room-head .arc-status {font-size:8px}
 }
+
+
+/* Penyesuaian ruang chat terhadap palet pagi, siang, sore, malam yang sama
+   dengan StaffWorkspace. Jangan mengunci warna hijau untuk malam. */
+.arc-root .arc-page-title button:hover:not(:disabled) {
+  background:var(--arc-soft);
+  border-color:var(--arc-accent);
+}
+.arc-root .arc-room {
+  background-color:var(--arc-bg);
+  background-image:linear-gradient(150deg,var(--arc-bg) 0%,var(--arc-soft) 100%);
+}
+.arc-root .arc-room-head,
+.arc-root .arc-composer,
+.arc-root .arc-list,
+.arc-root .arc-contact,
+.arc-root .arc-message:not(.is-admin),
+.arc-root .arc-dialog {
+  background-color:var(--sa-card,#fff);
+}
+.arc-root .arc-empty-state {
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  padding:23px 17px;
+  text-align:center;
+  color:var(--arc-muted);
+}
+.arc-root .arc-empty-state span {
+  display:grid;
+  place-items:center;
+  width:55px;
+  height:55px;
+  margin-bottom:12px;
+  border-radius:17px;
+  background:var(--arc-soft);
+  color:var(--arc-accent);
+  font-size:27px;
+}
+.arc-root .arc-empty-state strong {
+  color:var(--arc-ink);
+  font-size:13px;
+}
+.arc-root .arc-empty-state p {
+  max-width:250px;
+  margin:6px 0 0;
+  font-size:11px;
+  line-height:1.6;
+}
+.arc-root .arc-layout.is-empty {
+  height:min(490px,calc(100dvh - 175px));
+  min-height:340px;
+}
+.arc-root .arc-list-header input:focus-visible,
+.arc-root .arc-composer input:focus-visible,
+.arc-root button:focus-visible {
+  outline:2px solid var(--arc-accent);
+  outline-offset:2px;
+}
+@media (max-width:800px) {
+  .arc-root .arc-page-title p {line-height:1.35}
+  .arc-root .arc-layout.is-empty {height:min(440px,calc(100dvh - 200px));min-height:320px}
+  .arc-root .arc-list-header {padding:13px 12px}
+}
