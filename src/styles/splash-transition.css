@@ -282,3 +282,37 @@
     transition: none;
   }
 }
+
+/* Jika server belum merespons setelah intro 5 detik, berhenti menahan
+   ilustrasi animasi. Tidak menampilkan dashboard sebelum verifikasi akun. */
+.mut-startup-connecting {
+  display:flex;
+  min-height:100dvh;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:12px;
+  padding:28px;
+  text-align:center;
+  background:var(--mut-ui-page,#f3f7f8);
+  color:var(--mut-ui-text,#234339);
+}
+.mut-startup-connecting strong {font-size:15px;font-weight:750}
+.mut-startup-connecting p {
+  font-size:12px;
+  line-height:1.6;
+  color:var(--mut-ui-muted,#657983);
+  margin:0;
+}
+.mut-startup-connecting-spinner {
+  width:30px;
+  height:30px;
+  border-radius:50%;
+  border:3px solid var(--mut-ui-soft-border,#dce6e5);
+  border-top-color:var(--mut-ui-accent,#168060);
+  animation:mut-startup-spin .9s linear infinite;
+}
+@keyframes mut-startup-spin {to {transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce) {
+  .mut-startup-connecting-spinner {animation:none}
+}
