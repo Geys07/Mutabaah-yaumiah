@@ -1,14 +1,20 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
-import { transform } from "esbuild";
+import { stripTypeScriptTypes } from "node:module";
+import { spawnSync } from "node:child_process";
 import { edgeFunctionErrorMessage } from "../src/lib/edgeFunctionError.js";
 
 const read = (path) => readFile(new URL("../" + path, import.meta.url), "utf8");
 
 test("Edge recovery-chat source is parseable and boot-time owner collision is fixed", async () => {
   const code = await read("supabase/functions/recovery-chat/index.ts");
-  await transform(code, { loader: "ts", format: "esm", target: "es2022" });
+  const javascript = stripTypeScriptTypes(code);
+  const parsed = spawnSync(process.execPath, ["--check", "--input-type=module"], {
+    input: javascript,
+    encoding: "utf8",
+  });
+  assert.equal(parsed.status, 0, parsed.stderr);
   assert.match(code, /const \{data:ownerProfile\}/);
   assert.doesNotMatch(code, /const \{data:owner\}/);
   assert.match(code, /const seenSender = owner === "user"/);
