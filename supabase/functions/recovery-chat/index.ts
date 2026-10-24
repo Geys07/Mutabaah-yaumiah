@@ -241,9 +241,38 @@ async function listForAdmin() {
   const byRequest = new Map((requests||[]).map((p: any)=>[p.id,p]));
   const unreadCount = new Map<string,number>();
   for (const message of unread||[]) unreadCount.set(message.ticket_id,(unreadCount.get(message.ticket_id)||0)+1);
+  // Ringkasan anak memakai kontak keluarga yang terhubung ke nomor terdaftar.
+  const phones = [...new Set((profiles || []).map((p:any)=>p.phone).filter(Boolean))];
+  const {data:family} = phones.length
+    ? await db.from("student_family_contacts").select("phone,student_id").in("phone",phones).limit(500)
+    : {data:[]};
+  const childIds = [...new Set((family||[]).map((f:any)=>f.student_id))];
+  const [{data:children},{data:enrollments}] = childIds.length
+    ? await Promise.all([
+      db.from("students").select("id,full_name").in("id",childIds),
+      db.from("student_enrollments").select("student_id,class_id")
+        .in("student_id",childIds).is("ends_on",null),
+    ]) : [{data:[]},{data:[]}];
+  const classIds=[...new Set((enrollments||[]).map((e:any)=>e.class_id))];
+  const {data:classRows}=classIds.length
+    ? await db.from("classes").select("id,name").in("id",classIds)
+    : {data:[]};
+  const classes=new Map((classRows||[]).map((c:any)=>[c.id,c.name]));
+  const classOf=new Map((enrollments||[]).map((e:any)=>[e.student_id,classes.get(e.class_id)||""]));
+  const nameOf=new Map((children||[]).map((c:any)=>[c.id,c.full_name]));
+  const summaries=new Map<string,string[]>();
+  for(const item of family||[]){
+    const studentName=nameOf.get(item.student_id);
+    if(!studentName)continue;
+    const str=studentName+(classOf.get(item.student_id)?" · "+classOf.get(item.student_id):"");
+    const old=summaries.get(item.phone)||[];
+    if(!old.includes(str))old.push(str);
+    summaries.set(item.phone,old);
+  }
   return reply({ success:true, tickets:tickets.map((t:any)=>({
     id:t.id, full_name:byProfile.get(t.user_id)?.full_name||"Pengguna",
     phone:byProfile.get(t.user_id)?.phone||"",
+    child_summary:(summaries.get(byProfile.get(t.user_id)?.phone||"")||[]).slice(0,2).join(", "),
     status:byRequest.get(t.request_id)?.status||"pending",
     created_at:t.created_at,last_message_at:t.last_message_at,delete_after:t.delete_after,
     unread:unreadCount.get(t.id)||0,
