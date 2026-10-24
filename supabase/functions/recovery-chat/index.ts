@@ -76,10 +76,12 @@ async function ticketDetail(ticket: Record<string, any>, owner: "user" | "admin"
     .order("created_at").order("id").limit(500);
   if (error) throw error;
   const outgoing = [];
+  const activeCode = [...(messages || [])].reverse().find((m:any) => m.sender === "code")?.id;
   for (const msg of messages || []) {
     let body = msg.body;
     if (msg.sender === "code") {
       if (record.status !== "approved") body = "Kode sudah tidak aktif.";
+      else if (msg.id !== activeCode) body = "Kode sebelumnya sudah tidak berlaku.";
       else body = await decrypt(body);
     }
     outgoing.push({ ...msg, body });
@@ -363,6 +365,32 @@ async function adminReview(req:Request,ticket:Record<string,any>,decision:string
   return reply({success:true});
 }
 
+
+async function adminReissue(req: Request, ticket: Record<string,any>) {
+  const record = await fetchRequest(ticket);
+  if (record.status !== "approved")
+    return reply({error:"Kode hanya bisa diterbitkan ulang setelah permintaan disetujui."},409);
+  const response = await fetch(URL + "/functions/v1/recovery-admin", {
+    method:"POST",
+    headers:{"content-type":"application/json","apikey":SECRET,
+      "authorization":req.headers.get("authorization")||""},
+    body:JSON.stringify({action:"reissue",request_id:ticket.request_id}),
+  });
+  const result = await response.json().catch(()=>({}));
+  if(!response.ok||result.success!==true)
+    return reply({error:result.error||"Tidak dapat menerbitkan kode baru."},response.status);
+  try {
+    const code=String(result.code||"");
+    if(!/^[a-z]{4}$/.test(code))throw new Error("Invalid code");
+    await insertMessage(ticket.id,"admin","Kode pemulihan sebelumnya sudah tidak berlaku. Gunakan kode baru berikut.");
+    await insertMessage(ticket.id,"code",await encrypt(code));
+    await sendPushToApplicant(ticket.id);
+  }catch {
+    return reply({success:true,warning:"Kode diterbitkan, tetapi pengiriman chat gagal. Jangan menerbitkan ulang tanpa memeriksa status."});
+  }
+  return reply({success:true});
+}
+
 async function subscribe(ticket:Record<string,any>,body:Input){
   const sub=body.subscription as { endpoint?:unknown;keys?:{p256dh?:unknown;auth?:unknown}}|null;
   const endpoint=typeof sub?.endpoint==="string"?sub.endpoint:"";
@@ -403,13 +431,14 @@ Deno.serve(async(req:Request)=>{
       if(action==="my_send")return await postMessage(ticket,body,"user");
       return await subscribe(ticket,body);
     }
-    if(["admin_list","admin_chat","admin_send","admin_review"].includes(action)){
+    if(["admin_list","admin_chat","admin_send","admin_review","admin_reissue"].includes(action)){
       if(!await authorizedAdmin(req))return reply({error:"Hanya Admin aktif dapat mengakses percakapan."},403);
       if(action==="admin_list")return await listForAdmin();
       const ticket=await adminTicket(body.ticket_id);
       if(!ticket)return reply({error:"Percakapan tidak ditemukan."},404);
       if(action==="admin_chat")return await adminDetail(ticket);
       if(action==="admin_send")return await postMessage(ticket,body,"admin");
+      if(action==="admin_reissue")return await adminReissue(req,ticket);
       return await adminReview(req,ticket,String(body.decision||""));
     }
     return reply({error:"Tindakan tidak dikenal."},400);
