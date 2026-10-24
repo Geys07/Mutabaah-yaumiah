@@ -47,7 +47,7 @@ export default function AdminNotificationSections({
           <p>Permintaan pemulihan kata sandi ditangani di halaman chat khusus Admin.</p>
           <button type="button" className="admin-primary-button" onClick={() => onOpenRecoveryChats?.()}>Buka Chat Pemulihan Kata Sandi</button>
         </div>
-      )
+      )}
       {section === "phone" && (
         <AdminPhoneRequests onChanged={notificationChanged} />
       )}
