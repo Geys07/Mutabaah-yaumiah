@@ -871,7 +871,7 @@ export default function ParentDashboard({
     }
   }
 
-
+  function renderChildren() {
     if (loadingChildren) {
       return (
         <p className="pd-muted">
