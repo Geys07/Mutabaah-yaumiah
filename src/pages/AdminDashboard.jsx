@@ -6,6 +6,7 @@ import { supabase } from "../lib/supabase";
 import { fetchAll } from "../lib/pagination";
 import { readNotification, notificationGroup } from "../lib/notificationRead";
 import useNotificationRead from "../hooks/useNotificationRead";
+import { announceNotificationChange } from "../lib/notificationUpdates";
 import { signOut } from "../lib/auth";
 import usePanelHistory from "../hooks/usePanelHistory";
 import useJakartaClock from "../hooks/useJakartaClock";
@@ -905,8 +906,8 @@ export default function AdminDashboard({
   const refreshCounts = counts.refresh;
   const loadPendingCount = useCallback(() => refreshCounts({ force: true }), [refreshCounts]);
   const notificationChanged = useCallback(() => {
-    void refreshCounts({ force: true, replace: true });
-  }, [refreshCounts]);
+    announceNotificationChange();
+  }, []);
 
   function navigate(id) {
     if (MENU.some((item) => item.id === id) && id !== activeMenu) {
