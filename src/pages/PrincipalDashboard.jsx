@@ -8,6 +8,7 @@ import Pagination from "../components/Pagination";
 import { fetchAll } from "../lib/pagination";
 import { signOut } from "../lib/auth";
 import usePanelHistory from "../hooks/usePanelHistory";
+import useNotificationPulse from "../hooks/useNotificationPulse";
 import useJakartaClock from "../hooks/useJakartaClock";
 const MonthlyReports = lazy(() => import("./MonthlyReports"));
 const ReportCards = lazy(() => import("./ReportCards"));
@@ -183,6 +184,7 @@ export default function PrincipalDashboard({
   const [year, setYear] = useState("");
   const [date, setDate] = useState(() => clock.date);
   const [reload, setReload] = useState(0);
+  useNotificationPulse(() => setReload((n) => n + 1), Boolean(year) && !loggingOut);
 
   const [loadingClasses, setLoadingClasses] = useState(true);
   const [loadingSummary, setLoadingSummary] = useState(false);
@@ -284,7 +286,6 @@ export default function PrincipalDashboard({
 
   useEffect(() => {
     if (
-      tab !== "overview" ||
       !year ||
       shownClasses.length === 0
     ) {
@@ -311,7 +312,7 @@ export default function PrincipalDashboard({
     return () => {
       active = false;
     };
-  }, [tab, year, date, reload, shownClasses]);
+  }, [year, date, reload, shownClasses]);
 
   useEffect(() => {
     if (
@@ -487,11 +488,9 @@ export default function PrincipalDashboard({
         "reports",
       ]}
       pendingCount={
-        tab === "overview" && !loadingSummary
-          ? total.unfilled + total.draft
-          : 0
+        total.unfilled + total.draft
       }
-      noticeItems={tab === "overview" ? notices : []}
+      noticeItems={notices}
       onNoticeAction={() => changeTab("overview")}
       noticeActionLabel="Lihat ringkasan"
       onLogout={logout}
