@@ -169,7 +169,7 @@ export default function ForgotPassword({ onBack, onSuccess }) {
   }
 
   function openReset(code) {
-    setForm((old) => ({ ...old, code: code || "", password: "", confirm: "" }));
+    setForm((old) => ({ ...old, phone: chat?.phone || old.phone, code: code || "", password: "", confirm: "" }));
     setError("");
     setView("reset");
   }
