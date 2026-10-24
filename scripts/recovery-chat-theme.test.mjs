@@ -84,3 +84,21 @@ test("six-character minimum is consistent in all password creation/update paths"
   const recovery=await read("supabase/functions/password-recovery/index.ts");
   assert.match(recovery,/14 \* 24 \* 60 \* 60 \* 1000/);
 });
+
+
+test("refreshed guest chat stays separate from ordinary login, and account notices open Admin chat",async()=>{
+  const [app,parent,server,notices]=await Promise.all([
+    read("src/App.jsx"),
+    read("src/pages/ForgotPassword.jsx"),
+    read("supabase/functions/recovery-chat/index.ts"),
+    read("src/pages/AdminNotificationSections.jsx"),
+  ]);
+  assert.match(app,/function shouldRestorePasswordRecovery\(\)/);
+  assert.match(app,/saved\?\.scope === "login" && saved\.page === "forgot"/);
+  assert.match(app,/shouldRestorePasswordRecovery\(\) \? "forgot" : "login"/);
+  assert.match(app,/url\.searchParams\.delete\("recovery_chat"\)/);
+  assert.match(server,/phone:owner\?\.phone\|\|""/);
+  assert.match(parent,/phone: chat\?\.phone \|\| old\.phone/);
+  assert.match(notices,/onOpenRecoveryChats/);
+  assert.doesNotMatch(notices,/<AdminNotifications/);
+});
