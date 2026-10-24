@@ -345,3 +345,12 @@ Untuk pekerjaan berikutnya: gunakan revisi terbaru repository, pertahankan Admin
 - UI: `SectionTabs.css`, `AdminNoticeInbox.css`, `AdminReminderSettings.css`, dan CSS panel Perubahan Nomor & push pada `ParentPhoneChange.css` kini memakai `--sa-accent/soft/ink/muted/line` dari `StaffWorkspace` di semua waktu: `pagi`, `siang`, `sore`, `malam`. Chat juga mengikuti warna dan menampilkan empty/loading state yang ringkas.
 - Tidak mengubah mekanisme notifikasi/push, status permohonan, kode pemulihan 14 hari, masa hapus tiket 30 hari, login, atau data wali produksi. Pengujian baru `scripts/recovery-chat-ui-refresh.test.mjs` termasuk parsing fungsi Edge dengan esbuild untuk mencegah redeklarasi variabel boot-time.
 - Masih perlu verifikasi manual PWA di perangkat (chat baru tanpa memodifikasi data wali produksi, keyboard saat Admin memproses, dan hard refresh/update service worker).
+
+## 24 Oktober 2026 — Perbaikan layout awal Pemulihan Kata Sandi pada HP
+
+- Laporan screenshot Android malam 20.02 WIB: halaman **Lupa Kata Sandi?** tiga elemen sejajar (intro kiri, input tengah/kanan sempit, teks tombol di sisi lain). Ikon yang tampil adalah bidak catur `♙`, tidak relevan dengan pemulihan.
+- Akar masalah terverifikasi: **tabrakan nama selector `.forgot-password`** antara style login legacy di `src/App.css` (display:flex;justify-content:flex-end, tombol transparan) dan root halaman recovery baru di `src/pages/ForgotPassword.jsx`. CSS yang terakhir tidak mendefinisikan display root sehingga aturan legacy menang.
+- Perbaikan: legacy selector dikhususkan ke `.login-page .forgot-password`, halaman baru menggunakan `.fp-recovery-page` yang unik, dengan flex-direction column, form grid satu kolom, label/input/button full-width, teks ringkas dan tombol jelas. Tema empat waktu tetap berasal dari variabel `--mut-ui-*`; gambar/animasi layar login tidak diubah.
+- Ganti glyph dekoratif `♙` dengan SVG gembok-kunci, `✦` header chat dengan headset dan `♢` opt-in push dengan lonceng agar semantik dan konsisten. Tiga ikon berbasis SVG ringan tanpa paket baru.
+- Hilangkan `autoFocus` pada input nomor HP agar keyboard HP tidak otomatis menggeser layar saat halaman baru dibuka. Password minimal 6 karakter, API tiket chat, dan alur login tetap.
+- Tes `scripts/forgot-password-mobile-layout.test.mjs` menjaga CSS selector agar tidak bentrok lagi, UI satu kolom, dan empat tema WIB.
