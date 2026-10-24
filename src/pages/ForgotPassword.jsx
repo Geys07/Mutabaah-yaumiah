@@ -85,7 +85,8 @@ export default function ForgotPassword({ onBack, onSuccess }) {
 
   useEffect(() => {
     if (view !== "chat" || !token) return undefined;
-    void loadChat();
+    let mounted = true;
+    Promise.resolve().then(() => { if (mounted) void loadChat(); });
     const timer = window.setInterval(() => {
       if (!document.hidden) void loadChat();
     }, 10000);
@@ -93,6 +94,7 @@ export default function ForgotPassword({ onBack, onSuccess }) {
     document.addEventListener("visibilitychange", focus);
     window.addEventListener("focus", focus);
     return () => {
+      mounted = false;
       window.clearInterval(timer);
       document.removeEventListener("visibilitychange", focus);
       window.removeEventListener("focus", focus);
@@ -196,7 +198,6 @@ export default function ForgotPassword({ onBack, onSuccess }) {
 
   const status = chat?.status || "pending";
   const readOnly = ["used", "rejected", "revoked"].includes(status);
-  const codeMessage = chat?.messages?.findLast((m) => m.sender === "code" && /^[a-z]{4}$/.test(m.body));
   const statusText = {
     pending: "Menunggu Admin", approved: "Disetujui", used: "Selesai",
     rejected: "Ditolak", revoked: "Ditutup", processing: "Sedang Diproses",
