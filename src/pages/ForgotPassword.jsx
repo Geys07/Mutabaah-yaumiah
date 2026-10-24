@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { supabase } from "../lib/supabase";
 import { edgeFunctionErrorMessage } from "../lib/edgeFunctionError";
-import { useRecoverySignal, useRecoveryOutbox, createOptimisticMessage, combineRecoveryMessages, Receipt } from "../lib/recoveryRealtime";
+import { useRecoverySignal, useRecoveryOutbox, createOptimisticMessage, combineRecoveryMessages } from "../lib/recoveryRealtime.js";
+import { Receipt } from "../lib/recoveryRealtime.jsx";
 import "./ForgotPassword.css";
 
 function RecoveryIcon({ name }) {
