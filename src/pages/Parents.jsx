@@ -6,6 +6,7 @@ import usePagedQuery from "../lib/usePagedQuery";
 import Pagination from "../components/Pagination";
 import EmptyState from "../components/EmptyState";
 import StudentFamily from "./StudentFamily";
+import ActivationBatch from "./ActivationBatch";
 import "./Parents.css";
 
 const RELATIONSHIPS = {
@@ -67,6 +68,8 @@ export default function Parents() {
           Muat Ulang
         </button>
       </header>
+
+      <ActivationBatch />
 
       <div className="parents-filters">
         <label>
