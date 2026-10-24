@@ -3,6 +3,40 @@ import { supabase } from "../lib/supabase";
 import { edgeFunctionErrorMessage } from "../lib/edgeFunctionError";
 import "./ForgotPassword.css";
 
+function RecoveryIcon({ name }) {
+  const artwork = {
+    lock: (
+      <>
+        <rect x="5" y="10" width="14" height="11" rx="2.5" />
+        <path d="M8 10V7a4 4 0 0 1 8 0v3" />
+        <circle cx="12" cy="15.5" r="1" />
+        <path d="M12 16.5v1.5" />
+      </>
+    ),
+    support: (
+      <>
+        <path d="M4 13v-2a8 8 0 0 1 16 0v2" />
+        <rect x="3" y="12" width="4" height="7" rx="2" />
+        <rect x="17" y="12" width="4" height="7" rx="2" />
+        <path d="M19 19a5 5 0 0 1-5 3h-2" />
+      </>
+    ),
+    bell: (
+      <>
+        <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9" />
+        <path d="M10 21h4" />
+      </>
+    ),
+  };
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"
+      focusable="false" aria-hidden="true">
+      {artwork[name] || artwork.lock}
+    </svg>
+  );
+}
+
 const TICKET_KEY = "mutabaah-password-recovery-chat-v1";
 const initial = { phone: "", code: "", password: "", confirm: "" };
 const normalizePhone = (value) => {
@@ -194,17 +228,17 @@ export default function ForgotPassword({ onBack, onSuccess }) {
     rejected: "Ditolak", revoked: "Ditutup", processing: "Sedang Diproses",
   };
   return (
-    <section className={`forgot-password ${view === "chat" ? "is-chat" : ""}`} aria-label="Pemulihan Kata Sandi">
+    <section className={`fp-recovery-page ${view === "chat" ? "is-chat" : ""}`} aria-label="Pemulihan Kata Sandi">
       {view === "request" && (
         <>
           <div className="fp-intro">
-            <span className="fp-lock" aria-hidden="true">♙</span>
+            <span className="fp-lock"><RecoveryIcon name="lock" /></span>
             <h2>Pemulihan Kata Sandi</h2>
-            <p>Masukkan nomor HP yang terdaftar. Anda akan langsung terhubung ke ruang chat bantuan Admin.</p>
+            <p>Masukkan nomor HP yang terdaftar untuk membuka layanan chat bantuan Admin.</p>
           </div>
           <form onSubmit={requestChat} className="fp-form">
-            <label>Nomor HP
-              <input autoFocus type="tel" inputMode="tel" autoComplete="tel" placeholder="08xxxxxxxxxx"
+            <label>Nomor HP Terdaftar
+              <input type="tel" inputMode="tel" autoComplete="tel" placeholder="08xxxxxxxxxx"
                 value={form.phone} onChange={(e) => update("phone",e.target.value)} disabled={busy} required />
             </label>
             <button type="submit" className="fp-primary" disabled={busy}>{busy ? "Memeriksa..." : "Lanjutkan ke Chat"}</button>
@@ -217,7 +251,7 @@ export default function ForgotPassword({ onBack, onSuccess }) {
         <div className="fp-chat">
           <header className="fp-chat-head">
             <button type="button" onClick={onBack} className="fp-back" aria-label="Kembali ke Login">‹</button>
-            <span className="fp-support-icon" aria-hidden="true">✦</span>
+            <span className="fp-support-icon"><RecoveryIcon name="support" /></span>
             <span className="fp-chat-title"><strong>Bantuan Pemulihan Kata Sandi</strong><small>Admin MTs Al-Khairiyah</small></span>
           </header>
           <div className="fp-chat-status"><span data-status={status}>{statusText[status] || status}</span></div>
@@ -244,7 +278,7 @@ export default function ForgotPassword({ onBack, onSuccess }) {
             {status === "used" && <button type="button" className="fp-primary" onClick={() => onSuccess?.("Kata sandi berhasil diperbarui.")}>Kembali ke Login</button>}
             {!notificationsOn && !readOnly && (
               <button type="button" className="fp-notification-optin" onClick={() => void enableNotifications()} disabled={busy}>
-                <span aria-hidden="true">♢</span> Aktifkan pemberitahuan ketika Admin membalas
+                <RecoveryIcon name="bell" /> Aktifkan pemberitahuan ketika Admin membalas
               </button>
             )}
             <div ref={lastMessageRef}/>

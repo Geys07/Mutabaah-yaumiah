@@ -626,13 +626,13 @@ button:disabled {
   color: #3e684e;
 }
 
-.forgot-password {
+.login-page .forgot-password {
   display: flex;
   justify-content: flex-end;
   margin: -5px 0 26px;
 }
 
-.forgot-password button {
+.login-page .forgot-password button {
   border: 0;
   padding: 5px 0;
   background: transparent;
@@ -641,7 +641,7 @@ button:disabled {
   font-weight: 600;
 }
 
-.forgot-password button:hover {
+.login-page .forgot-password button:hover {
   color: #153f2e;
   text-decoration: underline;
 }
