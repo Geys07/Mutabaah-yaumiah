@@ -701,11 +701,6 @@ export default function ParentDashboard({
       ? avatarVariants.get(child.id) ?? 0
       : 0;
 
-  const todayStatus =
-    currentStatuses.find(
-      (row) => row.date === today
-    )?.status || "unfilled";
-
   const selectedStatus =
     selectedStatuses.find(
       (row) => row.date === selectedDate
