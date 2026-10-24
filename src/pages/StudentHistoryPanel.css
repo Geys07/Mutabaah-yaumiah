@@ -204,3 +204,28 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* Riwayat kelas: hasil pencarian dikelompokkan seperti Data Siswa. */
+.sh-results {display:grid;gap:14px}
+.sh-class-group{
+  min-width:0;overflow:hidden;border:1px solid var(--sa-line,#dfe9e4);
+  border-radius:12px;background:var(--sa-card,#fff)
+}
+.sh-class-heading{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  background:var(--sa-soft,#e9f6ee);
+  border-bottom:1px solid var(--sa-line,#dfe9e4);
+  padding:12px 14px;
+}
+.sh-class-heading h3{margin:0;color:var(--sa-accent,#178166);font-size:13px}
+.sh-class-heading span{color:var(--sa-muted,#718079);font-size:11px}
+.sh-class-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,205px),1fr));gap:8px;padding:10px}
+.sh-class-list button{
+  width:100%;min-width:0;text-align:left;
+  border:1px solid var(--sa-line,#dfe9e4);background:var(--sa-card,#fff);
+  color:var(--sa-ink,#253c36);border-radius:10px;padding:12px;cursor:pointer
+}
+.sh-class-list button.is-selected{border-color:var(--sa-accent,#178166);background:var(--sa-soft,#e9f6ee)}
+.sh-class-list button strong{display:block;font-size:12px}
+.sh-class-list button small{display:block;margin-top:5px;font-size:11px;color:var(--sa-muted,#718079)}
+.sh-class-list button:focus-visible{outline:2px solid var(--sa-accent,#178166);outline-offset:2px}
