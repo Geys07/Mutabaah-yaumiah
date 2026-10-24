@@ -498,7 +498,8 @@ function DailyEditor({
       setFinalizeFailed(false);
       finalizingRef.current = true;
       setFinalizing(true);
-      setConfirmOpen(false);
+      // Tetap tampilkan dialog saat menunggu respons server; jika gagal
+      // pengguna dapat mencoba lagi, tanpa kehilangan seluruh jawabannya.
     }
     queuedVersion.current = savedVersion;
     setSaving(true);
@@ -547,6 +548,7 @@ function DailyEditor({
           draft.current = { ...draft.current, answers: next };
           setAnswers(next);
         }
+        setConfirmOpen(false);
         callbacks.current.onFinalized?.();
       }
     } catch (caught) {
@@ -903,6 +905,7 @@ function DailyEditor({
                 : "Simpan dan finalisasi pengisian Mutabaah untuk tanggal ini?"}
             </p>
 
+            {error&&<p role="alert" style={{color:"#a33c43",fontSize:12,lineHeight:1.55}}>{error}</p>}
             <div
               style={{
                 display: "flex",
