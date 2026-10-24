@@ -144,14 +144,29 @@ export default function AdminRecoveryChats() {
     queueMessage(message);
     void transmit(message);
   }
-  async function deleteMessage(id){
-    if(!selected||!window.confirm("Sembunyikan pesan ini dari panel Admin? Pesan tetap ada di chat pemohon."))return;
-    setBusy("delete");
-    try {
-      await callChat({action:"admin_delete_message",ticket_id:selected,message_id:id});
-      await Promise.all([loadDetail(selected),loadList()]);
-    }catch(problem){setError(problem.message||"Pesan belum dapat dihapus.");}
-    finally{setBusy("");}
+  async function deleteChat(ticket) {
+    if(!ticket || busy) return;
+    if(!["used","rejected","revoked"].includes(ticket.status)){
+      setError("Chat masih aktif. Selesaikan atau tolak permohonan sebelum menghapusnya.");
+      return;
+    }
+    if(!window.confirm(`Hapus seluruh percakapan ${ticket.full_name}? Semua pesan dan kode di chat akan terhapus permanen. Catatan pemulihan akun tetap tersimpan.`)) return;
+    setBusy("delete-chat");
+    setError("");
+    try{
+      await callChat({action:"admin_delete_chat",ticket_id:ticket.id});
+      setTickets((old)=>old.filter((item)=>item.id!==ticket.id));
+      if(selected===ticket.id){
+        setSelected("");setDetail(null);setMobileChat(false);setDecision("");
+      }
+      setNotice("Percakapan selesai berhasil dihapus.");
+      // Tidak perlu menunggu request pemuatan ulang untuk memperbarui layar.
+      void loadList();
+    }catch(problem){
+      setError(problem.message||"Percakapan belum dapat dihapus.");
+    }finally{
+      setBusy("");
+    }
   }
 
   async function reissueCode(){
@@ -233,6 +248,10 @@ export default function AdminRecoveryChats() {
                 <div><strong>{detail?.name||current?.full_name||"Memuat..."}</strong>
                   <small>{(detail?.students||[]).join(", ")||detail?.phone||current?.phone||""}</small></div>
                 <span className="arc-status" data-status={detail?.status}>{statusLabel[detail?.status]||""}</span>
+                {["used","rejected","revoked"].includes(detail?.status)&&
+                  <button type="button" className="arc-delete-chat" disabled={Boolean(busy)}
+                    onClick={()=>void deleteChat(current)}
+                    aria-label="Hapus seluruh percakapan">Hapus Chat</button>}
               </header>
               {pending&&(
                 <div className="arc-decision-bar">
@@ -268,8 +287,7 @@ export default function AdminRecoveryChats() {
                       {msg.local_state==="failed"&&<button type="button"
                         onClick={()=>{retryMessage(msg.client_id);void transmit(msg);}}
                       >Kirim Ulang</button>}
-                      {!msg.local_state&&<button type="button" aria-label="Hapus pesan untuk Admin"
-                        onClick={()=>void deleteMessage(msg.id)} disabled={Boolean(busy)}>Hapus</button>}
+
                     </div>
                   </article>
                 ))}
