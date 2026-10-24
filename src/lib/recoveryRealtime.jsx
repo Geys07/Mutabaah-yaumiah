@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { supabase } from "./supabase";
+import "../styles/recovery-chat-receipts.css";
 
 // Sinyal real-time TIDAK membawa isi pesan. Setelah sinyal, isi chat dibaca
 // kembali lewat Edge Function yang memvalidasi pemilik tiket / role Admin.
