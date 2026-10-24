@@ -54,7 +54,7 @@ test("Admin review and chat UI keep decision controls away from the keyboard",as
 
 test("chat RLS isolation, secret protection, and 30-day cleanup are present",async()=>{
   const [sql,server]=await Promise.all([
-    read("supabase/migrations/20261024180000_recovery_chat_tickets.sql"),
+    read("supabase/migrations/20261024115814_recovery_chat_tickets_four_time_20261024.sql"),
     read("supabase/functions/recovery-chat/index.ts")]);
   assert.match(sql,/ALTER TABLE public\.recovery_chat_tickets ENABLE ROW LEVEL SECURITY/);
   assert.match(sql,/ALTER TABLE public\.recovery_chat_messages ENABLE ROW LEVEL SECURITY/);
