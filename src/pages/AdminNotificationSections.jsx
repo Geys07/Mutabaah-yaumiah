@@ -1,7 +1,6 @@
 import { useState } from "react";
 import AdminPushSettings from "../components/AdminPushSettings";
 import AdminPhoneRequests from "./AdminPhoneRequests";
-import AdminNotifications from "./AdminNotifications";
 import AdminNoticeInbox from "./AdminNoticeInbox";
 import AdminReminderSettings from "./AdminReminderSettings";
 import "./SectionTabs.css";
@@ -9,16 +8,14 @@ import "./SectionTabs.css";
 const TABS = [
   { id: "inbox", title: "Kotak Masuk" },
   { id: "reminder", title: "Pengingat 20.00" },
-  { id: "requests", title: "Permintaan Akun" },
+  { id: "chats", title: "Pemulihan Kata Sandi" },
   { id: "phone", title: "Perubahan Nomor" },
   { id: "push", title: "Notifikasi Perangkat" },
 ];
 
 export default function AdminNotificationSections({
-  passwordPendingCount,
   notificationChanged,
-  loadPendingCount,
-  loggingOut,
+  onOpenRecoveryChats,
 }) {
   const [section, setSection] = useState("inbox");
   return (
@@ -36,7 +33,7 @@ export default function AdminNotificationSections({
       {section === "inbox" && (
         <AdminNoticeInbox
           onChanged={notificationChanged}
-          onOpenRequest={(source) => setSection(source === "phone" ? "phone" : "requests")}
+          onOpenRequest={(source) => { if(source === "phone")setSection("phone");else onOpenRecoveryChats?.(); }}
         />
       )}
       {section === "reminder" && (
@@ -45,14 +42,12 @@ export default function AdminNotificationSections({
           onPreview={() => setSection("inbox")}
         />
       )}
-      {section === "requests" && (
-        <AdminNotifications
-          pendingCount={passwordPendingCount}
-          onPendingCountChange={notificationChanged}
-          onRefreshCounts={loadPendingCount}
-          suspended={loggingOut}
-        />
-      )}
+      {section === "chats" && (
+        <div className="section-workspace">
+          <p>Permintaan pemulihan kata sandi ditangani di halaman chat khusus Admin.</p>
+          <button type="button" className="admin-primary-button" onClick={() => onOpenRecoveryChats?.()}>Buka Chat Pemulihan Kata Sandi</button>
+        </div>
+      )
       {section === "phone" && (
         <AdminPhoneRequests onChanged={notificationChanged} />
       )}
