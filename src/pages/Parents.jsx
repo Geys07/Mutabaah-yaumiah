@@ -77,8 +77,8 @@ export default function Parents() {
     setSelectedStudent({id:student.id,full_name:student.student_name});
   }
   function closeStudent() {
+    // Simpan/kode sudah mengirim sinyal refresh; jangan melakukan query dua kali.
     setSelectedStudent(null);
-    refresh();
   }
   return (
     <section className="parents-panel">

@@ -1,5 +1,5 @@
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "../lib/supabase";
 import { PAGE_SIZE } from "../lib/pagination";
 import Pagination from "../components/Pagination";
@@ -70,9 +70,27 @@ export default function StudentHistoryPanel() {
       if (queryError) throw queryError;
 
       if (id === requestId.current) {
-        setResults(
-          Array.isArray(data) ? data : []
-        );
+        const found=Array.isArray(data)?data:[];
+        // Hanya hasil pencarian (maks. 40), bukan pemuatan seluruh sekolah.
+        // Pilih riwayat kelas terbaru untuk siswa yang sudah keluar/lulus.
+        let enriched=found;
+        if(found.length){
+          const {data:placements,error:placementError}=await supabase
+            .from("student_enrollments")
+            .select("student_id,starts_on,classes(name)")
+            .in("student_id",found.map(item=>item.id))
+            .order("starts_on",{ascending:false})
+            .limit(300)
+            .abortSignal(controller.signal);
+          if(!placementError&&Array.isArray(placements)){
+            const lastClass=new Map();
+            for(const place of placements)
+              if(!lastClass.has(place.student_id))
+                lastClass.set(place.student_id,place.classes?.name||"");
+            enriched=found.map(item=>({...item,class_name:lastClass.get(item.id)||"Tanpa Kelas"}));
+          }
+        }
+        if(id===requestId.current&&!controller.signal.aborted)setResults(enriched);
       }
     } catch (caught) {
       if (id === requestId.current) {
@@ -137,6 +155,17 @@ export default function StudentHistoryPanel() {
     }
   }
 
+  const groupedResults=useMemo(()=>{
+    const map=new Map();
+    for(const item of results){
+      const cls=item.class_name||"Tanpa Kelas";
+      if(!map.has(cls))map.set(cls,[]);
+      map.get(cls).push(item);
+    }
+    const sort=new Intl.Collator("id",{numeric:true,sensitivity:"base"});
+    return [...map.entries()].sort((a,b)=>sort.compare(a[0],b[0]));
+  },[results]);
+
   return (
     <section
       className="sh-panel"
@@ -184,31 +213,24 @@ export default function StudentHistoryPanel() {
       )}
 
       {results.length > 0 && (
-        <div
-          className="sh-results"
-          aria-label="Hasil pencarian siswa"
-        >
-          {results.map((entry) => (
-            <button
-              type="button"
-              key={entry.id}
-              onClick={() =>
-                void openHistory(entry.id)
-              }
-              className={
-                student?.id === entry.id
-                  ? "is-selected"
-                  : ""
-              }
-            >
-              <strong>{entry.name}</strong>
-
-              <small>
-                NIS: {entry.nis || "—"} ·{" "}
-                {STATUS[entry.status] ||
-                  entry.status}
-              </small>
-            </button>
+        <div className="sh-results" aria-label="Hasil pencarian siswa per kelas">
+          {groupedResults.map(([className,items])=>(
+            <section className="sh-class-group" key={className}>
+              <header className="sh-class-heading">
+                <h3>{className}</h3>
+                <span>{items.length} siswa</span>
+              </header>
+              <div className="sh-class-list">
+                {items.map(entry=>(
+                  <button type="button" key={entry.id}
+                    onClick={()=>void openHistory(entry.id)}
+                    className={student?.id===entry.id?"is-selected":""}>
+                    <strong>{entry.name}</strong>
+                    <small>NIS: {entry.nis||"—"} · {STATUS[entry.status]||entry.status}</small>
+                  </button>
+                ))}
+              </div>
+            </section>
           ))}
         </div>
       )}
