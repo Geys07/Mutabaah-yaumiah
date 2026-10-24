@@ -905,9 +905,6 @@ export default function AdminDashboard({
   const pendingCount = counts.current ? counts.data?.requestsTotal ?? null : null;
   const bellCount = counts.current ? counts.data?.total ?? null : null;
   const unreadCount = counts.current ? counts.data?.inbox ?? null : null;
-  const passwordPendingCount = counts.current ? counts.data?.password ?? null : null;
-  const refreshCounts = counts.refresh;
-  const loadPendingCount = useCallback(() => refreshCounts({ force: true }), [refreshCounts]);
   const notificationChanged = useCallback(() => {
     announceNotificationChange();
   }, []);
@@ -989,10 +986,8 @@ export default function AdminDashboard({
 
       {activeMenu === "notifications" && (
         <AdminNotificationSections
-          passwordPendingCount={passwordPendingCount}
           notificationChanged={notificationChanged}
-          loadPendingCount={loadPendingCount}
-          loggingOut={loggingOut}
+          onOpenRecoveryChats={() => navigate("recovery-chat")}
         />
       )}
 

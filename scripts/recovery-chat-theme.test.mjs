@@ -25,7 +25,7 @@ test("normal login stays the default; access token persists only in recovery",as
   const [app,chat,backend]=await Promise.all([
     read("src/App.jsx"),read("src/pages/ForgotPassword.jsx"),
     read("supabase/functions/recovery-chat/index.ts")]);
-  assert.match(app,/has\("recovery_chat"\) \? "forgot" : "login"/);
+  assert.match(app,/shouldRestorePasswordRecovery\(\) \? "forgot" : "login"/);
   assert.match(chat,/localStorage\.setItem\(TICKET_KEY, data\.token\)/);
   assert.match(chat,/Lanjutkan ke Chat/);
   assert.match(chat,/Kembali ke Login/);
@@ -54,7 +54,7 @@ test("Admin review and chat UI keep decision controls away from the keyboard",as
 
 test("chat RLS isolation, secret protection, and 30-day cleanup are present",async()=>{
   const [sql,server]=await Promise.all([
-    read("supabase/migrations/20261024180000_recovery_chat_tickets.sql"),
+    read("supabase/migrations/20261024115814_recovery_chat_tickets_four_time_20261024.sql"),
     read("supabase/functions/recovery-chat/index.ts")]);
   assert.match(sql,/ALTER TABLE public\.recovery_chat_tickets ENABLE ROW LEVEL SECURITY/);
   assert.match(sql,/ALTER TABLE public\.recovery_chat_messages ENABLE ROW LEVEL SECURITY/);
@@ -83,4 +83,22 @@ test("six-character minimum is consistent in all password creation/update paths"
   }
   const recovery=await read("supabase/functions/password-recovery/index.ts");
   assert.match(recovery,/14 \* 24 \* 60 \* 60 \* 1000/);
+});
+
+
+test("refreshed guest chat stays separate from ordinary login, and account notices open Admin chat",async()=>{
+  const [app,parent,server,notices]=await Promise.all([
+    read("src/App.jsx"),
+    read("src/pages/ForgotPassword.jsx"),
+    read("supabase/functions/recovery-chat/index.ts"),
+    read("src/pages/AdminNotificationSections.jsx"),
+  ]);
+  assert.match(app,/function shouldRestorePasswordRecovery\(\)/);
+  assert.match(app,/saved\?\.scope === "login" && saved\.page === "forgot"/);
+  assert.match(app,/shouldRestorePasswordRecovery\(\) \? "forgot" : "login"/);
+  assert.match(app,/url\.searchParams\.delete\("recovery_chat"\)/);
+  assert.match(server,/phone:owner\?\.phone\|\|""/);
+  assert.match(parent,/phone: chat\?\.phone \|\| old\.phone/);
+  assert.match(notices,/onOpenRecoveryChats/);
+  assert.doesNotMatch(notices,/<AdminNotifications/);
 });
