@@ -196,7 +196,7 @@
 .pd-today-card > .pd-primary-button { margin-top:auto; }
 
 /* Menu cepat dan ayat dari bank lokal */
-.pd-shortcut-grid { display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px; }
+.pd-shortcut-grid { display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px; }
 .pd-shortcut-grid button { min-width:0;padding:12px 5px;display:flex;align-items:center;flex-direction:column;gap:9px;border:0;border-radius:12px;background:#f8fbfa;color:#244459;font-size:11px!important;font-weight:700!important; }
 .pd-shortcut-grid button:hover { background:#eff9f3; }
 .pd-shortcut-grid button > span { display:grid;place-items:center;width:42px;height:42px;border-radius:12px; }
