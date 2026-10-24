@@ -69,14 +69,30 @@ FOR EACH ROW WHEN (OLD.status IS DISTINCT FROM NEW.status)
 EXECUTE FUNCTION public.recovery_chat_mark_decision();
 REVOKE ALL ON FUNCTION public.recovery_chat_mark_decision() FROM PUBLIC,anon,authenticated;
 
--- Hapus hanya chat, lampiran subscription, dan pesan; riwayat audit status tetap ada.
+-- Ketika tiket dipangkas, batalkan kode approved yang tersisa supaya akun
+-- dapat membuat permohonan baru. Status audit permintaan tetap disimpan.
+CREATE OR REPLACE FUNCTION public.cleanup_recovery_chats()
+RETURNS void LANGUAGE plpgsql SECURITY DEFINER SET search_path TO '' AS $
+BEGIN
+  UPDATE public.password_reset_requests r
+    SET status = 'revoked', lock_reason = 'Tiket chat melewati masa simpan 30 hari'
+    FROM public.recovery_chat_tickets t
+    WHERE t.request_id = r.id AND r.status = 'approved'
+      AND t.delete_after IS NOT NULL AND t.delete_after <= now();
+  DELETE FROM public.recovery_chat_tickets
+    WHERE delete_after IS NOT NULL AND delete_after <= now();
+END;
+$;
+REVOKE ALL ON FUNCTION public.cleanup_recovery_chats() FROM PUBLIC,anon,authenticated;
+
+-- Hapus chat, langganan push chat dan pesannya; pertahankan status audit.
 DO $job$
 BEGIN
   IF NOT EXISTS(SELECT 1 FROM cron.job WHERE jobname = 'mutabaah_recovery_chat_cleanup_0817_wib') THEN
     PERFORM cron.schedule(
       'mutabaah_recovery_chat_cleanup_0817_wib',
       '17 1 * * *',
-      'DELETE FROM public.recovery_chat_tickets WHERE delete_after IS NOT NULL AND delete_after <= now()'
+      'SELECT public.cleanup_recovery_chats()'
     );
   END IF;
 END $job$;
