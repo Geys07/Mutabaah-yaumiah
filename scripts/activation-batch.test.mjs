@@ -48,11 +48,11 @@ test("database guards assigned classes, preserves valid codes and serializes iss
   assert.match(sql, /has_role\('admin'\)/);
   assert.match(sql, /has_role\('homeroom_teacher'\)/);
   assert.match(sql, /homeroom_assignments/);
-  assert.match(sql, /h\.teacher_id = \( SELECT auth\.uid\(\)/);
-  assert.match(sql, /code_state = 'ready'/);
+  assert.match(sql, /h\.teacher_id\s*=\s*\(\s*SELECT auth\.uid\(\)/);
+  assert.match(sql, /code_state\s*=\s*'ready'/);
   assert.match(sql, /pg_advisory_xact_lock/);
   assert.match(sql, /parent_activation_codes\.used_at IS NULL/);
-  assert.match(sql, /parent_activation_codes\.expires_at > now\(\)/);
+  assert.match(sql, /parent_activation_codes\.expires_at\s*>\s*now\(\)/);
   assert.match(sql, /REVOKE ALL ON FUNCTION public\.issue_parent_activation_batch/);
   assert.doesNotMatch(sql, /DELETE FROM public\.parent_activation_codes/i);
 });
