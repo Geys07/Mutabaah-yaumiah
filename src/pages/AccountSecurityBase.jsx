@@ -108,11 +108,11 @@ export default function AccountSecurity({ account }) {
     }
 
     if (
-      newPassword.length < 10 ||
+      newPassword.length < 6 ||
       newPassword.length > 72
     ) {
       setError(
-        "Kata sandi baru harus terdiri dari 10–72 karakter."
+        "Kata sandi baru harus terdiri dari 6–72 karakter."
       );
       return;
     }
@@ -261,7 +261,7 @@ export default function AccountSecurity({ account }) {
                 : "password"
             }
             value={form.newPassword}
-            minLength={10}
+            minLength={6}
             maxLength={72}
             autoComplete="new-password"
             required
@@ -285,7 +285,7 @@ export default function AccountSecurity({ account }) {
                 : "password"
             }
             value={form.confirmPassword}
-            minLength={10}
+            minLength={6}
             maxLength={72}
             autoComplete="new-password"
             required
