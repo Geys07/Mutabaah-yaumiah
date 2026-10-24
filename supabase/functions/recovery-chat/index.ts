@@ -90,7 +90,10 @@ async function ticketDetail(ticket: Record<string, any>, owner: "user" | "admin"
   await db.from("recovery_chat_messages").update({ read_at: new Date().toISOString() })
     .eq("ticket_id", ticket.id).in("sender", seenSender).is("read_at", null);
   return {
-    ticket_id: ticket.id, status: record.status, requested_at: record.requested_at,
+    ticket_id: ticket.id, status: record.status,
+    code_expired: record.status === "approved" && Boolean(record.reviewed_at) &&
+      Date.now() - new Date(record.reviewed_at).getTime() >= 14 * 86400000,
+    requested_at: record.requested_at,
     reviewed_at: record.reviewed_at, decided_at: ticket.decided_at,
     delete_after: ticket.delete_after, messages: outgoing,
   };
