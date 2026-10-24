@@ -89,9 +89,9 @@ async function ticketDetail(ticket: Record<string, any>, owner: "user" | "admin"
   const seenSender = owner === "user" ? ["admin", "system", "code"] : ["user"];
   await db.from("recovery_chat_messages").update({ read_at: new Date().toISOString() })
     .eq("ticket_id", ticket.id).in("sender", seenSender).is("read_at", null);
-  const {data:owner} = await db.from("profiles").select("phone").eq("user_id",ticket.user_id).maybeSingle();
+  const {data:ownerProfile} = await db.from("profiles").select("phone").eq("user_id",ticket.user_id).maybeSingle();
   return {
-    ticket_id: ticket.id, phone:owner?.phone||"", status: record.status,
+    ticket_id: ticket.id, phone:ownerProfile?.phone||"", status: record.status,
     code_expired: record.status === "approved" && Boolean(record.reviewed_at) &&
       Date.now() - new Date(record.reviewed_at).getTime() >= 14 * 86400000,
     requested_at: record.requested_at,
