@@ -8,6 +8,7 @@ import Pagination from "../components/Pagination";
 import { fetchAll } from "../lib/pagination";
 import { signOut } from "../lib/auth";
 import usePanelHistory from "../hooks/usePanelHistory";
+import useNotificationPulse from "../hooks/useNotificationPulse";
 const MonthlyReports = lazy(() => import("./MonthlyReports"));
 const ReportCards = lazy(() => import("./ReportCards"));
 const ActivationBatch = lazy(() => import("./ActivationBatch"));
@@ -142,6 +143,7 @@ export default function HomeroomTeacherDashboard({
   const [error, setError] = useState("");
   const [loggingOut, setLoggingOut] = useState(false);
   const [refresh, setRefresh] = useState(0);
+  useNotificationPulse(() => setRefresh((n) => n + 1), Boolean(classId) && !loggingOut);
   const { push: pushPage } = usePanelHistory("homeroom", "daily", (page) => {
     if (TABS.some((item) => item.id === page)) { setActiveTab(page); setError(""); if (page === "daily") setRefresh((n) => n + 1); }
   });
@@ -190,7 +192,6 @@ export default function HomeroomTeacherDashboard({
 
   useEffect(() => {
     if (
-      activeTab !== "daily" ||
       !classId ||
       !selectedDate
     ) {
@@ -263,7 +264,7 @@ export default function HomeroomTeacherDashboard({
     return () => {
       cancelled = true;
     };
-  }, [activeTab, classId, selectedDate, refresh]);
+  }, [classId, selectedDate, refresh]);
 
   const statusSummary = useMemo(() => {
     return students.reduce(
@@ -373,10 +374,9 @@ export default function HomeroomTeacherDashboard({
       onNavigate={selectTab}
       mobileIds={["daily", "monthly", "report"]}
       pendingCount={
-        activeTab === "daily" && !loadingReport ? pending : 0
+        students.length > 0 ? pending : 0
       }
       noticeItems={
-        !loadingReport &&
         students.length > 0 &&
         pending > 0
           ? [
