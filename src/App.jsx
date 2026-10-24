@@ -78,13 +78,19 @@ function SchoolLogo({ school }) {
   );
 }
 
+function shouldRestorePasswordRecovery() {
+  const fromPush = new URLSearchParams(window.location.search).has("recovery_chat");
+  const saved = window.history.state?.__mutabaahNav;
+  return fromPush || (saved?.scope === "login" && saved.page === "forgot");
+}
+
 function LoginPage({
   school,
   onLogin,
   year,
 }) {
   const [mode, setMode] = useState(() =>
-    new URLSearchParams(window.location.search).has("recovery_chat") ? "forgot" : "login");
+    shouldRestorePasswordRecovery() ? "forgot" : "login");
   const [username, setUsername] = useState("");
   const [loginAs, setLoginAs] = useState("parent");
   const [password, setPassword] = useState("");
@@ -94,7 +100,7 @@ function LoginPage({
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState(null);
   const { push: pushLoginHistory, replace: replaceLoginHistory } = usePanelHistory("login",
-    new URLSearchParams(window.location.search).has("recovery_chat") ? "forgot" : "login", (page) => {
+    shouldRestorePasswordRecovery() ? "forgot" : "login", (page) => {
     setMode(page === "activation" || page === "forgot" ? page : "login");
     setPassword("");
     setShowPassword(false);
