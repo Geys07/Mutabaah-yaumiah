@@ -452,24 +452,6 @@ export default function PrincipalDashboard({
     setReload((n) => n + 1);
   }
 
-  const notices = [];
-
-  if (total.unfilled + total.draft > 0) {
-    notices.push(
-      `${
-        total.draft + total.unfilled
-      } siswa belum final pada ${
-        prettyDate(date)
-      }.`
-    );
-  }
-
-  if (total.failed > 0) {
-    notices.push(
-      `${total.failed} kelas gagal dimuat. Silakan muat ulang rekap.`
-    );
-  }
-
   return (
     <StaffWorkspace
       role="Kepala Sekolah"
@@ -487,12 +469,7 @@ export default function PrincipalDashboard({
         "monthly",
         "reports",
       ]}
-      pendingCount={
-        total.unfilled + total.draft
-      }
-      noticeItems={notices}
-      onNoticeAction={() => changeTab("overview")}
-      noticeActionLabel="Lihat ringkasan"
+      showNoticeBell={false}
       onLogout={logout}
       loggingOut={loggingOut}
     >
