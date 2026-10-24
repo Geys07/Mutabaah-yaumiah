@@ -25,7 +25,7 @@ test("normal login stays the default; access token persists only in recovery",as
   const [app,chat,backend]=await Promise.all([
     read("src/App.jsx"),read("src/pages/ForgotPassword.jsx"),
     read("supabase/functions/recovery-chat/index.ts")]);
-  assert.match(app,/has\("recovery_chat"\) \? "forgot" : "login"/);
+  assert.match(app,/shouldRestorePasswordRecovery\(\) \? "forgot" : "login"/);
   assert.match(chat,/localStorage\.setItem\(TICKET_KEY, data\.token\)/);
   assert.match(chat,/Lanjutkan ke Chat/);
   assert.match(chat,/Kembali ke Login/);
