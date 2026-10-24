@@ -49,3 +49,52 @@
  .activation-batch-actions>button{flex:1 1 190px}
  .activation-batch-dialog{padding:20px}
 }
+
+/* Aktivasi massal opsional: daftar wali tidak langsung memenuhi menu Orang Tua. */
+.activation-batch-shell{min-width:0;margin:14px 0}
+.activation-batch-toggle{
+ display:flex;align-items:center;gap:12px;flex-wrap:wrap;width:100%;
+ padding:13px 16px;text-align:left;border:1px solid var(--sa-line,#dfe9e4);
+ border-radius:12px;background:var(--sa-soft,#e9f6ee);
+ color:var(--sa-accent,#178166);font:inherit;font-size:13px;font-weight:750;cursor:pointer
+}
+.activation-batch-toggle small{font-size:11px;font-weight:450;color:var(--sa-muted,#718079)}
+.activation-batch-chevron{margin-left:auto;font-size:19px;line-height:1}
+.activation-batch-class-heading th{
+ background:var(--sa-soft,#e9f6ee)!important;
+ color:var(--sa-accent,#178166)!important;font-size:12px!important;
+ border-top:1px solid var(--sa-line,#dfe9e4);text-align:left!important
+}
+/* Empat suasana waktu untuk popup, chip, tombol, dan tabel aktivasi. */
+.staff-app .activation-batch{
+ margin:10px 0;background:var(--sa-card,#fff);color:var(--sa-ink,#234231);
+ border-color:var(--sa-line,#dfe9e4)
+}
+.staff-app .activation-batch :is(h2,h3,.activation-batch-table td strong){
+ color:var(--sa-ink,#234231)
+}
+.staff-app .activation-batch :is(.activation-batch-table th,.activation-batch-summary,.activation-batch-help){
+ color:var(--sa-muted,#718079)
+}
+.staff-app .activation-batch :is(.activation-batch-primary,.activation-batch-state.state-active){
+ background:var(--sa-accent,#178166);border-color:var(--sa-accent,#178166);color:#fff
+}
+.staff-app .activation-batch :is(.activation-batch-ghost,.activation-batch-row-button){
+ background:var(--sa-card,#fff);color:var(--sa-accent,#178166);
+ border-color:var(--sa-line,#dfe9e4)
+}
+.staff-app .activation-batch-table-wrap{border-color:var(--sa-line,#dfe9e4)}
+.staff-app .activation-batch-table th{background:var(--sa-bg,#f6f9f7);color:var(--sa-muted,#718079);border-color:var(--sa-line,#dfe9e4)}
+.staff-app .activation-batch-table td{border-color:var(--sa-line,#dfe9e4)}
+.staff-app .activation-batch-dialog{
+ background:var(--sa-card,#fff);color:var(--sa-ink,#234231);
+ border:1px solid var(--sa-line,#dfe9e4);
+ max-height:calc(100dvh - 32px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+ overflow-y:auto
+}
+.staff-app .activation-batch-dialog h3{color:var(--sa-ink,#234231)}
+.staff-app .activation-batch-dialog p{color:var(--sa-muted,#718079)}
+@media(max-width:650px){
+ .activation-batch-toggle{padding:12px;gap:5px 9px}
+ .activation-batch-toggle small{flex-basis:80%;order:3}
+}
