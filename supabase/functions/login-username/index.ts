@@ -28,17 +28,27 @@ Deno.serve(async req=>{
    if(error||data?.length!==1)return denied();
    uid=data[0].user_id;
   } else {
-   const {data,error}=await admin.from("profiles").select("user_id, account_status").eq(phone?"phone":"username",identifier).maybeSingle();
+   const {data,error}=await admin.from("profiles")
+     .select("user_id,account_status").eq(phone?"phone":"username",identifier).maybeSingle();
    if(error||!data||data.account_status!=="active")return denied();
    uid=data.user_id;
-   if(!phone){
-    const {data:staff,error:staffError}=await admin.from("user_roles").select("role").eq("user_id",uid).in("role",["homeroom_teacher","principal"]).limit(1);
-    if(staffError||!staff?.length)return denied();
-   }
   }
-  const {data:profile,error:profileError}=await admin.from("profiles").select("account_status").eq("user_id",uid).maybeSingle();
-  if(profileError||profile?.account_status!=="active")return denied();
-  const {data:userData,error:userError}=await admin.auth.admin.getUserById(uid);
+  // Setelah uid diketahui, jalankan pemeriksaan yang independen secara paralel.
+  // Non-admin sudah diverifikasi aktif pada query identitas di atas.
+  const [userLookup,roleLookup,adminProfileLookup]=await Promise.all([
+   admin.auth.admin.getUserById(uid),
+   !phone && identifier!=="admin"
+     ? admin.from("user_roles").select("role").eq("user_id",uid)
+         .in("role",["homeroom_teacher","principal"]).limit(1)
+     : Promise.resolve(null),
+   identifier==="admin"
+     ? admin.from("profiles").select("account_status").eq("user_id",uid).maybeSingle()
+     : Promise.resolve(null),
+  ]);
+  if(roleLookup && (roleLookup.error||!roleLookup.data?.length))return denied();
+  if(adminProfileLookup && (adminProfileLookup.error||
+     adminProfileLookup.data?.account_status!=="active"))return denied();
+  const {data:userData,error:userError}=userLookup;
   if(userError||!userData.user?.email)return denied();
   const {data:session,error:loginError}=await client.auth.signInWithPassword({email:userData.user.email,password});
   if(loginError||!session.session)return denied();

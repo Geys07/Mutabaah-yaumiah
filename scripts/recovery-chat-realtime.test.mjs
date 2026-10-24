@@ -64,17 +64,21 @@ test("backend emits refresh-only opaque broadcasts and protects patient/guardian
   assert.match(backend,/read_at/);
 });
 
-test("Admin can hide only Admin-visible messages; user history remains and handled chats rank last", async () => {
-  const [admin,backend] = await Promise.all([
+test("Admin deletes entire handled thread (not individual bubbles), with audit preserved", async () => {
+  const [admin,backend,css] = await Promise.all([
     read("src/pages/AdminRecoveryChats.jsx"),
     read("supabase/functions/recovery-chat/index.ts"),
+    read("src/pages/AdminRecoveryChats.css"),
   ]);
-  assert.match(admin,/action:"admin_delete_message"/);
-  assert.match(admin,/Hapus pesan untuk Admin/);
+  assert.match(admin,/action:"admin_delete_chat"/);
+  assert.match(admin,/Hapus Chat/);
+  assert.doesNotMatch(admin,/action:"admin_delete_message"/);
+  assert.doesNotMatch(admin,/Hapus pesan untuk Admin/);
   assert.match(admin,/\["used","rejected","revoked"\]/);
-  assert.match(admin,/t\.unread > 0/);
-  assert.match(backend,/deleted_for_admin_at/);
-  assert.match(backend,/owner === "admin" && msg\.deleted_for_admin_at/);
-  assert.match(backend,/if\(action==="admin_delete_message"\)return await deleteForAdmin/);
-  assert.match(backend,/\["admin_list","admin_chat","admin_send","admin_review","admin_reissue","admin_delete_message"\]/);
+  assert.match(backend,/async function deleteThreadForAdmin/);
+  assert.match(backend,/if \(!\["used","rejected","revoked"\]\.includes\(request\.status\)\)/);
+  assert.match(backend,/\.from\("recovery_chat_tickets"\)\s*\.delete\(\)/);
+  assert.match(backend,/if\(action==="admin_delete_chat"\)return await deleteThreadForAdmin\(ticket\)/);
+  assert.doesNotMatch(backend,/if\(action==="admin_delete_message"\)/);
+  assert.match(css,/\.arc-room-head \.arc-delete-chat/);
 });

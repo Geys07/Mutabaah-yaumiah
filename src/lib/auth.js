@@ -70,11 +70,12 @@ export async function signIn(identifier, password) {
   return sessionData;
 }
 
-export async function getCurrentAccount({ rejectNetworkErrors = false } = {}) {
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser();
+export async function getCurrentAccount({ rejectNetworkErrors = false, verifiedUser = null } = {}) {
+  // Setelah Supabase Auth.setSession berhasil, gunakan pengguna terverifikasi
+  // dari respons login itu; jangan mengulang permintaan getUser() ke jaringan.
+  const { data: { user }, error: userError } = verifiedUser
+    ? { data: { user: verifiedUser }, error: null }
+    : await supabase.auth.getUser();
 
   if (rejectNetworkErrors && userError && (
     userError.name === "AuthRetryableFetchError" || userError.status === 0 ||

@@ -457,14 +457,19 @@ async function adminReissue(req: Request, ticket: Record<string,any>) {
   return reply({success:true});
 }
 
-async function deleteForAdmin(ticket:Record<string,any>,messageId:unknown){
-  if(!isUuid(messageId))return reply({error:"Pesan tidak valid."},400);
-  const {data,error}=await db.from("recovery_chat_messages")
-    .update({deleted_for_admin_at:new Date().toISOString()})
-    .eq("ticket_id",ticket.id).eq("id",messageId).is("deleted_for_admin_at",null)
-    .select("id").maybeSingle();
+// Hapus seluruh ruang chat, bukan satu pesan. Hanya untuk permintaan yang
+// sudah benar-benar ditangani; request/audit di password_reset_requests tetap.
+async function deleteThreadForAdmin(ticket:Record<string,any>) {
+  const request = await fetchRequest(ticket);
+  if (!["used","rejected","revoked"].includes(request.status)) {
+    return reply({error:"Percakapan masih aktif. Selesaikan atau tolak permintaan sebelum menghapus chat."},409);
+  }
+  const {error} = await db.from("recovery_chat_tickets")
+    .delete().eq("id",ticket.id).eq("request_id",ticket.request_id);
   if(error)throw error;
-  return reply({success:true,deleted:Boolean(data)});
+  // FK ON DELETE CASCADE menghapus semua bubble chat dan subscription push tiket,
+  // tidak menghapus password_reset_requests atau audit akun.
+  return reply({success:true,deleted:true});
 }
 
 async function subscribe(ticket:Record<string,any>,body:Input){
@@ -507,14 +512,14 @@ Deno.serve(async(req:Request)=>{
       if(action==="my_send")return await postMessage(ticket,body,"user");
       return await subscribe(ticket,body);
     }
-    if(["admin_list","admin_chat","admin_send","admin_review","admin_reissue","admin_delete_message"].includes(action)){
+    if(["admin_list","admin_chat","admin_send","admin_review","admin_reissue","admin_delete_chat"].includes(action)){
       if(!await authorizedAdmin(req))return reply({error:"Hanya Admin aktif dapat mengakses percakapan."},403);
       if(action==="admin_list")return await listForAdmin();
       const ticket=await adminTicket(body.ticket_id);
       if(!ticket)return reply({error:"Percakapan tidak ditemukan."},404);
       if(action==="admin_chat")return await adminDetail(ticket);
       if(action==="admin_send")return await postMessage(ticket,body,"admin");
-      if(action==="admin_delete_message")return await deleteForAdmin(ticket,body.message_id);
+      if(action==="admin_delete_chat")return await deleteThreadForAdmin(ticket);
       if(action==="admin_reissue")return await adminReissue(req,ticket);
       return await adminReview(req,ticket,String(body.decision||""));
     }
