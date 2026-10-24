@@ -729,16 +729,10 @@ export default function App() {
         setShowRecovery(true);
       }
 
-      if (
-        dataReady &&
-        (
-          elapsed >= readingMs ||
-          (
-            skipRequested &&
-            elapsed >= 4500
-          )
-        )
-      ) {
+      // Animasi hanya sekitar 5 detik, sekalipun server sedang lambat.
+      // Setelah itu tampilkan status koneksi ringan tanpa membuka akun
+      // sebelum sesi dan role benar-benar terverifikasi.
+      if (elapsed >= readingMs) {
         setProgress(100);
         setPhase("complete");
       }
@@ -921,7 +915,13 @@ export default function App() {
           }`
         }
       >
-        <Suspense fallback={<p role="status">Memuat panel…</p>}>{content}</Suspense>
+        {!bootReady && !loadError
+          ? <div className="mut-startup-connecting" role="status" aria-live="polite">
+              <span className="mut-startup-connecting-spinner" aria-hidden="true" />
+              <strong>Menghubungkan ke server...</strong>
+              <p>Memastikan sesi akun dan data sekolah.</p>
+            </div>
+          : <Suspense fallback={<p role="status">Memuat panel…</p>}>{content}</Suspense>}
       </div>
 
       {loading && (
@@ -937,7 +937,7 @@ export default function App() {
           <LoadingAnimation
             school={school}
             quote={quote}
-            progress={progress}
+            progress={!bootReady ? Math.min(progress, 95) : progress}
             message={
               loadError
                 ? "Gagal menghubungkan ke server."
