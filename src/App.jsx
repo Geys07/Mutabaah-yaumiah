@@ -543,9 +543,6 @@ export default function App() {
   const [progress, setProgress] =
     useState(0);
 
-  const [elapsedMs, setElapsedMs] =
-    useState(0);
-
   const [loading, setLoading] =
     useState(true);
 
@@ -560,12 +557,6 @@ export default function App() {
 
   const [session, setSession] =
     useState(0);
-
-  const [skipRequested, setSkipRequested] =
-    useState(false);
-
-  const [showRecovery, setShowRecovery] =
-    useState(false);
 
   // Waktu dimulai dari effect/event handler,
   // bukan dari proses render React.
@@ -651,16 +642,12 @@ export default function App() {
     // dari event handler.
     startedAt.current = performance.now();
 
-    setElapsedMs(0);
-
     // Progress direset hanya untuk sesi baru.
     setProgress(0);
 
     setPhase("show");
     setLoading(true);
 
-    setSkipRequested(false);
-    setShowRecovery(false);
     setPanelReady(false);
 
     setSession(
@@ -705,8 +692,6 @@ export default function App() {
           startedAt.current
       );
 
-      setElapsedMs(elapsed);
-
       const target = Math.min(
         96,
         Math.floor(
@@ -721,13 +706,6 @@ export default function App() {
       setProgress((old) =>
         Math.max(old, target)
       );
-
-      if (
-        elapsed > 26000 &&
-        !dataReady
-      ) {
-        setShowRecovery(true);
-      }
 
       // Animasi hanya sekitar 5 detik, sekalipun server sedang lambat.
       // Setelah itu tampilkan status koneksi ringan tanpa membuka akun
@@ -746,7 +724,6 @@ export default function App() {
     phase,
     dataReady,
     readingMs,
-    skipRequested,
     session,
     loadError,
   ]);
@@ -793,8 +770,6 @@ export default function App() {
     setLoadError(false);
     setBootReady(false);
     setPanelReady(false);
-    setShowRecovery(false);
-    setSkipRequested(true);
 
     setRetryCount(
       (old) => old + 1
@@ -894,13 +869,6 @@ export default function App() {
     );
   }
 
-  // Nilai elapsedMs diperbarui oleh effect.
-  // Tidak membaca waktu atau ref saat render.
-  const canContinue =
-    dataReady &&
-    elapsedMs >= 4500 &&
-    phase === "show";
-
   if (loadError && !bootReady) return <OfflineStartup onRetry={retry} />;
 
   return (
@@ -951,19 +919,6 @@ export default function App() {
             }
           />
 
-          {canContinue &&
-            session === 0 && (
-              <button
-                type="button"
-                className="mut-splash-continue"
-                onClick={() =>
-                  setSkipRequested(true)
-                }
-              >
-                Masuk sekarang →
-              </button>
-            )}
-
           {loadError && (
             <div className="mut-splash-recovery">
               <span>
@@ -979,25 +934,7 @@ export default function App() {
             </div>
           )}
 
-          {showRecovery &&
-            !loadError &&
-            !dataReady && (
-              <div className="mut-splash-recovery">
-                <span>
-                  Data beranda membutuhkan
-                  waktu lebih lama.
-                </span>
 
-                <button
-                  type="button"
-                  onClick={() =>
-                    setPanelReady(true)
-                  }
-                >
-                  Buka dengan data sementara
-                </button>
-              </div>
-            )}
         </div>
       )}
     </>
