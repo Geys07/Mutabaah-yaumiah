@@ -5,6 +5,7 @@ import { fetchAll, PAGE_SIZE } from "../lib/pagination";
 import usePagedQuery from "../lib/usePagedQuery";
 import Pagination from "../components/Pagination";
 import EmptyState from "../components/EmptyState";
+import AppConfirmDialog from "../components/AppConfirmDialog";
 
 const TEMPLATE_FILENAME = "rapor-mutabaah-template.docx";
 const WORD_MIME =
@@ -978,6 +979,7 @@ export default function ReportCards({ school }) {
   const [processing, setProcessing] = useState("");
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
+  const [deleteTarget,setDeleteTarget]=useState(null);
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
@@ -1253,13 +1255,6 @@ export default function ReportCards({ school }) {
   async function deleteArchive(entry) {
     if (processing || !entry.can_delete) return;
     const title = archiveReadableTitle(currentClass, currentPeriod);
-    const approved = window.confirm(
-      `Hapus arsip ini secara permanen?\n\n${title}\n` +
-      `Disimpan: ${formatArchivedAt(entry.created_at)}\n\n` +
-      "File DOCX dan catatan arsip akan dihapus. Tindakan ini tidak dapat dibatalkan."
-    );
-    if (!approved) return;
-
     setProcessing(`delete:${entry.id}`);
     setError("");
     setNotice("");
@@ -1286,6 +1281,7 @@ export default function ReportCards({ school }) {
       }
 
       await refreshArchives();
+      setDeleteTarget(null);
       setNotice(`Arsip ${title} berhasil dihapus permanen.`);
     } catch (caught) {
       setError(caught.message || "Gagal menghapus arsip rapor.");
@@ -1393,7 +1389,7 @@ export default function ReportCards({ school }) {
                     {processing === entry.id ? "Mengunduh..." : "Unduh Arsip"}
                   </button>
                   {entry.can_delete && (
-                    <button className="delete" type="button" disabled={Boolean(processing)} onClick={() => void deleteArchive(entry)}>
+                    <button className="delete" type="button" disabled={Boolean(processing)} onClick={() => {setError("");setDeleteTarget(entry)}}>
                       {processing === `delete:${entry.id}` ? "Menghapus..." : "Hapus Arsip"}
                     </button>
                   )}
@@ -1403,6 +1399,13 @@ export default function ReportCards({ school }) {
           </div>
         )}
       </div>
+      {deleteTarget&&<AppConfirmDialog danger
+        title="Hapus Arsip Rapor?"
+        description={`Hapus permanen file DOCX dan catatan arsip?\\n\\n${archiveReadableTitle(currentClass,currentPeriod)}\\nDisimpan: ${formatArchivedAt(deleteTarget.created_at)}\\nTindakan ini tidak dapat dibatalkan.`}
+        confirmLabel="Ya, Hapus Arsip" busy={Boolean(processing)} error={error}
+        onCancel={()=>{setDeleteTarget(null);setError("")}}
+        onConfirm={()=>void deleteArchive(deleteTarget)}
+      />}
     </section>
   );
 }

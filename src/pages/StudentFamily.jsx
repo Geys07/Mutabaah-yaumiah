@@ -1,6 +1,7 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabase";
+import { announceStudentDataChange } from "../lib/studentDataUpdates";
 import "./StudentFamily.css";
 
 const TYPES = [
@@ -229,7 +230,8 @@ export default function StudentFamily({ student, onClose }) {
 
       setContacts(payload);
       setSavedContacts(payload);
-      setSuccess("Data tersimpan.");
+      announceStudentDataChange();
+      onClose(); // Tutup hanya setelah server memastikan data berhasil tersimpan.
     } catch (saveError) {
       setError(
         saveError.message || "Gagal menyimpan."
@@ -294,6 +296,7 @@ export default function StudentFamily({ student, onClose }) {
       }
 
       setCodes(prepareCodes(data));
+      announceStudentDataChange();
       setSuccess("Kode berhasil dibuat.");
     } catch (generateError) {
       setError(

@@ -1564,6 +1564,7 @@ export default function ParentDashboard({
                 selectedDate={selectedDate}
                 maxDate={today}
                 onSaved={() => announceNotificationChange()}
+                onFinalized={closeOverlay}
               />
             </div>
           </section>

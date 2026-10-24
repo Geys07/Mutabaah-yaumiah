@@ -4,6 +4,7 @@ import useJakartaClock from "../hooks/useJakartaClock";
 import { getTimeTheme } from "../lib/jakartaTheme";
 import ViewportPopover from "./ViewportPopover";
 import "./StaffWorkspace.css";
+import "../styles/staff-dialog-unified.css";
 
 const ICONS = {
   home: (

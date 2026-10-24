@@ -1,0 +1,87 @@
+/* Satu bahasa visual untuk dialog staf/Admin pada keempat waktu WIB.
+   Atur container tanpa mengubah logika konfirmasi maupun penyimpanan. */
+.staff-app :is(
+ .family-dialog,.students-modal,.teacher-accounts-dialog,
+ .student-import-dialog,.activities-dialog,.sat-dialog,
+ .pm-modal,.sb-dialog,.phone-dialog,.notice-inbox-dialog,
+ .reminder-settings-dialog,.arc-dialog,.activation-batch-dialog,
+ .notification-modal
+){
+ box-sizing:border-box;
+ max-width:calc(100vw - 26px);
+ max-height:calc(100dvh - 26px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+ overflow-y:auto;
+ overscroll-behavior:contain;
+ background:var(--sa-card,#fff);
+ border-color:var(--sa-line,#dfe9e4);
+ color:var(--sa-ink,#253c36);
+ box-shadow:0 20px 56px rgba(22,42,45,.18);
+}
+.staff-app :is(
+ .family-dialog,.students-modal,.teacher-accounts-dialog,
+ .student-import-dialog,.activities-dialog,.sat-dialog,
+ .pm-modal,.sb-dialog,.phone-dialog,.notice-inbox-dialog,
+ .reminder-settings-dialog,.arc-dialog,.activation-batch-dialog,
+ .notification-modal
+) :is(h2,h3) {
+ color:var(--sa-ink,#253c36);
+}
+.staff-app :is(
+ .family-header,.students-modal-header,.student-import-header,
+ .teacher-accounts-dialog header,.activities-dialog header,
+ .phone-dialog header
+){border-color:var(--sa-line,#dfe9e4)}
+.staff-app :is(
+ .family-primary,.students-primary,.teacher-accounts-primary,
+ .activities-primary,.student-import-primary,
+ .sat-primary,.activation-batch-primary
+){
+ background:var(--sa-accent,#178166);
+ border-color:var(--sa-accent,#178166);
+ color:white;
+}
+.staff-app :is(
+ .family-secondary,.students-secondary,.student-import-secondary,
+ .teacher-accounts-secondary,.activation-batch-ghost
+){
+ border-color:var(--sa-line,#dfe9e4);
+ background:var(--sa-card,#fff);
+ color:var(--sa-accent,#178166);
+}
+.staff-app :is(
+ .students-modal-backdrop,.family-backdrop,.activities-backdrop,
+ .teacher-accounts-backdrop,.student-import-backdrop,
+ .pm-modal-overlay,.phone-overlay,.notice-inbox-overlay,
+ .reminder-settings-overlay,.arc-dialog-backdrop,
+ .activation-batch-backdrop
+){
+ position:fixed;
+ inset:0;
+ z-index:1600;
+ max-height:100dvh;
+ padding:max(12px,env(safe-area-inset-top)) 12px max(12px,env(safe-area-inset-bottom));
+ overflow-y:auto;
+ overscroll-behavior:contain;
+ background:rgba(14,33,37,.53);
+}
+@media(max-width:650px){
+ .staff-app :is(
+  .family-dialog,.students-modal,.teacher-accounts-dialog,
+  .student-import-dialog,.activities-dialog,.sat-dialog,
+  .pm-modal,.sb-dialog,.phone-dialog,.notice-inbox-dialog,
+  .reminder-settings-dialog,.arc-dialog,.activation-batch-dialog,
+  .notification-modal
+ ){border-radius:15px;width:min(100%,calc(100vw - 24px))}
+ .staff-app :is(
+  .students-modal-backdrop,.family-backdrop,.activities-backdrop,
+  .teacher-accounts-backdrop,.student-import-backdrop,
+  .pm-modal-overlay,.phone-overlay,.notice-inbox-overlay,
+  .reminder-settings-overlay,.arc-dialog-backdrop,
+  .activation-batch-backdrop
+ ){align-items:center;justify-content:center;overflow-x:hidden}
+}
+@media(prefers-reduced-motion:reduce){
+ .staff-app :is(.students-modal,.family-dialog,.activities-dialog,.arc-dialog){
+   animation:none;transition:none;
+ }
+}

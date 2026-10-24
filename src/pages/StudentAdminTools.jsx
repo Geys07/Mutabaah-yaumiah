@@ -8,6 +8,8 @@ import { supabase } from "../lib/supabase";
 import { fetchAll, searchFilter, literalPattern, PAGE_SIZE } from "../lib/pagination";
 import usePagedQuery from "../lib/usePagedQuery";
 import Pagination from "../components/Pagination";
+import AppConfirmDialog from "../components/AppConfirmDialog";
+import { announceStudentDataChange } from "../lib/studentDataUpdates";
 const StudentImport = lazy(() => import("./StudentImport"));
 import "./StudentAdminTools.css";
 
@@ -38,6 +40,7 @@ export default function StudentAdminTools({ onChanged }) {
   const [mode, setMode] = useState("combined");
   const [scope, setScope] = useState("all");
   const [modal, setModal] = useState(false);
+  const [lifecycleConfirmation,setLifecycleConfirmation]=useState(null);
   const [importConfig, setImportConfig] = useState(null);
 
   const [classes, setClasses] = useState([]);
@@ -150,63 +153,39 @@ export default function StudentAdminTools({ onChanged }) {
     }
   }
 
-  async function changeStatus(action) {
-    const student = (
-      action === "exit"
-        ? activeRows
-        : exitedRows
-    ).find((s) => s.id === selectedStudent);
-
-    if (!student || busy) return;
-
-    if (
-      action === "return" &&
-      !returnClass
-    ) {
-      setError(
-        "Pilih kelas tujuan terlebih dahulu."
-      );
+  function changeStatus(action) {
+    const student=(action==="exit"?activeRows:exitedRows)
+      .find(s=>s.id===selectedStudent);
+    if(!student||busy)return;
+    if(action==="return"&&!returnClass){
+      setError("Pilih kelas tujuan terlebih dahulu.");
       return;
     }
-
-    const text =
-      action === "exit"
-        ? `Tandai ${student.full_name} sebagai siswa keluar? Riwayat Mutabaah dan akun wali tetap tersimpan.`
-        : `Aktifkan kembali ${student.full_name} menggunakan ID siswa dan akun wali yang sama?`;
-
-    if (!window.confirm(text)) return;
-
-    setBusy(true);
     setError("");
+    setLifecycleConfirmation({
+      action,studentId:student.id,fullName:student.full_name,
+      classId:action==="return"?returnClass:null
+    });
+  }
 
+  async function confirmChangeStatus() {
+    if(!lifecycleConfirmation||busy)return;
+    const request=lifecycleConfirmation;
+    setBusy(true);setError("");
     try {
-      const { error: problem } =
-        await supabase.rpc(
-          "admin_change_student_lifecycle",
-          {
-            p_student_id: selectedStudent,
-            p_action: action,
-            p_target_class_id:
-              action === "return"
-                ? returnClass
-                : null,
-          }
-        );
-
-      if (problem) throw problem;
-
+      const {error:problem}=await supabase.rpc("admin_change_student_lifecycle",{
+        p_student_id:request.studentId,p_action:request.action,
+        p_target_class_id:request.classId
+      });
+      if(problem)throw problem;
+      setLifecycleConfirmation(null);
       setSelectedStudent("");
-
-      reload(
-        action === "exit"
-          ? "Status siswa menjadi Keluar. Riwayat tetap tersimpan."
-          : "Siswa berhasil kembali aktif dengan ID lama."
-      );
-    } catch (cause) {
-      setError(err(cause));
-    } finally {
-      setBusy(false);
-    }
+      announceStudentDataChange();
+      reload(request.action==="exit"
+        ?"Status siswa menjadi Keluar. Riwayat tetap tersimpan."
+        :"Siswa berhasil kembali aktif dengan ID lama.");
+    }catch(cause){setError(err(cause));}
+    finally{setBusy(false);}
   }
 
   const list =
@@ -217,6 +196,13 @@ export default function StudentAdminTools({ onChanged }) {
   const selected = list.find(
     (s) => s.id === selectedStudent
   );
+  const classOptions = [...list.reduce((groupMap,student)=>{
+    const name=student.className||"Riwayat Siswa Keluar";
+    if(!groupMap.has(name))groupMap.set(name,[]);
+    groupMap.get(name).push(student);
+    return groupMap;
+  },new Map()).entries()].sort((a,b)=>
+    new Intl.Collator("id",{numeric:true,sensitivity:"base"}).compare(a[0],b[0]));
 
   return (
     <section className="sat-panel">
@@ -332,16 +318,12 @@ export default function StudentAdminTools({ onChanged }) {
                     Pilih dari {lifecyclePage.total} siswa
                   </option>
 
-                  {list.map((s) => (
-                    <option
-                      key={s.id}
-                      value={s.id}
-                    >
-                      {s.full_name}
-                      {s.className
-                        ? ` — ${s.className}`
-                        : ""}
-                    </option>
+                  {classOptions.map(([className,students])=>(
+                    <optgroup key={className} label={className}>
+                      {students.map(s=>(
+                        <option key={s.id} value={s.id}>{s.full_name}</option>
+                      ))}
+                    </optgroup>
                   ))}
                 </select>
               </label>
@@ -409,6 +391,17 @@ export default function StudentAdminTools({ onChanged }) {
         </div>
       )}
 
+      {lifecycleConfirmation&&<AppConfirmDialog
+        title={lifecycleConfirmation.action==="exit"?"Tetapkan Siswa Keluar?":"Aktifkan Siswa Kembali?"}
+        description={lifecycleConfirmation.action==="exit"
+          ? `${lifecycleConfirmation.fullName} akan ditandai sebagai siswa keluar. Riwayat Mutabaah dan akun wali tetap tersimpan.`
+          : `${lifecycleConfirmation.fullName} akan diaktifkan kembali dengan ID lama di kelas pilihan.`}
+        confirmLabel={lifecycleConfirmation.action==="exit"?"Ya, Tetapkan Keluar":"Ya, Aktifkan"}
+        danger={lifecycleConfirmation.action==="exit"}
+        busy={busy} error={error}
+        onCancel={()=>{setLifecycleConfirmation(null);setError("")}}
+        onConfirm={()=>void confirmChangeStatus()}
+      />}
       {modal && (
         <div
           className="sat-overlay"

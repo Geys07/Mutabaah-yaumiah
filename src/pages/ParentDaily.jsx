@@ -99,11 +99,11 @@ const modalBackdrop = {
 const modalCard = {
   width: "min(100%,420px)",
   borderRadius: 18,
-  background: "#fff",
+  background: "var(--mut-ui-glass,#fff)",
   padding: 23,
   boxShadow:
     "0 18px 55px rgba(0,38,25,.25)",
-  color: "#20382c",
+  color: "var(--mut-ui-text,#20382c)",
 };
 
 function buildDayPayload(studentId, selectedDate, snapshot, finalize) {
@@ -130,6 +130,7 @@ function DailyEditor({
   selectedDate,
   maxDate,
   onSaved,
+  onFinalized,
 }) {
   const [activities, setActivities] =
     useState([]);
@@ -177,9 +178,9 @@ function DailyEditor({
   const dirty = useRef(false);
   const timer = useRef(null);
   const savePromise = useRef(null);
-  const callbacks = useRef({ onSaved });
+  const callbacks = useRef({ onSaved, onFinalized });
 
-  useEffect(() => { callbacks.current = { onSaved }; }, [onSaved]);
+  useEffect(() => { callbacks.current = { onSaved, onFinalized }; }, [onSaved, onFinalized]);
 
 
   useEffect(() => subscribeParentDaySession(() => {
@@ -546,6 +547,7 @@ function DailyEditor({
           draft.current = { ...draft.current, answers: next };
           setAnswers(next);
         }
+        callbacks.current.onFinalized?.();
       }
     } catch (caught) {
       if (alive.current && isParentDayOwnerCurrent(binding) && savedVersion === version.current) {
@@ -881,7 +883,7 @@ function DailyEditor({
               id="finalize-title"
               style={{
                 fontSize: 18,
-                color: "#175d42",
+                color: "var(--mut-ui-accent,#175d42)",
                 margin: "0 0 12px",
               }}
             >
@@ -893,7 +895,7 @@ function DailyEditor({
                 margin: "0 0 20px",
                 fontSize: 13,
                 lineHeight: 1.65,
-                color: "#526b5b",
+                color: "var(--mut-ui-muted,#526b5b)",
               }}
             >
               {emptyCount > 0
@@ -916,11 +918,11 @@ function DailyEditor({
                 }
                 style={{
                   padding: "11px 15px",
-                  background: "#f4f8f5",
+                  background: "var(--mut-ui-soft,#f4f8f5)",
                   border:
                     "1px solid #c9dfd0",
                   borderRadius: 9,
-                  color: "#25553a",
+                  color: "var(--mut-ui-text,#25553a)",
                 }}
               >
                 Batal
@@ -936,7 +938,7 @@ function DailyEditor({
                   padding: "11px 16px",
                   border: 0,
                   borderRadius: 9,
-                  background: "#087e5d",
+                  background: "var(--mut-ui-accent,#087e5d)",
                   color: "white",
                   fontWeight: 700,
                 }}
