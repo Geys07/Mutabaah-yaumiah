@@ -360,27 +360,60 @@
   color: #a4b2b7;
 }
 
-.mut-login-eye {
-  display: grid;
-  flex: 0 0 34px;
-  place-items: center;
+/* Kontrol yang jelas seperti pada Aktivasi Orang Tua.
+   Posisi terpisah dari input agar tidak tampak seperti ikon tanpa fungsi. */
+.mut-login-password-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2px 12px;
+  min-width: 0;
+}
 
-  width: 34px;
-  height: 34px;
+.mut-login-password-visibility {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  min-height: 40px;
+  padding: 2px 0;
+  color: var(--mut-ui-text, #274c43);
+  font-size: 12px;
+  font-weight: 650;
+  line-height: 1.35;
+  cursor: pointer;
+  user-select: none;
+}
 
-  padding: 0;
-
-  border: 0;
-  border-radius: 10px;
-
-  background: transparent;
-  color: #517c85;
-
+.mut-login-password-visibility input[type="checkbox"] {
+  appearance: auto;
+  flex: 0 0 18px;
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  accent-color: var(--mut-ui-accent, #168060);
   cursor: pointer;
 }
 
-.mut-login-eye:hover {
-  background: rgba(207, 229, 217, 0.6);
+.mut-login-password-visibility input:focus-visible {
+  outline: 2px solid var(--mut-ui-accent, #168060);
+  outline-offset: 3px;
+}
+
+.mut-login-password-visibility:has(input:disabled) {
+  opacity: .65;
+  cursor: not-allowed;
+}
+
+.mut-login-password-actions .mut-login-forgot {
+  min-height: 40px;
+  align-items: center;
+}
+
+@media (max-width: 360px) {
+  .mut-login-password-actions { gap: 0 6px; }
+  .mut-login-password-visibility { font-size: 11px; gap: 6px; }
+  .mut-login-password-actions .mut-login-forgot button { font-size: 11px; }
 }
 
 .mut-login-forgot {
