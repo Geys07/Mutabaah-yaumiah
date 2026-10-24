@@ -290,3 +290,11 @@ Untuk pekerjaan berikutnya: gunakan revisi terbaru repository, pertahankan Admin
 - Tes health-check aman via pg_net menghasilkan HTTP **200** dengan `success=true, health_check=true, transport_ready=true, sends_to_parents=false`. Setelah hasil tersebut dan pengecekan Cron/Vault/izin RPC, `reminder_delivery_readiness.transport_ready` disetel menjadi true. Pengujian ini **tidak mengirim push kepada wali** dan tidak sama dengan bukti push wali sudah diterima.
 - Pengaturan `app_settings.daily_reminder.enabled` tetap **false (OFF)**. Kontrol ON diserahkan kepada admin melalui panel dan harus diaktifkan setelah data siswa/wali siap. Saat OFF, SQL Cron tidak membuat permintaan HTTP.
 - Saat audit awal, langganan `parent_push_subscriptions` masih nol: pengiriman ke perangkat wali perlu diuji ketika wali dan perangkatnya sudah terdaftar. Tidak ada pengiriman otomatis kepada wali pada proses pemasangan ini.
+
+## 24 Oktober 2026 — Identitas wali pada permohonan ganti nomor
+
+- Pengguna melaporkan bahwa kartu admin **Permohonan Ganti Nomor HP** sebelumnya hanya berisi dua nomor dan waktu pengajuan, tanpa identitas pemohon.
+- Pemeriksaan skema remote read-only di proyek resmi memastikan `parent_phone_change_requests.guardian_id` memiliki FK ke `profiles.user_id`, dan siswa terkait dapat dibaca melalui `student_guardians` → `students` → `student_enrollments` → `classes`. RLS sudah memberikan akses pembacaan yang diperlukan kepada Admin aktif. Tidak ada perubahan database, akun, nomor, atau status permohonan.
+- Kartu dan popup konfirmasi Admin kini memuat nama wali murid, nama siswa terkait beserta kelas aktif bila ada, label nomor lama/baru, serta waktu WIB. Jika relasi identitas belum lengkap, UI menampilkan peringatan eksplisit, bukan menebak nama.
+- Pemanggilan Edge Function `parent-phone-change` dengan aksi review, tombol setujui/tolak, pagination, interval polling, dan halaman ganti nomor orang tua tidak berubah.
+- Pengujian source ditambahkan; CI lint/build/regresi dan verifikasi visual di PWA Android harus diperiksa. Jangan mengirim push atau menyetujui/menolak pengajuan produksi sebagai langkah tes otomatis.
