@@ -196,6 +196,13 @@ export default function StudentAdminTools({ onChanged }) {
   const selected = list.find(
     (s) => s.id === selectedStudent
   );
+  const classOptions = [...list.reduce((groupMap,student)=>{
+    const name=student.className||"Riwayat Siswa Keluar";
+    if(!groupMap.has(name))groupMap.set(name,[]);
+    groupMap.get(name).push(student);
+    return groupMap;
+  },new Map()).entries()].sort((a,b)=>
+    new Intl.Collator("id",{numeric:true,sensitivity:"base"}).compare(a[0],b[0]));
 
   return (
     <section className="sat-panel">
@@ -311,16 +318,12 @@ export default function StudentAdminTools({ onChanged }) {
                     Pilih dari {lifecyclePage.total} siswa
                   </option>
 
-                  {list.map((s) => (
-                    <option
-                      key={s.id}
-                      value={s.id}
-                    >
-                      {s.full_name}
-                      {s.className
-                        ? ` — ${s.className}`
-                        : ""}
-                    </option>
+                  {classOptions.map(([className,students])=>(
+                    <optgroup key={className} label={className}>
+                      {students.map(s=>(
+                        <option key={s.id} value={s.id}>{s.full_name}</option>
+                      ))}
+                    </optgroup>
                   ))}
                 </select>
               </label>
