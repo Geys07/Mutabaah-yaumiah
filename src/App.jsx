@@ -367,35 +367,33 @@ function LoginPage({
                     />
                   </label>
 
-                  <button
-                    className="mut-login-eye"
-                    type="button"
-                    disabled={busy}
-                    aria-label={
-                      showPassword
-                        ? "Sembunyikan kata sandi"
-                        : "Tampilkan kata sandi"
-                    }
-                    onClick={() =>
-                      setShowPassword(
-                        (old) => !old
-                      )
-                    }
-                  >
-                    {showPassword ? "◉" : "◌"}
-                  </button>
                 </div>
 
-                <div className="mut-login-forgot">
-                  <button
-                    type="button"
-                    disabled={busy}
-                    onClick={() =>
-                      changeMode("forgot")
-                    }
-                  >
-                    Lupa kata sandi?
-                  </button>
+                <div className="mut-login-password-actions">
+                  <label className="mut-login-password-visibility">
+                    <input
+                      type="checkbox"
+                      checked={showPassword}
+                      disabled={busy}
+                      onChange={(event) =>
+                        setShowPassword(event.target.checked)
+                      }
+                    />
+                    <span>
+                      {showPassword
+                        ? "Sembunyikan kata sandi"
+                        : "Tampilkan kata sandi"}
+                    </span>
+                  </label>
+                  <div className="mut-login-forgot">
+                    <button
+                      type="button"
+                      disabled={busy}
+                      onClick={() => changeMode("forgot")}
+                    >
+                      Lupa kata sandi?
+                    </button>
+                  </div>
                 </div>
 
                 <button
