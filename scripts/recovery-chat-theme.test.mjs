@@ -34,7 +34,7 @@ test("normal login stays the default; access token persists only in recovery",as
   assert.match(backend,/access_hash/);
   assert.match(backend,/async function ticketByToken/);
   assert.match(backend,/async function authorizedAdmin/);
-  assert.match(backend,/if\(action==="admin_review"\)/);
+  assert.match(backend,/return await adminReview\(req,ticket/);
 });
 
 test("Admin review and chat UI keep decision controls away from the keyboard",async()=>{
