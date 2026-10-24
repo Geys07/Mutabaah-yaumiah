@@ -4,7 +4,7 @@ import { test } from "node:test";
 
 const read = (name) => readFile(new URL("../" + name, import.meta.url));
 
-test("both staff and parent bell menus use portal instead of clipped header", async () => {
+test("Admin bell uses portal; parent routine status bell is absent", async () => {
   const [viewport, style, staff, parent] = await Promise.all([
     read("src/components/ViewportPopover.jsx"),
     read("src/components/ViewportPopover.css"),
@@ -23,9 +23,10 @@ test("both staff and parent bell menus use portal instead of clipped header", as
   assert.match(css, /position: fixed !important/);
   assert.match(css, /overflow-y: auto/);
   assert.match(staff.toString(), /<ViewportPopover/);
-  assert.match(parent.toString(), /<ViewportPopover/);
+  assert.doesNotMatch(parent.toString(), /<ViewportPopover/);
   assert.match(staff.toString(), /aria-expanded=\{noticeOpen\}/);
-  assert.match(parent.toString(), /aria-expanded=\{noticeOpen\}/);
+  assert.doesNotMatch(parent.toString(), /aria-expanded=\{noticeOpen\}/);
+  assert.match(staff.toString(), /showNoticeBell = true/);
 });
 
 test("Android notification badge uses smaller and slimmer Amal Harian wordmark", async () => {
