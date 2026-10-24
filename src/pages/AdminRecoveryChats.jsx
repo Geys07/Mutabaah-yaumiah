@@ -6,6 +6,7 @@ import {
   combineRecoveryMessages,
 } from "../lib/recoveryRealtime.js";
 import { Receipt } from "../lib/recoveryRealtime.jsx";
+import AppConfirmDialog from "../components/AppConfirmDialog";
 import "./AdminRecoveryChats.css";
 
 async function callChat(body) {
@@ -45,6 +46,8 @@ export default function AdminRecoveryChats() {
   const [statusFilter,setStatusFilter]=useState("all");
   const [draft,setDraft]=useState("");
   const [decision,setDecision]=useState("");
+  const [deleteTarget,setDeleteTarget]=useState(null);
+  const [confirmReissue,setConfirmReissue]=useState(false);
   const [busy,setBusy]=useState("");
   const [error,setError]=useState("");
   const [notice,setNotice]=useState("");
@@ -150,7 +153,6 @@ export default function AdminRecoveryChats() {
       setError("Chat masih aktif. Selesaikan atau tolak permohonan sebelum menghapusnya.");
       return;
     }
-    if(!window.confirm(`Hapus seluruh percakapan ${ticket.full_name}? Semua pesan dan kode di chat akan terhapus permanen. Catatan pemulihan akun tetap tersimpan.`)) return;
     setBusy("delete-chat");
     setError("");
     try{
@@ -159,6 +161,7 @@ export default function AdminRecoveryChats() {
       if(selected===ticket.id){
         setSelected("");setDetail(null);setMobileChat(false);setDecision("");
       }
+      setDeleteTarget(null);
       setNotice("Percakapan selesai berhasil dihapus.");
       // Tidak perlu menunggu request pemuatan ulang untuk memperbarui layar.
       void loadList();
@@ -170,10 +173,11 @@ export default function AdminRecoveryChats() {
   }
 
   async function reissueCode(){
-    if(!selected||busy||!window.confirm("Terbitkan kode pemulihan baru? Kode lama langsung dibatalkan."))return;
+    if(!selected||busy)return;
     setBusy("reissue");setError("");
     try{
       const result=await callChat({action:"admin_reissue",ticket_id:selected});
+      setConfirmReissue(false);
       setNotice(result.warning||"Kode baru berhasil dikirim melalui chat.");
       await Promise.all([loadDetail(selected),loadList()]);
     }catch(problem){setError(problem.message||"Gagal menerbitkan kode baru.");}
@@ -250,7 +254,7 @@ export default function AdminRecoveryChats() {
                 <span className="arc-status" data-status={detail?.status}>{statusLabel[detail?.status]||""}</span>
                 {["used","rejected","revoked"].includes(detail?.status)&&
                   <button type="button" className="arc-delete-chat" disabled={Boolean(busy)}
-                    onClick={()=>void deleteChat(current)}
+                    onClick={()=>{setError("");setDeleteTarget(current)}}
                     aria-label="Hapus seluruh percakapan">Hapus Chat</button>}
               </header>
               {pending&&(
@@ -267,7 +271,7 @@ export default function AdminRecoveryChats() {
                 <div className="arc-decision-bar">
                   <div><strong>Kode pemulihan sudah kedaluwarsa</strong><small>Kode lama tidak dapat digunakan lagi.</small></div>
                   <div className="arc-decision-actions">
-                    <button type="button" className="arc-approve" onClick={()=>void reissueCode()} disabled={Boolean(busy)}>Terbitkan Kode Baru</button>
+                    <button type="button" className="arc-approve" onClick={()=>{setError("");setConfirmReissue(true)}} disabled={Boolean(busy)}>Terbitkan Kode Baru</button>
                   </div>
                 </div>
               )}
@@ -308,6 +312,20 @@ export default function AdminRecoveryChats() {
           )}
         </div>
       </div>
+      {deleteTarget&&<AppConfirmDialog
+        danger title="Hapus Seluruh Percakapan?"
+        description={`Seluruh pesan dan kode dalam chat ${deleteTarget.full_name} akan dihapus permanen. Catatan pemulihan akun tetap tersimpan.`}
+        confirmLabel="Ya, Hapus Chat" busy={Boolean(busy)} error={error}
+        onCancel={()=>{setDeleteTarget(null);setError("")}}
+        onConfirm={()=>void deleteChat(deleteTarget)}
+      />}
+      {confirmReissue&&<AppConfirmDialog
+        title="Terbitkan Kode Baru?"
+        description="Kode pemulihan lama akan dibatalkan dan diganti. Pengguna menerima kode baru melalui chat."
+        confirmLabel="Terbitkan Kode" busy={Boolean(busy)} error={error}
+        onCancel={()=>{setConfirmReissue(false);setError("")}}
+        onConfirm={()=>void reissueCode()}
+      />}
       {decision&&(
         <div className="arc-dialog-backdrop" role="presentation">
           <div className="arc-dialog" role="dialog" aria-modal="true" aria-labelledby="arc-dialog-title">
