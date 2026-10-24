@@ -1,145 +1,85 @@
-
-.parents-panel {
-  min-width: 0;
-  padding: 24px;
-  background: #fff;
-  border: 1px solid #e2e9e3;
-  border-radius: 15px;
-  color: #243f30;
+/* Admin — daftar Orang Tua sesuai palet StaffWorkspace empat waktu WIB. */
+.parents-panel{
+  min-width:0;padding:clamp(15px,2.5vw,24px);
+  border:1px solid var(--sa-line,#dfe9e4);
+  border-radius:16px;
+  background:var(--sa-card,#fff);
+  color:var(--sa-ink,#243f30);
 }
-
-.parents-heading {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 14px;
+.parents-heading{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.parents-heading h2{margin:0;font-size:19px;color:var(--sa-ink,#243f30)}
+.parents-heading button,.parents-edit{
+  min-height:38px;padding:9px 14px;border:1px solid var(--sa-line,#dfe9e4);
+  border-radius:9px;background:var(--sa-card,#fff);
+  color:var(--sa-accent,#178166);font:inherit;font-size:12px;font-weight:700;cursor:pointer
 }
-
-.parents-heading h2 {
-  margin: 0;
-  font-size: 19px;
-  color: #203b2e;
+.parents-heading button:disabled{opacity:.55;cursor:not-allowed}
+.parents-heading button:focus-visible,.parents-edit:focus-visible,
+.parents-filters :is(input,select):focus-visible{outline:2px solid var(--sa-accent,#178166);outline-offset:2px}
+.parents-filters{display:grid;grid-template-columns:minmax(0,1.6fr) repeat(2,minmax(0,1fr));gap:12px;margin:20px 0}
+.parents-filters label{display:grid;gap:7px;min-width:0;color:var(--sa-ink,#243f30);font-size:12px;font-weight:650}
+.parents-filters input,.parents-filters select{
+  width:100%;min-width:0;min-height:43px;padding:9px 12px;
+  border:1px solid var(--sa-line,#dfe9e4);
+  border-radius:10px;background:var(--sa-card,#fff);
+  color:var(--sa-ink,#243f30);font:inherit;font-size:12px;font-weight:400
 }
-
-.parents-heading button,
-.parents-edit {
-  min-height: 38px;
-  padding: 9px 14px;
-  border: 1px solid #dce6df;
-  border-radius: 9px;
-  background: #fff;
-  color: #28523c;
-  font: inherit;
-  font-size: 12px;
-  font-weight: 700;
-  cursor: pointer;
+.parents-class-groups{display:grid;gap:16px;margin:16px 0}
+.parents-class-group{min-width:0;border:1px solid var(--sa-line,#dfe9e4);border-radius:13px;overflow:hidden;background:var(--sa-card,#fff)}
+.parents-class-heading{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:13px 16px;border-bottom:1px solid var(--sa-line,#dfe9e4);
+  background:var(--sa-soft,#e9f6ee)
 }
-
-.parents-heading button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+.parents-class-heading h3{margin:0;color:var(--sa-accent,#178166);font-size:14px;font-weight:750}
+.parents-class-heading span{font-size:11px;color:var(--sa-muted,#718079)}
+.parents-table-wrapper{width:100%;min-width:0;overflow-x:auto}
+.parents-table-wrapper table{width:100%;min-width:735px;border-collapse:collapse;text-align:left;font-size:12px}
+.parents-table-wrapper th,.parents-table-wrapper td{
+  padding:12px 13px;text-align:left;border-bottom:1px solid var(--sa-line,#dfe9e4);
+  vertical-align:middle;white-space:normal
 }
-
-.parents-filters {
-  display: grid;
-  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
-  gap: 15px;
-  margin: 22px 0;
+.parents-table-wrapper th{background:var(--sa-bg,#f6f9f7);color:var(--sa-muted,#718079);font-size:11px;font-weight:750;white-space:nowrap}
+.parents-table-wrapper tr:last-child td{border-bottom:0}
+.parents-student-name{min-width:135px;max-width:220px;color:var(--sa-ink,#243f30);font-weight:750}
+.parents-contact{display:grid;gap:3px;min-width:130px;max-width:235px}
+.parents-contact strong{color:var(--sa-ink,#243f30);font-size:12px;font-weight:650;overflow-wrap:anywhere}
+.parents-contact>span,.parents-contact small,.parents-neutral{color:var(--sa-muted,#718079);font-size:11px;line-height:1.5}
+.parents-contact .parents-contact-linked{color:var(--sa-accent,#178166)}
+.parents-code{color:var(--sa-accent,#178166);font-weight:800;letter-spacing:1px}
+.parents-account-linked,.parents-account-neutral{
+  display:inline-flex;align-items:center;padding:5px 8px;border-radius:999px;
+  font-size:10px;font-weight:750;white-space:nowrap
 }
-
-.parents-filters label {
-  display: grid;
-  gap: 8px;
-  min-width: 0;
-  color: #365340;
-  font-size: 12px;
-  font-weight: 650;
+.parents-account-linked{color:var(--sa-accent,#178166);background:var(--sa-soft,#e9f6ee)}
+.parents-account-neutral{color:var(--sa-muted,#718079);background:var(--sa-bg,#f6f9f7)}
+.parents-empty{padding:32px 12px;text-align:center;color:var(--sa-muted,#718079);font-size:13px}
+.parents-error{padding:11px 13px;border-radius:9px;background:#fff0f0;color:#a33c3c;font-size:12px}
+.parents-syncing{font-size:11px;color:var(--sa-muted,#718079)}
+@media(max-width:780px){
+ .parents-panel{padding:15px 12px}
+ .parents-filters{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .parents-filters label:first-child{grid-column:1/-1}
+ .parents-class-heading{padding:12px}
+ .parents-heading h2{font-size:17px}
+ .parents-table-wrapper table{min-width:0;display:block}
+ .parents-table-wrapper thead{display:none}
+ .parents-table-wrapper tbody{display:grid}
+ .parents-table-wrapper tr{
+   display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+   gap:10px;padding:14px 12px;border-bottom:1px solid var(--sa-line,#dfe9e4)
+ }
+ .parents-table-wrapper tr:last-child{border-bottom:0}
+ .parents-table-wrapper td{display:block;min-width:0;padding:0;border:0}
+ .parents-table-wrapper td:nth-child(1){grid-column:1/-1;font-size:13px}
+ .parents-table-wrapper td:nth-child(2)::before{content:"Ayah";display:block;margin-bottom:4px;font-size:10px;color:var(--sa-muted,#718079)}
+ .parents-table-wrapper td:nth-child(3)::before{content:"Ibu";display:block;margin-bottom:4px;font-size:10px;color:var(--sa-muted,#718079)}
+ .parents-table-wrapper td:nth-child(4)::before{content:"Wali Lain";display:block;margin-bottom:4px;font-size:10px;color:var(--sa-muted,#718079)}
+ .parents-table-wrapper td:nth-child(5){align-self:end}
+ .parents-table-wrapper td:nth-child(6){grid-column:1/-1}
+ .parents-table-wrapper .parents-edit{width:100%;min-height:40px}
 }
-
-.parents-filters input,
-.parents-filters select {
-  width: 100%;
-  height: 43px;
-  padding: 9px 12px;
-  border: 1px solid #dce5df;
-  border-radius: 9px;
-  background: #fff;
-  color: #243f30;
-  font: inherit;
-  font-size: 13px;
-  font-weight: 400;
+@media(max-width:375px){
+ .parents-filters{grid-template-columns:1fr}
+ .parents-filters label:first-child{grid-column:auto}
 }
-
-.parents-table-wrapper {
-  min-width: 0;
-  overflow-x: auto;
-  border: 1px solid #e5ece6;
-  border-radius: 11px;
-}
-
-.parents-table-wrapper table {
-  border-collapse: collapse;
-  width: 100%;
-  white-space: nowrap;
-  font-size: 12px;
-}
-
-.parents-table-wrapper th,
-.parents-table-wrapper td {
-  padding: 12px 14px;
-  text-align: left;
-  border-bottom: 1px solid #edf1ed;
-}
-
-.parents-table-wrapper th {
-  background: #f7faf7;
-  color: #687a6d;
-}
-
-.parents-table-wrapper tr:last-child td {
-  border-bottom: 0;
-}
-
-.parents-student-name {
-  font-weight: 700;
-  color: #244e37;
-}
-
-.parents-code {
-  font-size: 13px;
-  font-weight: 750;
-  letter-spacing: 2px;
-  color: #164c3b;
-}
-
-.parents-empty {
-  padding: 34px 12px;
-  text-align: center;
-  color: #819083;
-  font-size: 13px;
-}
-
-.parents-error {
-  padding: 11px 13px;
-  border-radius: 9px;
-  background: #fff0f0;
-  color: #a33c3c;
-  font-size: 12px;
-}
-
-@media (max-width: 650px) {
-  .parents-panel {
-    padding: 18px 14px;
-  }
-
-  .parents-filters {
-    grid-template-columns: 1fr;
-  }
-
-  .parents-heading h2 {
-    font-size: 17px;
-  }
-}
-
-/* Empty state orang tua selaras dengan panel staf lainnya. */
-.staff-app .parents-empty { margin-top: 16px; padding: 34px 16px; border: 1px dashed var(--sa-line, #dce5df); border-radius: 14px; background: var(--sa-soft, #e9f5ef); line-height: 1.6; }
