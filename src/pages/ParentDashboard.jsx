@@ -1,9 +1,8 @@
 import { setParentEditorOpen } from "../lib/parentEditorState";
 import InstallAppSettings from "../components/InstallAppSettings";
 import EmptyState from "../components/EmptyState";
-import ViewportPopover from "../components/ViewportPopover";
 
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react";
 import { supabase } from "../lib/supabase";
 import { fetchAll } from "../lib/pagination";
 import { signOut } from "../lib/auth";
@@ -23,7 +22,6 @@ import "../styles/comfort-motion.css";
 const MENU = [
   { id: "today", label: "Beranda", icon: "home" },
   { id: "calendar", label: "Kalender", icon: "calendar" },
-  { id: "notifications", label: "Notifikasi", icon: "bell" },
   { id: "profile", label: "Profil", icon: "user" },
 ];
 
@@ -39,12 +37,6 @@ function Icon({ name, size = 21 }) {
       <>
         <rect x="3" y="5" width="18" height="16" rx="2" />
         <path d="M7 3v4M17 3v4M3 10h18M8 14h2M14 14h2" />
-      </>
-    ),
-    bell: (
-      <>
-        <path d="M18 8a6 6 0 0 0-12 0c0 7-3 8-3 9h18c0-1-3-2-3-9" />
-        <path d="M10 21h4" />
       </>
     ),
     user: (
@@ -324,9 +316,6 @@ export default function ParentDashboard({
     Boolean(studentId) && !loggingOut
   );
 
-  const [noticeOpen, setNoticeOpen] = useState(false);
-  const [noticeRead, setNoticeRead] = useState(true);
-  const [readScope, setReadScope] = useState("");
 
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
@@ -335,14 +324,12 @@ export default function ParentDashboard({
     setDailyOpen(false);
     setChooserOpen(false);
     setLinkOpen(false);
-    setNoticeOpen(false);
     if (page.startsWith("daily:")) { setSelectedDate(page.slice(6)); setDailyOpen(true); }
     else if (page === "chooser") setChooserOpen(true);
     else if (page === "link") setLinkOpen(true);
     else if (MENU.some((item) => item.id === page) || page === "install-app") setTab(page);
   });
   const [quote] = useState(() => getRandomQuote());
-  const noticeRef = useRef(null);
 
   const today = clock.date;
   const theme = timeTheme(clock.hour);
@@ -659,39 +646,6 @@ export default function ParentDashboard({
     statusRevision,
   ]);
 
-  useEffect(() => {
-    if (!studentId) return undefined;
-
-    let active = true;
-
-    supabase
-      .rpc(
-        "get_parent_daily_notice_read",
-        {
-          p_student_id: studentId,
-          p_date: today,
-        }
-      )
-      .then(({ data, error: failure }) => {
-        if (active) {
-          setNoticeRead(
-            failure ? true : data === true
-          );
-          setReadScope(`${studentId}:${today}`);
-        }
-      })
-      .catch(() => {
-        if (active) {
-          setNoticeRead(true);
-          setReadScope(`${studentId}:${today}`);
-        }
-      });
-
-    return () => {
-      active = false;
-    };
-  }, [studentId, today, statusRevision]);
-
   const closeOverlay = useCallback(() => {
     const route = window.history.state?.__mutabaahNav;
     if (route?.scope === "parent" &&
@@ -703,15 +657,13 @@ export default function ParentDashboard({
       setLinkOpen(false);
       replacePage(tab);
     }
-    setNoticeOpen(false);
   }, [replacePage, tab]);
 
   useEffect(() => {
     if (
       !dailyOpen &&
       !chooserOpen &&
-      !linkOpen &&
-      !noticeOpen
+      !linkOpen
     ) {
       return undefined;
     }
@@ -720,8 +672,7 @@ export default function ParentDashboard({
       if (event.key !== "Escape") return;
 
       if (linkOpen && linking) return;
-      if (noticeOpen && !dailyOpen && !chooserOpen && !linkOpen) setNoticeOpen(false);
-      else closeOverlay();
+      closeOverlay();
     }
 
     window.addEventListener("keydown", escape);
@@ -732,7 +683,6 @@ export default function ParentDashboard({
     dailyOpen,
     chooserOpen,
     linkOpen,
-    noticeOpen,
     linking,
     closeOverlay,
   ]);
@@ -750,11 +700,6 @@ export default function ParentDashboard({
     child
       ? avatarVariants.get(child.id) ?? 0
       : 0;
-
-  const todayStatus =
-    currentStatuses.find(
-      (row) => row.date === today
-    )?.status || "unfilled";
 
   const selectedStatus =
     selectedStatuses.find(
@@ -781,15 +726,6 @@ export default function ParentDashboard({
     ? Math.round((100 * completed) / total)
     : 0;
 
-  const unread = Boolean(
-    studentId &&
-    readScope === `${studentId}:${today}` &&
-    !noticeRead &&
-    !statusLoading &&
-    !statusError &&
-    todayStatus !== "finalized"
-  );
-
   function selectChild(next) {
     setStudentId(next);
     setSelectedDate(today);
@@ -806,16 +742,11 @@ export default function ParentDashboard({
     pushPage(next);
     setTab(next);
     setDailyOpen(false);
-    setNoticeOpen(false);
     setError("");
     setMessage("");
 
     if (next === "today") {
       setSelectedDate(today);
-    }
-
-    if (next === "notifications") {
-      void markNoticeRead();
     }
 
     const reduced = window.matchMedia?.(
@@ -856,7 +787,6 @@ export default function ParentDashboard({
     pushPage(`daily:${date}`);
     setSelectedDate(date);
     setDailyOpen(true);
-    setNoticeOpen(false);
   }
 
   async function linkChild(event) {
@@ -938,33 +868,6 @@ export default function ParentDashboard({
         "Gagal keluar akun."
       );
       setLoggingOut(false);
-    }
-  }
-
-  async function markNoticeRead() {
-    if (!studentId || noticeRead) return;
-
-    const {
-      error: failure,
-    } = await supabase.rpc(
-      "mark_parent_daily_notice_read",
-      {
-        p_student_id: studentId,
-        p_date: today,
-      }
-    );
-
-    if (!failure) {
-      setNoticeRead(true);
-      announceNotificationChange();
-    }
-  }
-
-  function toggleNotice() {
-    setNoticeOpen((open) => !open);
-
-    if (!noticeOpen) {
-      void markNoticeRead();
     }
   }
 
@@ -1079,8 +982,6 @@ export default function ParentDashboard({
         <span className="pd-nav-icon">
           <Icon name={icon} size={20} />
 
-          {id === "notifications" &&
-            unread && <i />}
         </span>
 
         <span>{label}</span>
@@ -1172,56 +1073,6 @@ export default function ParentDashboard({
               </div>
 
               <div className="pd-hero-actions">
-                <div
-                  className="pd-notice-anchor"
-                  ref={noticeRef}
-                >
-                  <button
-                    type="button"
-                    className="pd-bell"
-                    aria-label="Lihat pemberitahuan"
-                    aria-expanded={noticeOpen}
-                    onClick={toggleNotice}
-                  >
-                    <Icon name="bell" size={23} />
-                    {unread && (
-                      <span className="pd-dot" />
-                    )}
-                  </button>
-
-                  {noticeOpen && (
-                    <ViewportPopover
-                      className="pd-notice-popover"
-                      label="Pengingat Mutabaah"
-                      anchorRef={noticeRef}
-                      onClose={() => setNoticeOpen(false)}
-                    >
-                      <strong>
-                        Pengingat Mutabaah
-                      </strong>
-
-                      <p>
-                        {!selectedChild
-                          ? "Hubungkan anak untuk memulai."
-                          : todayStatus === "finalized"
-                            ? "Mutabaah hari ini sudah selesai."
-                            : todayStatus === "draft"
-                              ? "Mutabaah hari ini masih draf. Silakan finalisasi."
-                              : "Mutabaah hari ini belum diisi."}
-                      </p>
-
-                      <button
-                        type="button"
-                        onClick={() =>
-                          navigate("notifications")
-                        }
-                      >
-                        Buka Notifikasi
-                      </button>
-                    </ViewportPopover>
-                  )}
-                </div>
-
                 <button
                   type="button"
                   className="pd-account-pill"
@@ -1480,18 +1331,6 @@ export default function ParentDashboard({
 
                       <button
                         type="button"
-                        onClick={() =>
-                          navigate("notifications")
-                        }
-                      >
-                        <span className="yellow">
-                          <Icon name="bell" />
-                        </span>
-                        Notifikasi
-                      </button>
-
-                      <button
-                        type="button"
                         onClick={() => navigate("profile")}
                       >
                         <span className="purple">
@@ -1575,57 +1414,6 @@ export default function ParentDashboard({
                   <Icon name="info" size={18} />
                   Pilih tanggal (maksimal 30 hari terakhir).
                 </p>
-              </section>
-            )}
-
-            {tab === "notifications" && (
-              <section className="pd-card pd-page-card">
-                <header className="pd-page-title">
-                  <h1>Notifikasi</h1>
-                  <small>
-                    Pengingat pengisian Mutabaah
-                  </small>
-                </header>
-
-                <div className="pd-notification-item">
-                  <span>
-                    <Icon name="bell" size={23} />
-                  </span>
-
-                  <div>
-                    <strong>
-                      {todayStatus === "finalized"
-                        ? "Mutabaah hari ini selesai"
-                        : todayStatus === "draft"
-                          ? "Mutabaah hari ini masih draf"
-                          : "Pengingat Mutabaah hari ini"}
-                    </strong>
-
-                    <p>
-                      {!selectedChild
-                        ? "Belum ada anak yang terhubung."
-                        : todayStatus === "finalized"
-                          ? "Pengisian hari ini sudah difinalisasi."
-                          : todayStatus === "draft"
-                            ? "Silakan lanjutkan dan finalisasi pengisian."
-                            : "Pengisian hari ini belum selesai."}
-                    </p>
-
-                    <small>{fullDate(today)}</small>
-                  </div>
-                </div>
-
-                {selectedChild &&
-                  todayStatus !== "finalized" && (
-                    <button
-                      type="button"
-                      className="pd-primary-button"
-                      onClick={() => openDay(today)}
-                    >
-                      Buka pengisian
-                      <Icon name="right" size={19} />
-                    </button>
-                  )}
               </section>
             )}
 

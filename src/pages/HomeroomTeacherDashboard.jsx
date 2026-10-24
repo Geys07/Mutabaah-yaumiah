@@ -356,9 +356,6 @@ export default function HomeroomTeacherDashboard({
             ? "Aktivasi Orang Tua"
           : "Pengaturan Akun";
 
-  const pending =
-    statusSummary.draft + statusSummary.unfilled;
-
   const currentClass = classes.find(
     (item) => item.class_id === classId
   );
@@ -373,24 +370,7 @@ export default function HomeroomTeacherDashboard({
       activeId={activeTab}
       onNavigate={selectTab}
       mobileIds={["daily", "monthly", "report"]}
-      pendingCount={
-        students.length > 0 ? pending : 0
-      }
-      noticeItems={
-        students.length > 0 &&
-        pending > 0
-          ? [
-              `${pending} siswa di ${
-                currentClass?.class_name || "kelas"
-              } belum final pada ${formatDate(selectedDate)}.`,
-              `${statusSummary.draft} draf, ${
-                statusSummary.unfilled
-              } belum diisi.`,
-            ]
-          : []
-      }
-      onNoticeAction={() => selectTab("daily")}
-      noticeActionLabel="Lihat rekap harian"
+      showNoticeBell={false}
       onLogout={handleLogout}
       loggingOut={loggingOut}
     >
