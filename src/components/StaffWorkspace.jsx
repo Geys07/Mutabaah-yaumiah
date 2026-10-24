@@ -136,6 +136,7 @@ export default function StaffWorkspace({
   mobileIds = [],
   pendingCount = 0,
   noticeItems = [],
+  showNoticeBell = true,
   onNoticeAction,
   noticeActionLabel = "Buka notifikasi",
   onLogout,
@@ -265,7 +266,7 @@ export default function StaffWorkspace({
           </div>
 
           <div className="staff-top-actions">
-            <div className="staff-notice-anchor" ref={noticeAnchorRef}>
+            {showNoticeBell && <div className="staff-notice-anchor" ref={noticeAnchorRef}>
               <button
                 type="button"
                 className="staff-bell"
@@ -314,7 +315,7 @@ export default function StaffWorkspace({
                   )}
                 </ViewportPopover>
               )}
-            </div>
+            </div>}
 
             <div className="staff-top-user">
               <StaffIcon name="user" />
