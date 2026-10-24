@@ -10,6 +10,7 @@ import { signOut } from "../lib/auth";
 import usePanelHistory from "../hooks/usePanelHistory";
 const MonthlyReports = lazy(() => import("./MonthlyReports"));
 const ReportCards = lazy(() => import("./ReportCards"));
+const ActivationBatch = lazy(() => import("./ActivationBatch"));
 import AccountSecurity from "./AccountSecurity";
 import StaffWorkspace, {
   StaffKpi,
@@ -29,6 +30,10 @@ const GROUPS = [
         mobileLabel: "Beranda",
       },
     ],
+  },
+  {
+    label: "Orang Tua / Wali",
+    items: [{ id: "activation", label: "Aktivasi Orang Tua", icon: "users" }],
   },
   {
     label: "Laporan & Rapor",
@@ -346,6 +351,8 @@ export default function HomeroomTeacherDashboard({
         ? "Laporan Mutabaah"
         : activeTab === "report"
           ? "Rapor Mutabaah"
+          : activeTab === "activation"
+            ? "Aktivasi Orang Tua"
           : "Pengaturan Akun";
 
   const pending =
@@ -399,6 +406,12 @@ export default function HomeroomTeacherDashboard({
 
       {activeTab === "account" && (
         <AccountSecurity account={account} />
+      )}
+
+      {activeTab === "activation" && (
+        <Suspense fallback={<p role="status">Memuat aktivasi...</p>}>
+          <ActivationBatch isTeacher />
+        </Suspense>
       )}
 
       {activeTab === "monthly" && (
