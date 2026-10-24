@@ -989,10 +989,8 @@ export default function AdminDashboard({
 
       {activeMenu === "notifications" && (
         <AdminNotificationSections
-          passwordPendingCount={passwordPendingCount}
           notificationChanged={notificationChanged}
-          loadPendingCount={loadPendingCount}
-          loggingOut={loggingOut}
+          onOpenRecoveryChats={() => navigate("recovery-chat")}
         />
       )}
 
