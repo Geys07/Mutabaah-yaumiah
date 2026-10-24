@@ -184,7 +184,6 @@ export default function PrincipalDashboard({
   const [year, setYear] = useState("");
   const [date, setDate] = useState(() => clock.date);
   const [reload, setReload] = useState(0);
-  useNotificationPulse(() => setReload((n) => n + 1), Boolean(year) && !loggingOut);
 
   const [loadingClasses, setLoadingClasses] = useState(true);
   const [loadingSummary, setLoadingSummary] = useState(false);
@@ -198,6 +197,7 @@ export default function PrincipalDashboard({
   const [error, setError] = useState("");
   const [detailError, setDetailError] = useState("");
   const [loggingOut, setLoggingOut] = useState(false);
+  useNotificationPulse(() => setReload((n) => n + 1), Boolean(year) && !loggingOut);
   const [logoutError, setLogoutError] = useState("");
   const { push: pushPage } = usePanelHistory("principal", "overview", (page) => {
     if (MENUS.some((item) => item.id === page)) { setTab(page); if (page === "overview") setReload((n) => n + 1); }
