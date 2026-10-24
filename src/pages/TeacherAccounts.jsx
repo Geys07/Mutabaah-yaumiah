@@ -94,9 +94,9 @@ export default function TeacherAccounts({ role = "homeroom_teacher" }) {
     if (phone && !/^08\d{8,11}$/.test(phone))
       return setFormError("Nomor HP opsional, tetapi jika diisi gunakan 08xxxxxxxxxx.");
     if (modal === "create" &&
-      (form.password.length < 10 || form.password.length > 72 ||
+      (form.password.length < 6 || form.password.length > 72 ||
        form.password !== form.confirm_password))
-      return setFormError("Kata sandi harus 10–72 karakter dan konfirmasinya cocok.");
+      return setFormError("Kata sandi harus 6–72 karakter dan konfirmasinya cocok.");
 
     setSaving(true);
     setFormError("");
@@ -190,13 +190,13 @@ export default function TeacherAccounts({ role = "homeroom_teacher" }) {
             {modal === "create" && <>
               <label className="teacher-accounts-field">
                 <span>Kata Sandi Awal</span>
-                <input required minLength={10} maxLength={72} autoComplete="new-password"
+                <input required minLength={6} maxLength={72} autoComplete="new-password"
                   type={showPassword ? "text" : "password"} disabled={saving}
                   value={form.password} onChange={(e)=>updateField("password",e.target.value)}/>
               </label>
               <label className="teacher-accounts-field">
                 <span>Konfirmasi Kata Sandi</span>
-                <input required minLength={10} maxLength={72} autoComplete="new-password"
+                <input required minLength={6} maxLength={72} autoComplete="new-password"
                   type={showPassword ? "text" : "password"} disabled={saving}
                   value={form.confirm_password} onChange={(e)=>updateField("confirm_password",e.target.value)}/>
               </label>

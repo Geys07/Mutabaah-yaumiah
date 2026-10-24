@@ -83,7 +83,8 @@ function LoginPage({
   onLogin,
   year,
 }) {
-  const [mode, setMode] = useState("login");
+  const [mode, setMode] = useState(() =>
+    new URLSearchParams(window.location.search).has("recovery_chat") ? "forgot" : "login");
   const [username, setUsername] = useState("");
   const [loginAs, setLoginAs] = useState("parent");
   const [password, setPassword] = useState("");
@@ -92,7 +93,8 @@ function LoginPage({
 
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState(null);
-  const { push: pushLoginHistory, replace: replaceLoginHistory } = usePanelHistory("login", "login", (page) => {
+  const { push: pushLoginHistory, replace: replaceLoginHistory } = usePanelHistory("login",
+    new URLSearchParams(window.location.search).has("recovery_chat") ? "forgot" : "login", (page) => {
     setMode(page === "activation" || page === "forgot" ? page : "login");
     setPassword("");
     setShowPassword(false);

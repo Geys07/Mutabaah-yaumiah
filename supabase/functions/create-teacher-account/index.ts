@@ -35,7 +35,7 @@ Deno.serve(async(req:Request)=>{
   if(name.length<2||name.length>150)return reply({error:"Nama harus 2–150 karakter."},400);
   if(!/^[a-z][a-z0-9._-]{3,23}$/.test(username)||username==="admin")return reply({error:"Nama pengguna harus 4–24 karakter (huruf kecil, angka, titik, _ atau -) dan tidak boleh admin."},400);
   if(phone&&!/^08[0-9]{8,11}$/.test(phone))return reply({error:"Nomor HP tidak valid."},400);
-  if(typeof password!=="string"||password.length<10||password.length>72)return reply({error:"Kata sandi harus 10–72 karakter."},400);
+  if(typeof password!=="string"||password.length<6||password.length>72)return reply({error:"Kata sandi harus 6–72 karakter."},400);
   const [u,p]=await Promise.all([
     admin.from("profiles").select("user_id").eq("username",username).maybeSingle(),
     phone?admin.from("profiles").select("user_id").eq("phone",phone).maybeSingle():Promise.resolve({data:null,error:null})

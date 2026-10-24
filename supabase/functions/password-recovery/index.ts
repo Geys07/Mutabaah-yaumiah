@@ -81,7 +81,7 @@ function validPassword(
 ): value is string {
   return (
     typeof value === "string" &&
-    value.length >= 10 &&
+    value.length >= 6 &&
     value.length <= 72
   );
 }
@@ -635,7 +635,7 @@ async function redeemReset(
     return respond(
       {
         error:
-          "Kata sandi harus terdiri dari 10–72 karakter.",
+          "Kata sandi harus terdiri dari 6–72 karakter.",
       },
       400
     );
@@ -676,7 +676,7 @@ async function redeemReset(
   const { data: record, error: readError } =
     await db
       .from("password_reset_requests")
-      .select("id, user_id, status")
+      .select("id, user_id, status, reviewed_at")
       .eq("user_id", account.user_id)
       .eq("status", "approved")
       .maybeSingle();
@@ -691,6 +691,12 @@ async function redeemReset(
       },
       400
     );
+  }
+
+  // Masa berlaku sama seperti kode aktivasi Orang Tua: 14 hari.
+  if (!record.reviewed_at ||
+      Date.now() - new Date(record.reviewed_at).getTime() >= 14 * 24 * 60 * 60 * 1000) {
+    return respond({ error: "Kode pemulihan sudah kedaluwarsa (14 hari). Hubungi Admin." }, 410);
   }
 
   const providedHash = await hashCode(

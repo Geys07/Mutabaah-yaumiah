@@ -70,10 +70,12 @@ self.addEventListener("push", (event) => {
     // Badge hitam "Amal Harian" v2: goresan lebih ramping dan margin aman.
     // Ikon status bar tetap dibatasi ukuran fisik oleh Android.
     const badge = new URL("notification/amal-harian-status-v2.png", scope).href;
+    const recoveryLink = payload.url === "/?recovery_chat=1" || payload.url === "/?admin_recovery_chat=1";
+    const target = recoveryLink ? new URL(payload.url, scope).href : scope;
     await self.registration.showNotification(payload.title || "Mutabaah Yaumiah", {
       body: payload.body || "Ada pemberitahuan Mutabaah.", icon, badge,
       tag: payload.tag || "mutabaah-harian", renotify: false,
-      data: {url: scope}
+      data: {url: target}
     });
   })());
 });
@@ -81,10 +83,15 @@ self.addEventListener("push", (event) => {
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();
   event.waitUntil((async () => {
-    const url = self.registration.scope;
+    const scope = self.registration.scope;
+    const url = event.notification.data?.url || scope;
+    const isRecoveryLink = url.startsWith(scope) && /[?&](recovery_chat|admin_recovery_chat)=1(?:&|$)/.test(url);
     const windows = await self.clients.matchAll({type:"window",includeUncontrolled:true});
     for (const client of windows) {
       if (new URL(client.url).origin === self.location.origin) {
+        if (isRecoveryLink && client.navigate) {
+          try { await client.navigate(url); } catch { /* Fokus tab yang ada tetap berguna. */ }
+        }
         await client.focus();
         return;
       }
