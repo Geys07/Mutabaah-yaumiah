@@ -74,10 +74,15 @@ export function useRecoveryOutbox() {
       m.client_id === clientId ? {...m,...data,local_state:"sent"} : m
     ));
   }
+  function retry(clientId) {
+    setOutbox((old) => old.map((m) =>
+      m.client_id === clientId ? {...m,local_state:"sending"} : m
+    ));
+  }
   function fail(clientId) {
     setOutbox((old) => old.map((m) =>
       m.client_id === clientId ? {...m,local_state:"failed"} : m
     ));
   }
-  return {outbox,add,ack,fail};
+  return {outbox,add,ack,fail,retry};
 }
