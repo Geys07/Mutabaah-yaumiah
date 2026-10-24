@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { supabase } from "../lib/supabase";
 import { edgeFunctionErrorMessage } from "../lib/edgeFunctionError";
+import { recoveryPushPermission, connectRecoveryChatPush } from "../lib/recoveryPush";
 import { useRecoverySignal, useRecoveryOutbox, createOptimisticMessage, combineRecoveryMessages } from "../lib/recoveryRealtime.js";
 import { Receipt } from "../lib/recoveryRealtime.jsx";
 import "./ForgotPassword.css";
@@ -75,10 +76,6 @@ function expiryText(value) {
   }).format(new Date(value));
 }
 
-function uint8Base64(value) {
-  const pad = "=".repeat((4 - (value.length % 4)) % 4);
-  return Uint8Array.from(atob((value + pad).replace(/-/g, "+").replace(/_/g, "/")), (c) => c.charCodeAt(0));
-}
 
 export default function ForgotPassword({ onBack, onSuccess }) {
   const [token, setToken] = useState(getSavedTicket);
@@ -90,7 +87,10 @@ export default function ForgotPassword({ onBack, onSuccess }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
-  const [notificationsOn, setNotificationsOn] = useState(false);
+  // Izin notifikasi berasal dari perangkat/PWA, bukan state lokal chat.
+  const [pushPermission, setPushPermission] = useState(recoveryPushPermission);
+  const [pushBusy, setPushBusy] = useState(false);
+  const [pushError, setPushError] = useState("");
   const lastMessageRef = useRef(null);
 
   const loadChat = useCallback(async () => {
@@ -127,6 +127,35 @@ export default function ForgotPassword({ onBack, onSuccess }) {
   }, [view, token, loadChat]);
 
   useRecoverySignal(view === "chat" ? chat?.realtime_topic : "", loadChat);
+  // Jika pernah mengizinkan push di Profil atau sesi chat sebelumnya,
+  // daftarkan langganan yang ada secara otomatis ke tiket tanpa popup baru.
+  useEffect(() => {
+    if (view !== "chat" || !token || !chat ||
+        !["pending","approved","processing"].includes(chat.status) ||
+        pushPermission !== "granted") return undefined;
+    let live = true;
+    void connectRecoveryChatPush(token, invoke).then(() => {
+      if (live) setPushError("");
+    }).catch(() => {
+      if (live) setPushError(
+        "Izin notifikasi sudah aktif, tetapi sinkronisasi chat belum berhasil. Pesan tetap tersedia di sini."
+      );
+    });
+    return () => { live = false; };
+  }, [view, token, chat?.status, pushPermission]);
+
+  useEffect(() => {
+    function checkPermission() {
+      setPushPermission(recoveryPushPermission());
+    }
+    window.addEventListener("focus", checkPermission);
+    document.addEventListener("visibilitychange", checkPermission);
+    return () => {
+      window.removeEventListener("focus", checkPermission);
+      document.removeEventListener("visibilitychange", checkPermission);
+    };
+  }, []);
+
   const visibleMessages = combineRecoveryMessages(chat?.messages||[],outbox,token);
   useEffect(() => {
     if (view === "chat") lastMessageRef.current?.scrollIntoView({ block: "end" });
@@ -183,28 +212,25 @@ export default function ForgotPassword({ onBack, onSuccess }) {
   }
 
   async function enableNotifications() {
-    setBusy(true);setError("");
+    if (!token || pushPermission !== "default" || pushBusy) return;
+    setPushBusy(true);
+    setPushError("");
     try {
-      if (!("serviceWorker" in navigator) || !("PushManager" in window) || !("Notification" in window)) {
-        throw new Error("Push notification belum didukung perangkat atau browser ini.");
-      }
+      // Permintaan izin hanya setelah pengguna menekan tombol, sekali untuk PWA.
       const permission = await Notification.requestPermission();
-      if (permission !== "granted") throw new Error("Izin notifikasi belum diberikan.");
-      const data = await invoke("recovery-chat", { action: "push_config" });
-      if (!data.public_key) throw new Error("Konfigurasi push belum siap.");
-      const registration = await navigator.serviceWorker.ready;
-      let subscription = await registration.pushManager.getSubscription();
-      if (!subscription) {
-        subscription = await registration.pushManager.subscribe({
-          userVisibleOnly: true, applicationServerKey: uint8Base64(data.public_key),
-        });
+      setPushPermission(permission);
+      if (permission !== "granted") {
+        setPushError(permission === "denied"
+          ? "Notifikasi diblokir. Ubah izin melalui pengaturan aplikasi/perangkat."
+          : "Izin belum diberikan. Chat tetap dapat digunakan tanpa notifikasi.");
+        return;
       }
-      await invoke("recovery-chat", { action: "my_subscribe", token, subscription: subscription.toJSON() });
-      setNotificationsOn(true);
-      setNotice("Pemberitahuan chat sudah aktif di perangkat ini.");
-    } catch (problem) {
-      setError(problem.message || "Notifikasi belum dapat diaktifkan.");
-    } finally { setBusy(false); }
+      await connectRecoveryChatPush(token, invoke);
+    } catch {
+      setPushError("Izin notifikasi sudah diperiksa, tetapi perangkat belum tersambung. Coba buka chat kembali.");
+    } finally {
+      setPushBusy(false);
+    }
   }
 
   function openReset(code) {
@@ -297,10 +323,15 @@ export default function ForgotPassword({ onBack, onSuccess }) {
               <p className="fp-expiry-note">Riwayat percakapan akan dihapus otomatis pada {expiryText(chat.delete_after)} (30 hari setelah keputusan Admin).</p>
             )}
             {status === "used" && <button type="button" className="fp-primary" onClick={() => onSuccess?.("Kata sandi berhasil diperbarui.")}>Kembali ke Login</button>}
-            {!notificationsOn && !readOnly && (
-              <button type="button" className="fp-notification-optin" onClick={() => void enableNotifications()} disabled={busy}>
-                <RecoveryIcon name="bell" /> Aktifkan pemberitahuan ketika Admin membalas
+            {pushPermission === "default" && !readOnly && (
+              <button type="button" className="fp-notification-optin"
+                onClick={() => void enableNotifications()} disabled={pushBusy}>
+                <RecoveryIcon name="bell" />
+                {pushBusy ? "Menyiapkan notifikasi…" : "Aktifkan pemberitahuan ketika Admin membalas"}
               </button>
+            )}
+            {pushError && !readOnly && (
+              <p className="fp-push-help" role="status">{pushError}</p>
             )}
             <div ref={lastMessageRef}/>
           </div>
