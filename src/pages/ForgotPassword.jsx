@@ -1,416 +1,301 @@
-
-import { useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { supabase } from "../lib/supabase";
 import "./ForgotPassword.css";
 
-const INITIAL_FORM = {
-  phone: "",
-  code: "",
-  password: "",
-  confirmPassword: "",
+const TICKET_KEY = "mutabaah-password-recovery-chat-v1";
+const initial = { phone: "", code: "", password: "", confirm: "" };
+const normalizePhone = (value) => {
+  const digits = String(value || "").replace(/\D/g, "");
+  return digits.startsWith("62") ? "0" + digits.slice(2) : digits;
 };
 
-function normalizePhone(value) {
-  const digits = String(value || "").replace(/\D/g, "");
-
-  if (digits.startsWith("62")) {
-    return `0${digits.slice(2)}`;
-  }
-
-  return digits;
-}
-
-async function getFunctionError(error) {
-  if (error?.context) {
-    try {
-      const body = await error.context.json();
-
-      if (body?.error) return body.error;
-      if (body?.message) return body.message;
-    } catch {
-      // Gunakan pesan kesalahan standar.
+async function readError(error) {
+  try {
+    if (error?.context) {
+      const data = await error.context.json();
+      return data?.error || data?.message || error.message;
     }
-  }
-
-  return (
-    error?.message ||
-    "Tidak dapat menghubungi server."
-  );
+  } catch { /* Gunakan pesan standar. */ }
+  return error?.message || "Tidak dapat menghubungi layanan pemulihan.";
 }
 
-export default function ForgotPassword({
-  onBack,
-  onSuccess,
-}) {
-  const [mode, setMode] = useState("request");
-  const [form, setForm] = useState(INITIAL_FORM);
-  const [showPassword, setShowPassword] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
+async function invoke(kind, body) {
+  const { data, error } = await supabase.functions.invoke(kind, { body });
+  if (error) throw new Error(await readError(error));
+  if (data?.success !== true) throw new Error(data?.error || "Permintaan tidak berhasil.");
+  return data;
+}
+
+function getSavedTicket() {
+  try {
+    const saved = localStorage.getItem(TICKET_KEY);
+    return saved && /^[a-f0-9]{64}$/.test(saved) ? saved : "";
+  } catch { return ""; }
+}
+
+function formatTime(value) {
+  if (!value) return "";
+  return new Intl.DateTimeFormat("id-ID", {
+    timeZone: "Asia/Jakarta", day: "numeric", month: "short",
+    hour: "2-digit", minute: "2-digit",
+  }).format(new Date(value));
+}
+
+function expiryText(value) {
+  if (!value) return "";
+  return new Intl.DateTimeFormat("id-ID", {
+    timeZone: "Asia/Jakarta", day: "numeric", month: "long", year: "numeric",
+  }).format(new Date(value));
+}
+
+function uint8Base64(value) {
+  const pad = "=".repeat((4 - (value.length % 4)) % 4);
+  return Uint8Array.from(atob((value + pad).replace(/-/g, "+").replace(/_/g, "/")), (c) => c.charCodeAt(0));
+}
+
+export default function ForgotPassword({ onBack, onSuccess }) {
+  const [token, setToken] = useState(getSavedTicket);
+  const [view, setView] = useState(() => getSavedTicket() ? "chat" : "request");
+  const [form, setForm] = useState(initial);
+  const [chat, setChat] = useState(null);
+  const [draft, setDraft] = useState("");
+  const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
-  const [message, setMessage] = useState("");
+  const [notice, setNotice] = useState("");
+  const [notificationsOn, setNotificationsOn] = useState(false);
+  const lastMessageRef = useRef(null);
 
-  function updateField(field, value) {
-    setForm((previous) => ({
-      ...previous,
-      [field]: value,
-    }));
-
-    setError("");
-    setMessage("");
-  }
-
-  function changeMode(nextMode) {
-    if (submitting) return;
-
-    setMode(nextMode);
-    setError("");
-    setMessage("");
-
-    setForm((previous) => ({
-      ...previous,
-      code: "",
-      password: "",
-      confirmPassword: "",
-    }));
-
-    setShowPassword(false);
-  }
-
-  async function callRecovery(body) {
-    const { data, error: invokeError } =
-      await supabase.functions.invoke(
-        "password-recovery",
-        {
-          body,
-        }
-      );
-
-    if (invokeError) {
-      throw new Error(
-        await getFunctionError(invokeError)
-      );
-    }
-
-    if (!data?.success) {
-      throw new Error(
-        data?.error || "Permintaan gagal diproses."
-      );
-    }
-
-    return data;
-  }
-
-  async function handleRequest(event) {
-    event.preventDefault();
-
-    if (submitting) return;
-
-    const phone = normalizePhone(form.phone);
-
-    if (!/^08\d{8,11}$/.test(phone)) {
-      setError(
-        "Masukkan nomor HP dengan format 08xxxxxxxxxx."
-      );
-      return;
-    }
-
-    setSubmitting(true);
-    setError("");
-    setMessage("");
-
+  const loadChat = useCallback(async () => {
+    if (!token) return;
     try {
-      await callRecovery({
-        action: "request",
-        phone,
-      });
-
-      setForm((previous) => ({
-        ...previous,
-        phone,
-      }));
-
-      setMode("redeem");
-
-      setMessage(
-        "Permintaan telah dikirim jika nomor HP terdaftar. Hubungi admin sekolah untuk memperoleh kode pemulihan setelah permintaan disetujui."
-      );
-    } catch (requestError) {
-      setError(
-        requestError.message ||
-        "Gagal mengirim permintaan."
-      );
-    } finally {
-      setSubmitting(false);
+      const data = await invoke("recovery-chat", { action: "my_chat", token });
+      setChat(data);
+      setError("");
+    } catch (problem) {
+      if (/Akses percakapan tidak tersedia|403|401/.test(problem.message || "")) {
+        try { localStorage.removeItem(TICKET_KEY); } catch { /* Abaikan. */ }
+        setToken("");
+        setChat(null);
+        setView("request");
+      } else {
+        setError(problem.message || "Gagal mengambil chat.");
+      }
     }
-  }
+  }, [token]);
 
-  async function handleRedeem(event) {
-    event.preventDefault();
+  useEffect(() => {
+    if (view !== "chat" || !token) return undefined;
+    void loadChat();
+    const timer = window.setInterval(() => {
+      if (!document.hidden) void loadChat();
+    }, 10000);
+    const focus = () => { if (!document.hidden) void loadChat(); };
+    document.addEventListener("visibilitychange", focus);
+    window.addEventListener("focus", focus);
+    return () => {
+      window.clearInterval(timer);
+      document.removeEventListener("visibilitychange", focus);
+      window.removeEventListener("focus", focus);
+    };
+  }, [view, token, loadChat]);
 
-    if (submitting) return;
+  useEffect(() => {
+    if (view === "chat") lastMessageRef.current?.scrollIntoView({ block: "end" });
+  }, [view, chat?.messages?.length]);
 
-    const phone = normalizePhone(form.phone);
-    const code = form.code.trim().toLowerCase();
-
-    if (!/^08\d{8,11}$/.test(phone)) {
-      setError(
-        "Masukkan nomor HP dengan format 08xxxxxxxxxx."
-      );
-      return;
-    }
-
-    if (!/^[a-z]{4}$/.test(code)) {
-      setError(
-        "Kode pemulihan harus terdiri dari 4 huruf."
-      );
-      return;
-    }
-
-    if (
-      form.password.length < 10 ||
-      form.password.length > 72
-    ) {
-      setError(
-        "Kata sandi baru harus terdiri dari 10–72 karakter."
-      );
-      return;
-    }
-
-    if (
-      form.password !== form.confirmPassword
-    ) {
-      setError(
-        "Konfirmasi kata sandi tidak cocok."
-      );
-      return;
-    }
-
-    setSubmitting(true);
+  function update(key, value) {
+    setForm((old) => ({ ...old, [key]: value }));
     setError("");
-    setMessage("");
-
-    try {
-      await callRecovery({
-        action: "redeem",
-        phone,
-        code,
-        password: form.password,
-      });
-
-      setForm(INITIAL_FORM);
-
-      onSuccess?.(
-        "Kata sandi berhasil diganti. Silakan masuk dengan kata sandi baru."
-      );
-    } catch (redeemError) {
-      setError(
-        redeemError.message ||
-        "Gagal mengganti kata sandi."
-      );
-    } finally {
-      setSubmitting(false);
-    }
   }
 
+  async function requestChat(event) {
+    event.preventDefault();
+    const phone = normalizePhone(form.phone);
+    if (!/^08\d{8,11}$/.test(phone)) {
+      setError("Masukkan nomor HP terdaftar dengan format 08xxxxxxxxxx.");
+      return;
+    }
+    setBusy(true);setError("");setNotice("");
+    try {
+      const data = await invoke("recovery-chat", { action: "request", phone });
+      localStorage.setItem(TICKET_KEY, data.token);
+      setToken(data.token);
+      setForm((old) => ({ ...old, phone }));
+      setChat(null);
+      setView("chat");
+    } catch (problem) {
+      setError(problem.message || "Permintaan gagal dikirim.");
+    } finally { setBusy(false); }
+  }
+
+  async function sendMessage(event) {
+    event.preventDefault();
+    const message = draft.trim();
+    if (!message || !token || busy) return;
+    setBusy(true);setError("");
+    try {
+      await invoke("recovery-chat", { action: "my_send", token, message });
+      setDraft("");
+      await loadChat();
+    } catch (problem) { setError(problem.message); }
+    finally { setBusy(false); }
+  }
+
+  async function enableNotifications() {
+    setBusy(true);setError("");
+    try {
+      if (!("serviceWorker" in navigator) || !("PushManager" in window) || !("Notification" in window)) {
+        throw new Error("Push notification belum didukung perangkat atau browser ini.");
+      }
+      const permission = await Notification.requestPermission();
+      if (permission !== "granted") throw new Error("Izin notifikasi belum diberikan.");
+      const data = await invoke("recovery-chat", { action: "push_config" });
+      if (!data.public_key) throw new Error("Konfigurasi push belum siap.");
+      const registration = await navigator.serviceWorker.ready;
+      let subscription = await registration.pushManager.getSubscription();
+      if (!subscription) {
+        subscription = await registration.pushManager.subscribe({
+          userVisibleOnly: true, applicationServerKey: uint8Base64(data.public_key),
+        });
+      }
+      await invoke("recovery-chat", { action: "my_subscribe", token, subscription: subscription.toJSON() });
+      setNotificationsOn(true);
+      setNotice("Pemberitahuan chat sudah aktif di perangkat ini.");
+    } catch (problem) {
+      setError(problem.message || "Notifikasi belum dapat diaktifkan.");
+    } finally { setBusy(false); }
+  }
+
+  function openReset(code) {
+    setForm((old) => ({ ...old, code: code || "", password: "", confirm: "" }));
+    setError("");
+    setView("reset");
+  }
+
+  async function redeem(event) {
+    event.preventDefault();
+    const phone = normalizePhone(form.phone);
+    const code = form.code.toLowerCase().trim();
+    if (!/^08\d{8,11}$/.test(phone)) return setError("Nomor HP tidak valid.");
+    if (!/^[a-z]{4}$/.test(code)) return setError("Kode pemulihan harus empat huruf.");
+    if (form.password.length < 6 || form.password.length > 72)
+      return setError("Kata sandi baru harus 6–72 karakter.");
+    if (form.password !== form.confirm) return setError("Konfirmasi kata sandi tidak cocok.");
+    setBusy(true);setError("");
+    try {
+      await invoke("password-recovery", {
+        action: "redeem", phone, code, password: form.password,
+      });
+      setForm((old) => ({ ...old, password: "", confirm: "", code: "" }));
+      setNotice("Kata sandi berhasil diubah. Silakan kembali ke login.");
+      setView("chat");
+      await loadChat();
+    } catch (problem) { setError(problem.message || "Gagal mengubah kata sandi."); }
+    finally { setBusy(false); }
+  }
+
+  const status = chat?.status || "pending";
+  const readOnly = ["used", "rejected", "revoked"].includes(status);
+  const codeMessage = chat?.messages?.findLast((m) => m.sender === "code" && /^[a-z]{4}$/.test(m.body));
+  const statusText = {
+    pending: "Menunggu Admin", approved: "Disetujui", used: "Selesai",
+    rejected: "Ditolak", revoked: "Ditutup", processing: "Sedang Diproses",
+  };
   return (
-    <section
-      className="forgot-password"
-      aria-labelledby="forgot-password-title"
-    >
-      <div className="forgot-password-heading">
-        <h2 id="forgot-password-title">
-          Lupa Kata Sandi
-        </h2>
-      </div>
-
-      <div
-        className="forgot-password-tabs"
-        role="group"
-        aria-label="Tahap pemulihan akun"
-      >
-        <button
-          type="button"
-          className={
-            mode === "request" ? "active" : ""
-          }
-          disabled={submitting}
-          onClick={() => changeMode("request")}
-        >
-          Ajukan Pemulihan
-        </button>
-
-        <button
-          type="button"
-          className={
-            mode === "redeem" ? "active" : ""
-          }
-          disabled={submitting}
-          onClick={() => changeMode("redeem")}
-        >
-          Gunakan Kode
-        </button>
-      </div>
-
-      <form
-        onSubmit={
-          mode === "request"
-            ? handleRequest
-            : handleRedeem
-        }
-        className="forgot-password-form"
-      >
-        <label className="forgot-password-field">
-          <span>Nomor HP</span>
-
-          <input
-            type="tel"
-            inputMode="tel"
-            autoComplete="tel"
-            placeholder="08xxxxxxxxxx"
-            value={form.phone}
-            maxLength={17}
-            required
-            disabled={submitting}
-            onChange={(event) =>
-              updateField(
-                "phone",
-                event.target.value
-              )
-            }
-          />
-        </label>
-
-        {mode === "redeem" && (
-          <>
-            <label className="forgot-password-field">
-              <span>Kode Pemulihan</span>
-
-              <input
-                type="text"
-                inputMode="text"
-                autoComplete="off"
-                autoCapitalize="none"
-                spellCheck={false}
-                placeholder="4 huruf"
-                maxLength={4}
-                required
-                value={form.code}
-                disabled={submitting}
-                onChange={(event) =>
-                  updateField(
-                    "code",
-                    event.target.value
-                      .toLowerCase()
-                      .replace(/[^a-z]/g, "")
-                      .slice(0, 4)
-                  )
-                }
-              />
+    <section className={`forgot-password ${view === "chat" ? "is-chat" : ""}`} aria-label="Pemulihan Kata Sandi">
+      {view === "request" && (
+        <>
+          <div className="fp-intro">
+            <span className="fp-lock" aria-hidden="true">♙</span>
+            <h2>Pemulihan Kata Sandi</h2>
+            <p>Masukkan nomor HP yang terdaftar. Anda akan langsung terhubung ke ruang chat bantuan Admin.</p>
+          </div>
+          <form onSubmit={requestChat} className="fp-form">
+            <label>Nomor HP
+              <input autoFocus type="tel" inputMode="tel" autoComplete="tel" placeholder="08xxxxxxxxxx"
+                value={form.phone} onChange={(e) => update("phone",e.target.value)} disabled={busy} required />
             </label>
+            <button type="submit" className="fp-primary" disabled={busy}>{busy ? "Memeriksa..." : "Lanjutkan ke Chat"}</button>
+          </form>
+          <button type="button" className="fp-link" onClick={onBack}>Kembali ke Login</button>
+        </>
+      )}
 
-            <label className="forgot-password-field">
-              <span>Kata Sandi Baru</span>
+      {view === "chat" && (
+        <div className="fp-chat">
+          <header className="fp-chat-head">
+            <button type="button" onClick={onBack} className="fp-back" aria-label="Kembali ke Login">‹</button>
+            <span className="fp-support-icon" aria-hidden="true">✦</span>
+            <span className="fp-chat-title"><strong>Bantuan Pemulihan Kata Sandi</strong><small>Admin MTs Al-Khairiyah</small></span>
+          </header>
+          <div className="fp-chat-status"><span data-status={status}>{statusText[status] || status}</span></div>
+          <div className="fp-chat-messages" role="log" aria-live="polite" aria-relevant="additions text">
+            {!chat && <p className="fp-chat-loading">Memuat percakapan…</p>}
+            {(chat?.messages || []).map((msg) => (
+              <article key={msg.id} className={`fp-bubble ${msg.sender === "user" ? "is-mine" : "is-theirs"} ${msg.sender === "code" ? "is-code" : ""}`}>
+                {msg.sender === "code" && /^[a-z]{4}$/.test(msg.body) ? (
+                  <>
+                    <strong>Kode Pemulihan</strong>
+                    <div className="fp-secret" aria-label="Kode pemulihan">{msg.body}</div>
+                    <small>Berlaku 14 hari sejak disetujui Admin.</small>
+                    <button type="button" className="fp-primary" onClick={() => openReset(msg.body)}>Ganti Kata Sandi →</button>
+                  </>
+                ) : (
+                  <p>{msg.body}</p>
+                )}
+                <small>{msg.sender === "user" ? "Anda" : msg.sender === "system" ? "Sistem" : "Admin"} · {formatTime(msg.created_at)}</small>
+              </article>
+            ))}
+            {chat?.delete_after && (
+              <p className="fp-expiry-note">Riwayat percakapan akan dihapus otomatis pada {expiryText(chat.delete_after)} (30 hari setelah keputusan Admin).</p>
+            )}
+            {status === "used" && <button type="button" className="fp-primary" onClick={() => onSuccess?.("Kata sandi berhasil diperbarui.")}>Kembali ke Login</button>}
+            {!notificationsOn && !readOnly && (
+              <button type="button" className="fp-notification-optin" onClick={() => void enableNotifications()} disabled={busy}>
+                <span aria-hidden="true">♢</span> Aktifkan pemberitahuan ketika Admin membalas
+              </button>
+            )}
+            <div ref={lastMessageRef}/>
+          </div>
+          {!readOnly && (
+            <form className="fp-composer" onSubmit={sendMessage}>
+              <input aria-label="Tulis pesan" value={draft} onChange={(e)=>setDraft(e.target.value)}
+                maxLength={600} placeholder="Tulis pesan..." disabled={busy}/>
+              <button type="submit" disabled={busy || !draft.trim()} aria-label="Kirim pesan">➤</button>
+            </form>
+          )}
+        </div>
+      )}
 
-              <input
-                type={
-                  showPassword
-                    ? "text"
-                    : "password"
-                }
-                autoComplete="new-password"
-                minLength={10}
-                maxLength={72}
-                required
-                value={form.password}
-                disabled={submitting}
-                onChange={(event) =>
-                  updateField(
-                    "password",
-                    event.target.value
-                  )
-                }
-              />
+      {view === "reset" && (
+        <>
+          <div className="fp-intro">
+            <h2>Ganti Kata Sandi</h2>
+            <p>Masukkan kode empat huruf yang dikirim Admin melalui chat dan buat kata sandi baru.</p>
+          </div>
+          <form onSubmit={redeem} className="fp-form">
+            <label>Nomor HP
+              <input value={form.phone} onChange={(e)=>update("phone",e.target.value)} type="tel" required disabled={busy}/>
             </label>
-
-            <label className="forgot-password-field">
-              <span>Konfirmasi Kata Sandi Baru</span>
-
-              <input
-                type={
-                  showPassword
-                    ? "text"
-                    : "password"
-                }
-                autoComplete="new-password"
-                minLength={10}
-                maxLength={72}
-                required
-                value={form.confirmPassword}
-                disabled={submitting}
-                onChange={(event) =>
-                  updateField(
-                    "confirmPassword",
-                    event.target.value
-                  )
-                }
-              />
+            <label>Kode Pemulihan
+              <input value={form.code} onChange={(e)=>update("code",e.target.value.toLowerCase().replace(/[^a-z]/g,"").slice(0,4))}
+                autoComplete="off" maxLength={4} required disabled={busy}/>
             </label>
-
-            <label className="forgot-password-show">
-              <input
-                type="checkbox"
-                checked={showPassword}
-                disabled={submitting}
-                onChange={(event) =>
-                  setShowPassword(
-                    event.target.checked
-                  )
-                }
-              />
-              <span>Tampilkan kata sandi</span>
+            <label>Kata Sandi Baru
+              <input value={form.password} onChange={(e)=>update("password",e.target.value)}
+                type="password" minLength={6} maxLength={72} required disabled={busy} autoComplete="new-password"/>
             </label>
-          </>
-        )}
-
-        {message && (
-          <p
-            className="forgot-password-message"
-            role="status"
-          >
-            {message}
-          </p>
-        )}
-
-        {error && (
-          <p
-            className="forgot-password-error"
-            role="alert"
-          >
-            {error}
-          </p>
-        )}
-
-        <button
-          type="submit"
-          className="forgot-password-submit"
-          disabled={submitting}
-        >
-          {submitting
-            ? "Memproses..."
-            : mode === "request"
-              ? "Kirim Permintaan"
-              : "Simpan Kata Sandi Baru"}
-        </button>
-
-        <button
-          type="button"
-          className="forgot-password-back"
-          disabled={submitting}
-          onClick={onBack}
-        >
-          Kembali ke Login
-        </button>
-      </form>
+            <label>Konfirmasi Kata Sandi
+              <input value={form.confirm} onChange={(e)=>update("confirm",e.target.value)}
+                type="password" minLength={6} maxLength={72} required disabled={busy} autoComplete="new-password"/>
+            </label>
+            <button type="submit" className="fp-primary" disabled={busy}>{busy ? "Memproses..." : "Simpan Kata Sandi Baru"}</button>
+          </form>
+          <button type="button" className="fp-link" onClick={() => setView("chat")}>Kembali ke Percakapan</button>
+        </>
+      )}
+      {error && <p className="fp-error" role="alert">{error}</p>}
+      {notice && <p className="fp-notice" role="status">{notice}</p>}
     </section>
   );
 }
