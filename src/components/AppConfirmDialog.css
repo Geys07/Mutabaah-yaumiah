@@ -1,0 +1,35 @@
+.app-confirm-overlay{
+ --confirm-accent:#168060;--confirm-soft:#eaf7ef;--confirm-ink:#253d35;
+ position:fixed;inset:0;z-index:3000;display:grid;place-items:center;
+ padding:max(16px,env(safe-area-inset-top)) 15px max(16px,env(safe-area-inset-bottom));
+ overflow:auto;background:rgba(16,30,39,.56);overscroll-behavior:contain;
+ font:14px/1.5 "Segoe UI",Inter,system-ui,sans-serif
+}
+.app-confirm-overlay[data-time-theme="siang"]{--confirm-accent:#148399;--confirm-soft:#e9f6f9;--confirm-ink:#263f4b}
+.app-confirm-overlay[data-time-theme="sore"]{--confirm-accent:#a66c49;--confirm-soft:#fff2e8;--confirm-ink:#4d4039}
+.app-confirm-overlay[data-time-theme="malam"]{--confirm-accent:#526da5;--confirm-soft:#edf1fb;--confirm-ink:#2c3b55}
+.app-confirm-dialog{
+ width:min(100%,430px);max-height:calc(100dvh - 40px);
+ padding:clamp(18px,4vw,27px);border:1px solid #dde5e8;border-radius:18px;
+ background:#fff;color:var(--confirm-ink);
+ box-shadow:0 24px 72px rgba(10,28,35,.2);overflow:auto
+}
+.app-confirm-mark{
+ display:grid;place-items:center;width:42px;height:42px;margin-bottom:13px;
+ border-radius:13px;background:var(--confirm-soft);
+ color:var(--confirm-accent);font-size:24px;font-weight:800
+}
+.app-confirm-dialog h2{margin:0 0 7px;font-size:18px;line-height:1.3;color:var(--confirm-ink)}
+.app-confirm-dialog p{margin:0 0 18px;white-space:pre-line;color:#6e7d81;font-size:13px;line-height:1.6}
+.app-confirm-dialog p.app-confirm-error{color:#aa414b;background:#fff1f2;border-radius:9px;padding:10px}
+.app-confirm-dialog footer{display:flex;justify-content:flex-end;gap:9px;flex-wrap:wrap}
+.app-confirm-dialog footer button{
+ flex:1 1 120px;min-height:43px;padding:10px 14px;
+ border:1px solid #d8e2e6;border-radius:11px;background:#fff;
+ color:var(--confirm-ink);font:inherit;font-weight:750;cursor:pointer
+}
+.app-confirm-dialog footer button.is-primary{background:var(--confirm-accent);border-color:var(--confirm-accent);color:white}
+.app-confirm-dialog footer button.is-danger{background:#ae444c;border-color:#ae444c;color:white}
+.app-confirm-dialog footer button:disabled{opacity:.5;cursor:not-allowed}
+.app-confirm-dialog footer button:focus-visible{outline:3px solid var(--confirm-accent);outline-offset:2px}
+@media(max-width:550px){.app-confirm-dialog{border-radius:16px}.app-confirm-dialog footer button{min-width:0}}
