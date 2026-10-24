@@ -8,6 +8,15 @@ const VAPID_PUBLIC = Deno.env.get("VAPID_PUBLIC_KEY") || "";
 const VAPID_PRIVATE = Deno.env.get("VAPID_PRIVATE_KEY") || "";
 const VAPID_SUBJECT = Deno.env.get("VAPID_SUBJECT") || "";
 const db = createClient(URL, SECRET, { auth: { persistSession: false, autoRefreshToken: false } });
+// Push tidak boleh menahan ACK pengiriman pesan/chat.
+declare const EdgeRuntime: {waitUntil(promise: Promise<unknown>): void} | undefined;
+function background(task: () => Promise<unknown>) {
+  const work = Promise.resolve().then(task).catch(() => {
+    console.error("recovery-chat: background_notification_failed");
+  });
+  if (typeof EdgeRuntime !== "undefined" && typeof EdgeRuntime.waitUntil === "function")
+    EdgeRuntime.waitUntil(work);
+}
 const HEADERS = {
   "content-type": "application/json; charset=utf-8",
   "cache-control": "no-store",
@@ -71,27 +80,37 @@ async function fetchRequest(ticket: { request_id: string }) {
 
 async function ticketDetail(ticket: Record<string, any>, owner: "user" | "admin") {
   const record = await fetchRequest(ticket);
+  const seenSender = owner === "user" ? ["admin", "system", "code"] : ["user"];
+  // Tanda dibaca hanya berlaku saat halaman percakapan benar-benar dibuka.
+  // Dengan ini 1 centang = tersimpan, 2 centang = diterima, biru = dibaca.
+  const seenAt = new Date().toISOString();
+  const { error: readError } = await db.from("recovery_chat_messages")
+    .update({ read_at: seenAt, delivered_at: seenAt })
+    .eq("ticket_id", ticket.id).in("sender", seenSender).is("read_at", null);
+  if (readError) throw readError;
   const { data: messages, error } = await db.from("recovery_chat_messages")
-    .select("id,sender,body,created_at,read_at").eq("ticket_id", ticket.id)
+    .select("id,client_id,sender,body,created_at,delivered_at,read_at,deleted_for_admin_at")
+    .eq("ticket_id", ticket.id)
     .order("created_at").order("id").limit(500);
   if (error) throw error;
   const outgoing = [];
   const activeCode = [...(messages || [])].reverse().find((m:any) => m.sender === "code")?.id;
   for (const msg of messages || []) {
+    if (owner === "admin" && msg.deleted_for_admin_at) continue;
     let body = msg.body;
     if (msg.sender === "code") {
       if (record.status !== "approved") body = "Kode sudah tidak aktif.";
       else if (msg.id !== activeCode) body = "Kode sebelumnya sudah tidak berlaku.";
       else body = await decrypt(body);
     }
-    outgoing.push({ ...msg, body });
+    const { deleted_for_admin_at: _hidden, ...safe } = msg;
+    void _hidden;
+    outgoing.push({ ...safe, body });
   }
-  const seenSender = owner === "user" ? ["admin", "system", "code"] : ["user"];
-  await db.from("recovery_chat_messages").update({ read_at: new Date().toISOString() })
-    .eq("ticket_id", ticket.id).in("sender", seenSender).is("read_at", null);
   const {data:ownerProfile} = await db.from("profiles").select("phone").eq("user_id",ticket.user_id).maybeSingle();
   return {
-    ticket_id: ticket.id, phone:ownerProfile?.phone||"", status: record.status,
+    ticket_id: ticket.id, realtime_topic: "recovery-chat-" + ticket.realtime_key,
+    phone:ownerProfile?.phone||"", status: record.status,
     code_expired: record.status === "approved" && Boolean(record.reviewed_at) &&
       Date.now() - new Date(record.reviewed_at).getTime() >= 14 * 86400000,
     requested_at: record.requested_at,
@@ -124,12 +143,27 @@ async function decrypt(value: string): Promise<string> {
   }
 }
 
-async function insertMessage(ticketId: string, sender: string, body: string) {
-  const { error } = await db.from("recovery_chat_messages")
-    .insert({ ticket_id: ticketId, sender, body });
-  if (error) throw error;
+async function insertMessage(ticketId: string, sender: string, body: string, clientId?: string) {
+  const values: Record<string, unknown> = { ticket_id: ticketId, sender, body };
+  if (clientId) values.client_id = clientId;
+  const { data, error } = await db.from("recovery_chat_messages")
+    .insert(values).select("id,client_id,sender,created_at,delivered_at,read_at").single();
+  if (error) {
+    // Retry idempotent when ACK was lost after server insert.
+    if (error.code === "23505" && clientId) {
+      const { data: old, error: lookupError } = await db.from("recovery_chat_messages")
+        .select("id,client_id,sender,body,created_at,delivered_at,read_at")
+        .eq("ticket_id",ticketId).eq("sender",sender).eq("client_id",clientId).single();
+      if (lookupError || !old || old.body !== body) throw new Error("ID pesan tidak dapat digunakan ulang.");
+      const { body: _body, ...message } = old;
+      void _body;
+      return { message, created: false };
+    }
+    throw error;
+  }
   await db.from("recovery_chat_tickets").update({ last_message_at: new Date().toISOString() })
     .eq("id", ticketId);
+  return { message: data, created: true };
 }
 
 async function sendPushToAdmins(kind: "request" | "message") {
@@ -225,7 +259,7 @@ async function requestTicket(req: Request, body: Input) {
     await db.from("password_reset_requests").delete().eq("id", request.id);
     throw error;
   }
-  await sendPushToAdmins("request");
+  background(() => sendPushToAdmins("request"));
   return reply({ success: true, token, status: "pending", ticket_id: ticket.id });
 }
 
@@ -234,7 +268,19 @@ async function listForAdmin() {
     .select("id,user_id,request_id,created_at,last_message_at,delete_after")
     .order("last_message_at", { ascending: false }).limit(200);
   if (error) throw error;
-  if (!tickets?.length) return reply({ success: true, tickets: [] });
+  if (!tickets?.length) {
+    const {data: emptySignal}=await db.from("recovery_chat_admin_signal")
+      .select("realtime_key").eq("singleton",true).maybeSingle();
+    return reply({success:true,tickets:[],
+      realtime_topic: emptySignal?.realtime_key
+        ? "recovery-chat-admin-" + emptySignal.realtime_key : null});
+  }
+  // Perangkat Admin telah menerima pesan (2 centang), tetapi belum membacanya.
+  const ticketIds = tickets.map((t: any) => t.id);
+  await db.from("recovery_chat_messages").update({delivered_at:new Date().toISOString()})
+    .in("ticket_id",ticketIds).eq("sender","user").is("delivered_at",null);
+  const {data: signal} = await db.from("recovery_chat_admin_signal")
+    .select("realtime_key").eq("singleton",true).maybeSingle();
   const ids = [...new Set(tickets.map((t: any) => t.user_id))];
   const reqIds = tickets.map((t: any) => t.request_id);
   const [{ data: profiles }, { data: requests }, { data: unread }] = await Promise.all([
@@ -275,7 +321,9 @@ async function listForAdmin() {
     if(!old.includes(str))old.push(str);
     summaries.set(item.phone,old);
   }
-  return reply({ success:true, tickets:tickets.map((t:any)=>({
+  return reply({ success:true,
+    realtime_topic: signal?.realtime_key ? "recovery-chat-admin-" + signal.realtime_key : null,
+    tickets:tickets.map((t:any)=>({
     id:t.id, full_name:byProfile.get(t.user_id)?.full_name||"Pengguna",
     phone:byProfile.get(t.user_id)?.phone||"",
     child_summary:(summaries.get(byProfile.get(t.user_id)?.phone||"")||[]).slice(0,2).join(", "),
@@ -324,17 +372,31 @@ async function postMessage(ticket: Record<string,any>, body: Input, from:"user"|
   const text=String(body.message||"").trim();
   if (text.length<1 || text.length>600)
     return reply({error:"Pesan harus berisi 1–600 karakter."},400);
+  const clientId = isUuid(body.client_id) ? body.client_id : undefined;
   const record=await fetchRequest(ticket);
   if (!["pending","approved"].includes(record.status))
     return reply({error:"Percakapan sudah ditutup. Pesan baru tidak dapat dikirim."},409);
+  if (clientId) {
+    const { data: existing } = await db.from("recovery_chat_messages")
+      .select("id,body,client_id,sender,created_at,delivered_at,read_at")
+      .eq("ticket_id",ticket.id).eq("sender",from).eq("client_id",clientId).maybeSingle();
+    if (existing) {
+      if (existing.body!==text)return reply({error:"ID pesan sudah digunakan."},409);
+      const {body: _body,...message}=existing;
+      void _body;
+      return reply({success:true,message});
+    }
+  }
   const {count}=await db.from("recovery_chat_messages").select("id",{count:"exact",head:true})
     .eq("ticket_id",ticket.id).eq("sender",from)
     .gte("created_at",new Date(Date.now()-60000).toISOString());
   if ((count||0)>=8) return reply({error:"Terlalu banyak pesan. Silakan lanjutkan sebentar lagi."},429);
-  await insertMessage(ticket.id,from,text);
-  if(from==="admin") await sendPushToApplicant(ticket.id);
-  else await sendPushToAdmins("message");
-  return reply({success:true});
+  const saved = await insertMessage(ticket.id,from,text,clientId);
+  if (saved.created) {
+    if(from==="admin") background(() => sendPushToApplicant(ticket.id));
+    else background(() => sendPushToAdmins("message"));
+  }
+  return reply({success:true,message:saved.message});
 }
 
 async function adminReview(req:Request,ticket:Record<string,any>,decision:string){
@@ -395,6 +457,16 @@ async function adminReissue(req: Request, ticket: Record<string,any>) {
   return reply({success:true});
 }
 
+async function deleteForAdmin(ticket:Record<string,any>,messageId:unknown){
+  if(!isUuid(messageId))return reply({error:"Pesan tidak valid."},400);
+  const {data,error}=await db.from("recovery_chat_messages")
+    .update({deleted_for_admin_at:new Date().toISOString()})
+    .eq("ticket_id",ticket.id).eq("id",messageId).is("deleted_for_admin_at",null)
+    .select("id").maybeSingle();
+  if(error)throw error;
+  return reply({success:true,deleted:Boolean(data)});
+}
+
 async function subscribe(ticket:Record<string,any>,body:Input){
   const sub=body.subscription as { endpoint?:unknown;keys?:{p256dh?:unknown;auth?:unknown}}|null;
   const endpoint=typeof sub?.endpoint==="string"?sub.endpoint:"";
@@ -435,13 +507,14 @@ Deno.serve(async(req:Request)=>{
       if(action==="my_send")return await postMessage(ticket,body,"user");
       return await subscribe(ticket,body);
     }
-    if(["admin_list","admin_chat","admin_send","admin_review","admin_reissue"].includes(action)){
+    if(["admin_list","admin_chat","admin_send","admin_review","admin_reissue","admin_delete_message"].includes(action)){
       if(!await authorizedAdmin(req))return reply({error:"Hanya Admin aktif dapat mengakses percakapan."},403);
       if(action==="admin_list")return await listForAdmin();
       const ticket=await adminTicket(body.ticket_id);
       if(!ticket)return reply({error:"Percakapan tidak ditemukan."},404);
       if(action==="admin_chat")return await adminDetail(ticket);
       if(action==="admin_send")return await postMessage(ticket,body,"admin");
+      if(action==="admin_delete_message")return await deleteForAdmin(ticket,body.message_id);
       if(action==="admin_reissue")return await adminReissue(req,ticket);
       return await adminReview(req,ticket,String(body.decision||""));
     }

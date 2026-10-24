@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { supabase } from "../lib/supabase";
 import { edgeFunctionErrorMessage } from "../lib/edgeFunctionError";
+import { useRecoverySignal, useRecoveryOutbox, createOptimisticMessage, combineRecoveryMessages } from "../lib/recoveryRealtime.js";
+import { Receipt } from "../lib/recoveryRealtime.jsx";
 import "./ForgotPassword.css";
 
 function RecoveryIcon({ name }) {
@@ -83,6 +85,7 @@ export default function ForgotPassword({ onBack, onSuccess }) {
   const [view, setView] = useState(() => getSavedTicket() ? "chat" : "request");
   const [form, setForm] = useState(initial);
   const [chat, setChat] = useState(null);
+  const {outbox,add:queueMessage,ack:ackMessage,fail:failMessage,retry:retryMessage}=useRecoveryOutbox();
   const [draft, setDraft] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -112,23 +115,22 @@ export default function ForgotPassword({ onBack, onSuccess }) {
     if (view !== "chat" || !token) return undefined;
     let mounted = true;
     Promise.resolve().then(() => { if (mounted) void loadChat(); });
-    const timer = window.setInterval(() => {
-      if (!document.hidden) void loadChat();
-    }, 10000);
+
     const focus = () => { if (!document.hidden) void loadChat(); };
     document.addEventListener("visibilitychange", focus);
     window.addEventListener("focus", focus);
     return () => {
       mounted = false;
-      window.clearInterval(timer);
       document.removeEventListener("visibilitychange", focus);
       window.removeEventListener("focus", focus);
     };
   }, [view, token, loadChat]);
 
+  useRecoverySignal(view === "chat" ? chat?.realtime_topic : "", loadChat);
+  const visibleMessages = combineRecoveryMessages(chat?.messages||[],outbox,token);
   useEffect(() => {
     if (view === "chat") lastMessageRef.current?.scrollIntoView({ block: "end" });
-  }, [view, chat?.messages?.length]);
+  }, [view, visibleMessages.length]);
 
   function update(key, value) {
     setForm((old) => ({ ...old, [key]: value }));
@@ -155,17 +157,29 @@ export default function ForgotPassword({ onBack, onSuccess }) {
     } finally { setBusy(false); }
   }
 
-  async function sendMessage(event) {
-    event.preventDefault();
-    const message = draft.trim();
-    if (!message || !token || busy) return;
-    setBusy(true);setError("");
+  async function transmitMessage(message) {
     try {
-      await invoke("recovery-chat", { action: "my_send", token, message });
-      setDraft("");
-      await loadChat();
-    } catch (problem) { setError(problem.message); }
-    finally { setBusy(false); }
+      const result=await invoke("recovery-chat", {
+        action: "my_send",token:message.scope,
+        message:message.body,client_id:message.client_id
+      });
+      ackMessage(message.client_id,result.message||{});
+      void loadChat();
+    }catch(problem){
+      failMessage(message.client_id);
+      setError(problem.message || "Pesan gagal dikirim. Ketuk Kirim Ulang.");
+    }
+  }
+
+  function sendMessage(event) {
+    event.preventDefault();
+    const message=draft.trim();
+    if(!message||!token||readOnly)return;
+    const outgoing=createOptimisticMessage("user",message,token);
+    setDraft("");
+    setError("");
+    queueMessage(outgoing);
+    void transmitMessage(outgoing);
   }
 
   async function enableNotifications() {
@@ -257,8 +271,8 @@ export default function ForgotPassword({ onBack, onSuccess }) {
           <div className="fp-chat-status"><span data-status={status}>{statusText[status] || status}</span></div>
           <div className="fp-chat-messages" role="log" aria-live="polite" aria-relevant="additions text">
             {!chat && <p className="fp-chat-loading">Memuat percakapan…</p>}
-            {(chat?.messages || []).map((msg) => (
-              <article key={msg.id} className={`fp-bubble ${msg.sender === "user" ? "is-mine" : "is-theirs"} ${msg.sender === "code" ? "is-code" : ""}`}>
+            {visibleMessages.map((msg) => (
+              <article key={msg.client_id||msg.id} className={`fp-bubble ${msg.sender === "user" ? "is-mine" : "is-theirs"} ${msg.sender === "code" ? "is-code" : ""}`}>
                 {msg.sender === "code" && /^[a-z]{4}$/.test(msg.body) ? (
                   <>
                     <strong>Kode Pemulihan</strong>
@@ -269,7 +283,14 @@ export default function ForgotPassword({ onBack, onSuccess }) {
                 ) : (
                   <p>{msg.body}</p>
                 )}
-                <small>{msg.sender === "user" ? "Anda" : msg.sender === "system" ? "Sistem" : "Admin"} · {formatTime(msg.created_at)}</small>
+                <small className="fp-message-meta">
+                  <span>{msg.sender === "user" ? "Anda" : msg.sender === "system" ? "Sistem" : "Admin"} · {formatTime(msg.created_at)}</span>
+                  {msg.sender === "user" && <Receipt message={msg}/>}
+                </small>
+                {msg.local_state==="failed"&&<button type="button" className="fp-retry"
+                  onClick={()=>{retryMessage(msg.client_id);void transmitMessage(msg);}}>
+                  Kirim Ulang
+                </button>}
               </article>
             ))}
             {chat?.delete_after && (
@@ -286,8 +307,8 @@ export default function ForgotPassword({ onBack, onSuccess }) {
           {!readOnly && (
             <form className="fp-composer" onSubmit={sendMessage}>
               <input aria-label="Tulis pesan" value={draft} onChange={(e)=>setDraft(e.target.value)}
-                maxLength={600} placeholder="Tulis pesan..." disabled={busy}/>
-              <button type="submit" disabled={busy || !draft.trim()} aria-label="Kirim pesan">➤</button>
+                maxLength={600} placeholder="Tulis pesan..." disabled={readOnly}/>
+              <button type="submit" disabled={!draft.trim()} aria-label="Kirim pesan">➤</button>
             </form>
           )}
         </div>

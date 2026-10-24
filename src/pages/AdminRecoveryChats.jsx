@@ -1,6 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { supabase } from "../lib/supabase";
 import { edgeFunctionErrorMessage } from "../lib/edgeFunctionError";
+import {
+  useRecoverySignal, useRecoveryOutbox, createOptimisticMessage,
+  combineRecoveryMessages,
+} from "../lib/recoveryRealtime.js";
+import { Receipt } from "../lib/recoveryRealtime.jsx";
 import "./AdminRecoveryChats.css";
 
 async function callChat(body) {
@@ -31,6 +36,8 @@ function fullDate(value) {
 }
 export default function AdminRecoveryChats() {
   const [tickets,setTickets]=useState([]);
+  const [inboxTopic,setInboxTopic]=useState("");
+  const {outbox,add:queueMessage,ack:ackMessage,fail:failMessage,retry:retryMessage}=useRecoveryOutbox();
   const [listLoaded,setListLoaded]=useState(false);
   const [selected,setSelected]=useState("");
   const [detail,setDetail]=useState(null);
@@ -48,6 +55,7 @@ export default function AdminRecoveryChats() {
     try {
       const result=await callChat({action:"admin_list"});
       setTickets(result.tickets || []);
+      if(result.realtime_topic) setInboxTopic(result.realtime_topic);
       setError("");
     } catch (problem) {setError(problem.message || "Tidak dapat memuat daftar pemulihan.");}
     finally {setListLoaded(true);}
@@ -64,28 +72,45 @@ export default function AdminRecoveryChats() {
   useEffect(()=>{
     let mounted=true;
     Promise.resolve().then(()=>{if(mounted) void loadList();});
-    const timer=window.setInterval(()=>{if(!document.hidden) void loadList();},12000);
+
     const visible=()=>{if(!document.hidden)void loadList();};
     window.addEventListener("focus",visible);
     document.addEventListener("visibilitychange",visible);
-    return ()=>{mounted=false;window.clearInterval(timer);window.removeEventListener("focus",visible);document.removeEventListener("visibilitychange",visible);};
+    return ()=>{mounted=false;window.removeEventListener("focus",visible);document.removeEventListener("visibilitychange",visible);};
   },[loadList]);
 
   useEffect(()=>{
     if(!selected)return undefined;
     let mounted=true;
     Promise.resolve().then(()=>{if(mounted) void loadDetail(selected);});
-    const timer=window.setInterval(()=>{if(!document.hidden)void loadDetail(selected);},10000);
-    return ()=>{mounted=false;window.clearInterval(timer);};
+
+    return ()=>{mounted=false;};
   },[selected,loadDetail]);
 
-  useEffect(()=>{endRef.current?.scrollIntoView({block:"end"});},[selected,detail?.messages?.length]);
+  useRecoverySignal(inboxTopic, loadList);
+  const refreshSelected=useCallback(()=>{
+    if(selected)void loadDetail(selected);
+  },[selected,loadDetail]);
+  useRecoverySignal(detail?.realtime_topic, refreshSelected);
+  const shownMessages=combineRecoveryMessages(detail?.messages||[],outbox,selected);
+  useEffect(()=>{endRef.current?.scrollIntoView({block:"end"});},[selected,shownMessages.length]);
 
   const filtered=tickets.filter((ticket)=>{
     const match=(!query||[ticket.full_name,ticket.phone,ticket.child_summary].join(" ").toLowerCase().includes(query.toLowerCase()));
     const statusMatch=statusFilter==="all"||statusFilter==="active" && ["pending","approved","processing"].includes(ticket.status)
       ||statusFilter===ticket.status;
     return match&&statusMatch;
+  }).sort((a,b)=>{
+    function priority(t) {
+      if(["used","rejected","revoked"].includes(t.status)) return 4;
+      if(t.unread > 0) return 0;
+      if(t.status === "pending") return 1;
+      if(t.status === "processing") return 2;
+      if(t.status === "approved") return 3;
+      return 4;
+    }
+    return priority(a)-priority(b) ||
+      new Date(b.last_message_at).getTime()-new Date(a.last_message_at).getTime();
   });
   const current=tickets.find((item)=>item.id===selected);
   const pending=detail?.status==="pending";
@@ -96,15 +121,36 @@ export default function AdminRecoveryChats() {
     setSelected(id);setDetail(null);setMobileChat(true);setDecision("");setError("");setNotice("");
   }
 
-  async function send(event){
+  async function transmit(message){
+    try {
+      const result=await callChat({
+        action:"admin_send",ticket_id:message.scope,
+        message:message.body,client_id:message.client_id
+      });
+      ackMessage(message.client_id,result.message||{});
+      void loadDetail(message.scope);
+      void loadList();
+    }catch(problem){
+      failMessage(message.client_id);
+      setError(problem.message || "Pesan gagal dikirim. Ketuk pesan untuk mengulang.");
+    }
+  }
+  function send(event){
     event.preventDefault();
-    if(!selected||!draft.trim()||busy)return;
-    setBusy("send");setError("");
-    try{
-      await callChat({action:"admin_send",ticket_id:selected,message:draft.trim()});
-      setDraft("");
+    if(!selected||!draft.trim()||!canTalk)return;
+    const message=createOptimisticMessage("admin",draft.trim(),selected);
+    setDraft("");
+    setError("");
+    queueMessage(message);
+    void transmit(message);
+  }
+  async function deleteMessage(id){
+    if(!selected||!window.confirm("Sembunyikan pesan ini dari panel Admin? Pesan tetap ada di chat pemohon."))return;
+    setBusy("delete");
+    try {
+      await callChat({action:"admin_delete_message",ticket_id:selected,message_id:id});
       await Promise.all([loadDetail(selected),loadList()]);
-    }catch(problem){setError(problem.message || "Pesan gagal dikirim.");}
+    }catch(problem){setError(problem.message||"Pesan belum dapat dihapus.");}
     finally{setBusy("");}
   }
 
@@ -208,13 +254,23 @@ export default function AdminRecoveryChats() {
               )}
               <div className="arc-messages" role="log" aria-live="polite">
                 {!detail&&<p className="arc-empty">Memuat pesan...</p>}
-                {(detail?.messages||[]).map((msg)=>(
-                  <article key={msg.id} className={`arc-message ${msg.sender==="admin"?"is-admin":"is-user"} ${msg.sender==="code"?"is-code":""}`}>
+                {shownMessages.map((msg)=>(
+                  <article key={msg.client_id||msg.id} className={`arc-message ${msg.sender==="admin"?"is-admin":"is-user"} ${msg.sender==="code"?"is-code":""}`}>
                     {msg.sender==="code"&&/^[a-z]{4}$/.test(msg.body)?(
                       <><strong>Kode Pemulihan</strong><div className="arc-code">{msg.body}</div>
                         <small>Empat huruf · 14 hari · sekali pakai</small></>
                     ):<p>{msg.body}</p>}
-                    <small>{msg.sender==="admin"?"Anda":msg.sender==="user"?"Pemohon":"Sistem"} · {formatDate(msg.created_at)}</small>
+                    <small className="arc-message-meta">
+                      <span>{msg.sender==="admin"?"Anda":msg.sender==="user"?"Pemohon":"Sistem"} · {formatDate(msg.created_at)}</span>
+                      {msg.sender==="admin"&&<Receipt message={msg}/>}
+                    </small>
+                    <div className="arc-message-tools">
+                      {msg.local_state==="failed"&&<button type="button"
+                        onClick={()=>{retryMessage(msg.client_id);void transmit(msg);}}
+                      >Kirim Ulang</button>}
+                      {!msg.local_state&&<button type="button" aria-label="Hapus pesan untuk Admin"
+                        onClick={()=>void deleteMessage(msg.id)} disabled={Boolean(busy)}>Hapus</button>}
+                    </div>
                   </article>
                 ))}
                 {detail?.delete_after&&<p className="arc-expiry">
@@ -225,8 +281,8 @@ export default function AdminRecoveryChats() {
               {canTalk&&(
                 <form className="arc-composer" onSubmit={send}>
                   <input value={draft} onChange={e=>setDraft(e.target.value)} maxLength={600}
-                    placeholder="Ketik pesan..." aria-label="Pesan ke pemohon" disabled={Boolean(busy)}/>
-                  <button type="submit" disabled={!draft.trim()||Boolean(busy)} aria-label="Kirim pesan">➤</button>
+                    placeholder="Ketik pesan..." aria-label="Pesan ke pemohon" disabled={!canTalk}/>
+                  <button type="submit" disabled={!draft.trim()||!canTalk} aria-label="Kirim pesan">➤</button>
                 </form>
               )}
               {!canTalk&&<p className="arc-closed">Percakapan ini telah ditutup dan hanya dapat dibaca.</p>}

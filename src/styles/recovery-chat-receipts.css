@@ -1,0 +1,69 @@
+/* Chat delivery receipts. Blue is reserved for genuinely READ receipts;
+   all other controls use the current WIB theme variables. */
+.rc-receipt {
+  display:inline-flex;
+  flex-shrink:0;
+  align-items:center;
+  justify-content:center;
+  min-width:18px;
+  font:800 13px/1 "Segoe UI",system-ui,sans-serif;
+  letter-spacing:-4px;
+  padding-right:4px;
+  color:var(--sa-muted,var(--fp-muted,#667c87));
+  white-space:nowrap;
+}
+.rc-receipt.is-read {color:#2585dd}
+.rc-receipt.is-sending {
+  letter-spacing:normal;
+  color:var(--sa-muted,var(--fp-muted,#667c87));
+  font-size:16px;
+  font-weight:500;
+  padding-right:0;
+}
+.rc-receipt.is-failed {
+  min-width:16px;
+  height:16px;
+  background:#af393d;
+  color:#fff;
+  border-radius:50%;
+  letter-spacing:normal;
+  font-size:11px;
+  padding-right:0;
+}
+.arc-message .arc-message-meta,
+.fp-bubble .fp-message-meta {
+  display:flex;
+  gap:8px;
+  align-items:center;
+  justify-content:flex-end;
+  flex-wrap:wrap;
+  text-align:right;
+  margin-top:5px;
+}
+.arc-message-tools {display:flex;justify-content:flex-end;margin-top:5px}
+.arc-message-tools button,
+.fp-bubble button.fp-retry {
+  border:1px solid var(--sa-line,var(--fp-border,#dce8e6));
+  border-radius:8px;
+  background:transparent;
+  padding:4px 8px;
+  color:var(--sa-muted,var(--fp-muted,#627e87));
+  font-size:10px;
+  font-weight:650;
+  cursor:pointer;
+  line-height:1.35;
+}
+.arc-message-tools button:hover,
+.arc-message-tools button:focus-visible,
+.fp-bubble button.fp-retry:hover,
+.fp-bubble button.fp-retry:focus-visible {
+  color:var(--sa-accent,var(--fp-accent,#168060));
+  border-color:var(--sa-accent,var(--fp-accent,#168060));
+}
+.fp-bubble button.fp-retry {
+  width:auto;min-height:28px;
+  margin-top:6px;
+}
+@media(max-width:700px){
+  .arc-message-tools button {min-height:25px;padding:3px 9px}
+}
