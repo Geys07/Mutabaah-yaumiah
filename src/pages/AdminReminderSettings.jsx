@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabase";
 import { checkPushDevice, invokePush, pushAvailable } from "../lib/pushDevice";
+import AppConfirmDialog from "../components/AppConfirmDialog";
 import "./AdminReminderSettings.css";
 
 export default function AdminReminderSettings({ onPreview, onChanged }) {
@@ -46,8 +47,9 @@ export default function AdminReminderSettings({ onPreview, onChanged }) {
         : "Pengingat 20.00 WIB berhasil dinonaktifkan.");
       onChanged?.();
     } catch (caught) {
+      // Do not reset the visible error or dismiss the confirmation.
+      // The existing status remains unchanged until server confirms success.
       setError(caught.message || "Pengaturan gagal disimpan.");
-      await load();
     } finally {
       setBusy("");
     }
@@ -177,18 +179,14 @@ export default function AdminReminderSettings({ onPreview, onChanged }) {
       {error && <p className="reminder-settings-error" role="alert">{error}</p>}
       {notice && <p className="reminder-settings-success" role="status">{notice}</p>}
 
-      {confirmEnable && <div className="reminder-settings-overlay">
-        <div className="reminder-settings-dialog" role="dialog" aria-modal="true" aria-labelledby="reminder-settings-confirm">
-          <h3 id="reminder-settings-confirm">Aktifkan Pengingat 20.00 WIB?</h3>
-          <p>Jika layanan telah siap, pesan sungguhan akan dikirim otomatis kepada wali murid yang memenuhi syarat mulai jadwal berikutnya.</p>
-          <div>
-            <button type="button" disabled={Boolean(busy)} onClick={() => setConfirmEnable(false)}>Batal</button>
-            <button type="button" className="is-primary" disabled={Boolean(busy)} onClick={() => void setEnabled(true)}>
-              {busy ? "Memproses…" : "Ya, Aktifkan"}
-            </button>
-          </div>
-        </div>
-      </div>}
+      {confirmEnable && <AppConfirmDialog
+        title="Aktifkan Pengingat 20.00 WIB?"
+        description="Jika layanan siap, pengingat sungguhan akan dikirim otomatis kepada wali murid yang memenuhi syarat mulai jadwal berikutnya."
+        confirmLabel="Ya, Aktifkan"
+        busy={Boolean(busy)} error={error}
+        onCancel={()=>{setConfirmEnable(false);setError("");}}
+        onConfirm={()=>void setEnabled(true)}
+      />}
     </section>
   );
 }
