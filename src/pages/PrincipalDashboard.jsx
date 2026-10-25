@@ -4,13 +4,11 @@ import EmptyState from "../components/EmptyState";
 
 import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import { supabase } from "../lib/supabase";
-import { listenStudentDataChanges } from "../lib/studentDataUpdates";
 import useDisplayPage from "../lib/useDisplayPage";
 import Pagination from "../components/Pagination";
 import { fetchAll } from "../lib/pagination";
 import { signOut } from "../lib/auth";
 import usePanelHistory from "../hooks/usePanelHistory";
-import useNotificationPulse from "../hooks/useNotificationPulse";
 import useJakartaClock from "../hooks/useJakartaClock";
 const MonthlyReports = lazy(() => import("./MonthlyReports"));
 const ReportCards = lazy(() => import("./ReportCards"));
@@ -193,10 +191,6 @@ export default function PrincipalDashboard({
   const [error, setError] = useState("");
   const [detailError, setDetailError] = useState("");
   const [loggingOut, setLoggingOut] = useState(false);
-  useEffect(() => listenStudentDataChanges(() => {
-    if (!document.hidden && !loggingOut) setReload((value) => value + 1);
-  }), [loggingOut]);
-  useNotificationPulse(() => setReload((n) => n + 1), Boolean(year) && !loggingOut);
   const [logoutError, setLogoutError] = useState("");
   const { push: pushPage } = usePanelHistory("principal", "overview", (page) => {
     if (MENUS.some((item) => item.id === page)) { setTab(page); if (page === "overview") setReload((n) => n + 1); }
