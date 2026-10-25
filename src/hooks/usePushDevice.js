@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { supabase } from "../lib/supabase";
-import { checkPushDevice, preparePushDevice, enablePushDevice, disablePushDevice, pushAvailable, PUSH_DEVICE_EVENT } from "../lib/pushDevice";
+import { checkPushDevice, preparePushDevice, enablePushDevice, disablePushDevice, pushAvailable, prefersPushDevice, PUSH_DEVICE_EVENT } from "../lib/pushDevice";
 
 const initial = { enabled: false, checked: false, busy: false, ready: false, preparing: true, error: "" };
 export default function usePushDevice(kind, allowed = true) {
@@ -41,6 +41,13 @@ export default function usePushDevice(kind, allowed = true) {
     try {
       enabled = await checkPushDevice(kind, id, renew);
       const context = id && pushAvailable() ? await preparePushDevice(kind, id) : null;
+      // Izin OS tidak kedaluwarsa per hari. Bila sebelumnya sudah opt-in dan
+      // pengguna kembali login, sambungkan ulang secara diam-diam.
+      if (!enabled && context && Notification.permission === "granted" &&
+          prefersPushDevice(kind,id)) {
+        await enablePushDevice(kind,id,context);
+        enabled = true;
+      }
       if (version !== generation.current) return;
       prepared.current = context;
       setState(s => ({ enabled, checked: true, busy: false, ready: Boolean(context), preparing: false, error: preserveError ? s.error : "" }));
