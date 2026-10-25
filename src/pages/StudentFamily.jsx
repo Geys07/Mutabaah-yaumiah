@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabase";
 import { announceStudentDataChange } from "../lib/studentDataUpdates";
+import AppConfirmDialog from "../components/AppConfirmDialog";
 import "./StudentFamily.css";
 
 const TYPES = [
@@ -55,7 +56,7 @@ export default function StudentFamily({ student, onClose }) {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [generating, setGenerating] = useState("");
-  const [linking, setLinking] = useState("");
+  const [familyConfirmation, setFamilyConfirmation] = useState(null);
   const [codeReadFailed, setCodeReadFailed] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -123,7 +124,7 @@ export default function StudentFamily({ student, onClose }) {
   }, [student.id]);
 
   useEffect(() => {
-    if (saving || generating) return undefined;
+    if (saving || generating || familyConfirmation) return undefined;
 
     function handleEscape(event) {
       if (event.key === "Escape") {
@@ -139,7 +140,7 @@ export default function StudentFamily({ student, onClose }) {
         handleEscape
       );
     };
-  }, [saving, generating, onClose]);
+  }, [saving, generating, familyConfirmation, onClose]);
 
   function changeField(type, field, value) {
     setContacts((previous) => ({
@@ -199,49 +200,77 @@ export default function StudentFamily({ student, onClose }) {
     return payload;
   }
 
-  async function saveContacts(event) {
-    event.preventDefault();
-
-    if (saving || generating) return;
-
-    let payload;
-
-    try {
-      payload = getValidatedPayload();
-    } catch (validationError) {
-      setError(validationError.message);
-      return;
-    }
-
+  async function persistContacts(payload,approvedMatches=[]) {
     setSaving(true);
     setError("");
-    setSuccess("");
-
     try {
-      const { error: saveError } = await supabase.rpc(
-        "save_student_family_contacts",
-        {
-          p_student_id: student.id,
-          p_contacts: payload,
-        }
+      // Single server transaction: persist contacts, record consent, then link
+      // only confirmed family members to an existing active parent account.
+      const { data, error: saveError } = await supabase.rpc(
+        "admin_save_parent_family",
+        { p_student_id: student.id, p_contacts: payload,
+          p_approved_matches: approvedMatches }
       );
-
-      if (saveError) {
-        throw saveError;
-      }
-
-      setContacts(payload);
-      setSavedContacts(payload);
+      if (saveError) throw saveError;
+      if(data?.success !== true) throw new Error("Penyimpanan belum dikonfirmasi server.");
+      setFamilyConfirmation(null);
       announceStudentDataChange();
-      onClose(); // Tutup hanya setelah server memastikan data berhasil tersimpan.
-    } catch (saveError) {
-      setError(
-        saveError.message || "Gagal menyimpan."
-      );
+      onClose();
+    } catch (problem) {
+      setError(problem.message || "Data belum berhasil disimpan.");
     } finally {
       setSaving(false);
     }
   }
+
+  async function saveContacts(event) {
+    event.preventDefault();
+    if (saving || generating || familyConfirmation) return;
+    let payload;
+    try {
+      payload = getValidatedPayload();
+    } catch (problem) {
+      setError(problem.message);
+      return;
+    }
+    setSaving(true);
+    setError("");
+    setSuccess("");
+    try {
+      const {data,error:previewError} = await supabase.rpc(
+        "admin_preview_parent_family",
+        {p_student_id:student.id,p_contacts:payload}
+      );
+      if(previewError)throw previewError;
+      if(!Array.isArray(data))throw new Error("Konfirmasi keluarga tidak dapat diperiksa.");
+      if(data.length){
+        setFamilyConfirmation({payload,matches:data});
+        return;
+      }
+      await persistContacts(payload);
+    }catch(problem){
+      setError(problem.message||"Pemeriksaan nomor HP gagal. Tidak ada perubahan tersimpan.");
+    }finally{
+      setSaving(false);
+    }
+  }
+
+  function confirmSameFamily(){
+    if(saving||!familyConfirmation)return;
+    const {payload,matches}=familyConfirmation;
+    const approvals=matches.map(match=>({relationship:match.relationship,phone:match.phone}));
+    void persistContacts(payload,approvals);
+  }
+
+  const familyDescription=familyConfirmation?.matches.map(item=>{
+    const label=TYPES.find(type=>type.id===item.relationship)?.label||"Wali";
+    const students=(item.students||[])
+      .map(other=>`${other.name} (${other.class_name})`).join(", ");
+    const info=students
+      ? `Nomor ini sudah tercatat pada siswa ${students}.`
+      : "Nomor ini sudah digunakan oleh akun orang tua yang aktif.";
+    return `${label} — ${item.phone}\n${info}\nApakah ${student.full_name} satu keluarga dengan siswa/akun tersebut?`;
+  }).join("\n\n")||"";
 
   async function retryReadCodes() {
     if (saving || generating) return;
@@ -329,33 +358,8 @@ export default function StudentFamily({ student, onClose }) {
     }
   }
 
-  async function linkExistingAccount(relationship) {
-    if (saving || generating || linking) return;
-    const contact=savedContacts[relationship];
-    const draft=contacts[relationship];
-    if(!contact?.full_name || !contact?.phone) {
-      setError("Simpan nama dan nomor HP wali terlebih dahulu.");return;
-    }
-    if (draft.full_name.trim() !== contact.full_name ||
-        normalizePhone(draft.phone) !== contact.phone) {
-      setError("Simpan perubahan kontak terlebih dahulu.");return;
-    }
-    setLinking(relationship);
-    setError("");
-    try {
-      const {data,error:problem}=await supabase.rpc("admin_link_existing_parent",{
-        p_student_id:student.id,p_relationship:relationship
-      });
-      if(problem)throw problem;
-      if(data?.success !== true) throw new Error("Belum ada konfirmasi server.");
-      announceStudentDataChange();
-      onClose(); // Satu tindakan selesai, popup ditutup pada keberhasilan.
-    }catch(problem) {
-      setError(problem.message || "Belum dapat menghubungkan anak ke akun wali.");
-    }finally {setLinking("");}
-  }
 
-  const busy = saving || Boolean(generating) || Boolean(linking);
+  const busy = saving || Boolean(generating);
 
   return (
     <div
@@ -508,11 +512,7 @@ export default function StudentFamily({ student, onClose }) {
                                 ? "Kode Baru"
                                 : "Buat Kode"}
                         </button>}
-                        {!isLinked && <button
-                          type="button" className="family-secondary family-link-account"
-                          disabled={busy} onClick={()=>void linkExistingAccount(type.id)}>
-                          {linking===type.id?"Menghubungkan…":"Hubungkan ke Akun"}
-                        </button>}
+}
                       </div>
                     )}
                   </section>
@@ -561,6 +561,14 @@ export default function StudentFamily({ student, onClose }) {
           </form>
         )}
       </section>
+      {familyConfirmation&&<AppConfirmDialog
+        title="Konfirmasi Nomor HP Keluarga"
+        description={familyDescription}
+        confirmLabel="Ya, Satu Keluarga" cancelLabel="Tidak, Periksa Nomor"
+        busy={saving} error={error}
+        onConfirm={confirmSameFamily}
+        onCancel={()=>{if(!saving){setFamilyConfirmation(null);setError("");}}}
+      />}
     </div>
   );
 }
