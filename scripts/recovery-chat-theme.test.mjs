@@ -79,7 +79,13 @@ test("six-character minimum is consistent in all password creation/update paths"
   for(const file of files){
     const source=await read(file);
     assert.doesNotMatch(source,/password\.length\s*<\s*10|newPassword\.length\s*<\s*10|form\.password\.length\s*<\s*10|minLength=\{10\}|10–72/);
-    assert.match(source,/6–72|length\s*<\s*6|minLength=\{6\}|length\s*>=\s*6/);
+    if (file === "src/pages/TeacherAccounts.jsx") {
+      // Admin no longer enters passwords manually; the fixed initial credential
+      // is exactly six characters. The Edge function still validates >=6.
+      assert.match(source,/INITIAL_STAFF_PASSWORD = "123456"/);
+    } else {
+      assert.match(source,/6–72|length\s*<\s*6|minLength=\{6\}|length\s*>=\s*6/);
+    }
   }
   const recovery=await read("supabase/functions/password-recovery/index.ts");
   assert.match(recovery,/14 \* 24 \* 60 \* 60 \* 1000/);

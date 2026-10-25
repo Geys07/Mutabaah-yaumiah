@@ -468,6 +468,24 @@ export default function Activities() {
     setFormError("");
   }
 
+  function automaticSortOrder(activity) {
+    if (activity.id) return Number(activity.sort_order);
+    const all = [...activities].sort((a,b)=>Number(a.sort_order)-Number(b.sort_order));
+    const matching = all.filter(item =>
+      item.category === activity.category &&
+      item.report_group === activity.report_group);
+    const max = all.reduce((n,item)=>Math.max(n,Number(item.sort_order)||0),0);
+    if (!matching.length) return max+10;
+    const last = matching[matching.length-1];
+    const index = all.findIndex(item=>item.id===last.id);
+    const next = all[index+1];
+    const start = Number(last.sort_order)||0;
+    const stop = next ? Number(next.sort_order) : Infinity;
+    if (next && Number.isSafeInteger(start) && stop-start>1)
+      return Math.floor((stop+start)/2);
+    return max+10;
+  }
+
   async function submit(event) {
     event.preventDefault();
 
@@ -477,9 +495,7 @@ export default function Activities() {
       .trim()
       .replace(/\s+/g, " ");
 
-    const sort = Number(
-      form.sort_order
-    );
+    const sort = automaticSortOrder(form);
 
     if (
       title.length < 2 ||
@@ -1455,27 +1471,6 @@ export default function Activities() {
                       Tambahan · hitung kali
                     </option>
                   </select>
-                </label>
-
-                <label>
-                  <span>
-                    Urutan
-                  </span>
-
-                  <input
-                    type="number"
-                    min={0}
-                    max={100000}
-                    required
-                    value={form.sort_order}
-                    disabled={saving}
-                    onChange={(e) =>
-                      setField(
-                        "sort_order",
-                        e.target.value
-                      )
-                    }
-                  />
                 </label>
 
                 {form.scoring_mode ===

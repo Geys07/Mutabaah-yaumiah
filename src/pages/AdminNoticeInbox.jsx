@@ -163,7 +163,7 @@ export default function AdminNoticeInbox({ onChanged, onOpenRequest }) {
             <article className={`notice-inbox-item ${item.read_at ? "is-read" : "is-unread"}`} key={item.id}>
               <div className="notice-inbox-item-top">
                 <span className="notice-inbox-type">{item.source === "sample" ? "CONTOH" : item.source === "account" ? "AKUN" : item.source === "phone" ? "WALI MURID" : "SISTEM"}</span>
-                {!item.read_at && <span className="notice-inbox-new">Baru</span>}
+                {item.read_at ? <span className="notice-inbox-read" aria-label="Notifikasi sudah dibaca">✓ Dibaca</span> : <span className="notice-inbox-new">● Baru</span>}
                 <time dateTime={item.created_at}>{formatWib(item.created_at)} WIB</time>
               </div>
               <h3>{item.title}</h3>

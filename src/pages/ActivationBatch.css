@@ -98,3 +98,7 @@
  .activation-batch-toggle{padding:12px;gap:5px 9px}
  .activation-batch-toggle small{flex-basis:80%;order:3}
 }
+
+.activation-batch-chevron{width:20px;height:20px;flex-shrink:0;transition:transform .18s ease}
+.activation-batch-chevron.is-open{transform:rotate(180deg)}
+.activation-batch-toggle:focus-visible{outline:2px solid var(--sa-accent,#178166);outline-offset:2px}

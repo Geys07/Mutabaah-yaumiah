@@ -28,7 +28,7 @@ test("parents directory uses one row per student, class cards, and optional empt
   const [jsx,css]=await Promise.all([read("src/pages/Parents.jsx"),read("src/pages/Parents.css")]);
   assert.match(jsx,/groupParentStudents\(/);
   assert.match(jsx,/groupParentsByClass\(/);
-  assert.match(jsx,/group\.students\.map\(student/);
+  assert.match(jsx,/group\.students\.map\(\(student,index\)/);
   assert.match(jsx,/student\.contacts\.father/);
   assert.match(jsx,/student\.contacts\.mother/);
   assert.match(jsx,/student\.contacts\.guardian/);

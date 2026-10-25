@@ -229,3 +229,4 @@
 .sh-class-list button strong{display:block;font-size:12px}
 .sh-class-list button small{display:block;margin-top:5px;font-size:11px;color:var(--sa-muted,#718079)}
 .sh-class-list button:focus-visible{outline:2px solid var(--sa-accent,#178166);outline-offset:2px}
+.sh-row-number{color:var(--sa-accent,#178166);font-variant-numeric:tabular-nums}

@@ -162,7 +162,8 @@ export default function AdminPhoneRequests({ onChanged }) {
                   </div>
                   <small>Diajukan {formatRequestDate(item.created_at)} WIB</small>
                 </div>
-                <div className="phone-actions">
+                {error && <p className="phone-error" role="alert">{error}</p>}
+            <div className="phone-actions">
                   <button type="button" disabled={Boolean(busy)} onClick={() => setDialog({ ...item, approve: false })}>Tolak</button>
                   <button type="button" disabled={Boolean(busy)} onClick={() => setDialog({ ...item, approve: true })}>Setujui</button>
                 </div>

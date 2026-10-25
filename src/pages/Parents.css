@@ -34,7 +34,7 @@
 .parents-class-heading h3{margin:0;color:var(--sa-accent,#178166);font-size:14px;font-weight:750}
 .parents-class-heading span{font-size:11px;color:var(--sa-muted,#718079)}
 .parents-table-wrapper{width:100%;min-width:0;overflow-x:auto}
-.parents-table-wrapper table{width:100%;min-width:735px;border-collapse:collapse;text-align:left;font-size:12px}
+.parents-table-wrapper table{width:100%;min-width:775px;border-collapse:collapse;text-align:left;font-size:12px}
 .parents-table-wrapper th,.parents-table-wrapper td{
   padding:12px 13px;text-align:left;border-bottom:1px solid var(--sa-line,#dfe9e4);
   vertical-align:middle;white-space:normal
@@ -71,15 +71,19 @@
  }
  .parents-table-wrapper tr:last-child{border-bottom:0}
  .parents-table-wrapper td{display:block;min-width:0;padding:0;border:0}
- .parents-table-wrapper td:nth-child(1){grid-column:1/-1;font-size:13px}
- .parents-table-wrapper td:nth-child(2)::before{content:"Ayah";display:block;margin-bottom:4px;font-size:10px;color:var(--sa-muted,#718079)}
- .parents-table-wrapper td:nth-child(3)::before{content:"Ibu";display:block;margin-bottom:4px;font-size:10px;color:var(--sa-muted,#718079)}
- .parents-table-wrapper td:nth-child(4)::before{content:"Wali Lain";display:block;margin-bottom:4px;font-size:10px;color:var(--sa-muted,#718079)}
- .parents-table-wrapper td:nth-child(5){align-self:end}
- .parents-table-wrapper td:nth-child(6){grid-column:1/-1}
+ .parents-table-wrapper td:nth-child(1){grid-column:1/-1;display:none}
+ .parents-table-wrapper td:nth-child(2){grid-column:1/-1;font-size:13px}
+ .parents-table-wrapper td:nth-child(2)::before{content:attr(data-number) ". ";color:var(--sa-accent,#178166);font-weight:750}
+ .parents-table-wrapper td:nth-child(3)::before{content:"Ayah";display:block;margin-bottom:4px;font-size:10px;color:var(--sa-muted,#718079)}
+ .parents-table-wrapper td:nth-child(4)::before{content:"Ibu";display:block;margin-bottom:4px;font-size:10px;color:var(--sa-muted,#718079)}
+ .parents-table-wrapper td:nth-child(5)::before{content:"Wali Lain";display:block;margin-bottom:4px;font-size:10px;color:var(--sa-muted,#718079)}
+ .parents-table-wrapper td:nth-child(6){align-self:end}
+ .parents-table-wrapper td:nth-child(7){grid-column:1/-1}
  .parents-table-wrapper .parents-edit{width:100%;min-height:40px}
 }
 @media(max-width:375px){
  .parents-filters{grid-template-columns:1fr}
  .parents-filters label:first-child{grid-column:auto}
 }
+
+.parents-table-wrapper .parents-number{width:44px;min-width:44px;color:var(--sa-accent,#178166);font-weight:750;text-align:center}
