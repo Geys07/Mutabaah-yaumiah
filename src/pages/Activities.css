@@ -301,3 +301,28 @@
     padding: 15px 19px max(15px, env(safe-area-inset-bottom));
   }
 }
+
+/* Modal kegiatan: header & tombol selalu terlihat, hanya isi form yang bergulir. */
+.staff-app .activities-backdrop{
+  padding:max(12px,env(safe-area-inset-top)) 12px max(12px,env(safe-area-inset-bottom));
+  overflow-y:auto;overscroll-behavior:contain
+}
+.staff-app .activities-dialog{
+  display:flex;flex-direction:column;overflow:hidden;
+  max-height:calc(100dvh - 24px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+}
+.staff-app .activities-dialog>header{flex-shrink:0;background:var(--sa-card,#fff)}
+.staff-app .activities-dialog form{display:flex;flex-direction:column;min-height:0;overflow:hidden}
+.staff-app .activities-form-body{
+  min-height:0;overflow-y:auto;overscroll-behavior:contain;
+  gap:clamp(11px,2.6vw,17px);background:var(--sa-card,#fff)
+}
+.staff-app .activities-dialog-footer{
+  flex-shrink:0;background:var(--sa-card,#fff);
+  border-top:1px solid var(--sa-line,#dfe9e4)
+}
+@media(max-width:600px){
+  .staff-app .activities-backdrop{align-items:center}
+  .staff-app .activities-dialog{width:100%;border-radius:15px}
+  .staff-app .activities-form-body{padding:15px 17px}
+}
