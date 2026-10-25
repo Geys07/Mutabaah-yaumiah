@@ -13,6 +13,8 @@ test("Admin family editor removes manual linking and confirms shared phone befor
  assert.match(ui,/scheduleSharedPhoneCheck\(type\.id, value\)/);
  assert.match(ui,/onBlur=\{\(\) => \{/);
  assert.match(ui,/async function autofillSiblingContacts\(matches, basePayload\)/);
+ assert.match(ui,/const candidates = \\(data \\|\\| \\[\\]\\)\\.filter\\(\\(row\\) => row\\.relationship === type\\.id\\)/);
+ assert.match(ui,/Nama wali tetap dapat diambil meskipun saudara tidak memiliki nomor HP/);
  assert.match(ui,/\.in\("student_id", siblingIds\)/);
  assert.match(ui,/Kontak saudara yang cocok sudah diisi otomatis/);
  assert.match(ui,/approvedFamilyPhones/);
@@ -33,6 +35,12 @@ test("Admin family editor removes manual linking and confirms shared phone befor
 test("Family confirmation works when phone already has an account and later activation claims siblings",async()=>{
  const sql=await read("supabase/migrations/20261025115600_confirmed_family_auto_link.sql");
  assert.match(sql,/CREATE TABLE IF NOT EXISTS public\.parent_family_consents/);
+ const syncSql=await read("supabase/migrations/20261025140408_confirmed_sibling_contact_sync_20261025.sql");
+ assert.match(syncSql,/CREATE TABLE IF NOT EXISTS public\\.parent_sibling_consents/);
+ assert.match(syncSql,/CREATE OR REPLACE FUNCTION public\\.sync_confirmed_sibling_contact_change/);
+ assert.match(syncSql,/CREATE TRIGGER sync_confirmed_sibling_contact_change/);
+ assert.match(syncSql,/CREATE TRIGGER capture_confirmed_sibling_pair/);
+ assert.match(syncSql,/contact phone is changed later/);
  assert.match(sql,/matched_student_id uuid NOT NULL REFERENCES public\.students\(id\) ON DELETE CASCADE/);
  assert.match(sql,/ALTER TABLE public\.parent_family_consents ENABLE ROW LEVEL SECURITY/);
  assert.match(sql,/REVOKE ALL ON public\.parent_family_consents FROM PUBLIC,anon,authenticated/);
