@@ -14,7 +14,8 @@ test("once app notification permission is granted, parent popup does not reappea
  assert.match(prompt,/usePushDevice\("parent", Boolean\(userId && authorizedParentId === userId\)\)/);
  assert.match(push,/localStorage\.getItem\(OPT_IN_KEY\(kind,id\)\) !== "0"/);
  assert.match(push,/localStorage\.setItem\(OPT_IN_KEY\(kind,id\), "0"\)/);
- assert.match(hook,/prefersPushDevice\(kind,id\)/);\n assert.match(push,/export function reconnectPushDevice/);
+ assert.match(hook,/prefersPushDevice\(kind,id\)/);
+ assert.match(push,/export function reconnectPushDevice/);
  assert.match(hook,/await reconnectPushDevice\(kind,id,context\)/);
 });
 test("existing child claims are moved from parent panel into Admin contacts with security",async()=>{
