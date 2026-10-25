@@ -69,6 +69,7 @@ test("all 20 student avatar variants exist and share a single frame/crop style",
     for (let index = 1; index <= 10; index += 1) {
       const filename = `${gender}-${String(index).padStart(2, "0")}.webp`;
       assert.ok(assets.includes(filename), `missing avatar asset ${filename}`);
+      await access(new URL(`../public/avatars/${filename}`, import.meta.url));
     }
   }
 });
