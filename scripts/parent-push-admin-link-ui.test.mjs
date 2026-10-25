@@ -29,10 +29,11 @@ test("existing child claims are moved from parent panel into Admin contacts with
  assert.match(parent,/Hubungi Admin madrasah/);
  assert.match(parent,/setChildrenRevision\(\(n\) => n \+ 1\)/);
  assert.match(admin,/linkedContacts:student\.contacts/);
- assert.match(contacts,/async function linkExistingAccount\(relationship\)/);
- assert.match(contacts,/rpc\("admin_link_existing_parent"/);
- assert.match(contacts,/onClose\(\); \/\/ Satu tindakan selesai/);
- assert.match(contacts,/Hubungkan ke Akun/);
+ assert.match(contacts,/admin_preview_parent_family/);
+ assert.match(contacts,/admin_save_parent_family/);
+ assert.match(contacts,/familyConfirmation&&<AppConfirmDialog/);
+ assert.match(contacts,/onClose\(\);/);
+ assert.doesNotMatch(contacts,/Hubungkan ke Akun/);
  assert.match(sql,/public\.has_role\('admin'\)/);
  assert.match(sql,/public\.qa06_account_active\(\)/);
  assert.match(sql,/student_family_contacts fc/);
