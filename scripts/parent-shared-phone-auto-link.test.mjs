@@ -67,8 +67,8 @@ test("Parent class card has breathing room in desktop and narrow phone layouts",
  const css=await read("src/pages/Parents.css");
  assert.match(css,/padding:clamp\(16px,2\.2vw,24px\)/);
  assert.match(css,/\.parents-panel\{padding:16px 14px 18px\}/);
- assert.match(css,/\.staff-app \.parents-class-group \.parents-table-wrapper tr \{\s*padding: 21px 22px/);
- assert.match(css,/\.staff-app \.parents-class-group \.parents-class-heading \{\s*padding: 21px 25px/);
+ assert.match(css,/\.staff-app \.parents-class-group \.parents-table-wrapper tr \{\s*padding: 24px 25px/);
+ assert.match(css,/\.staff-app \.parents-class-group \.parents-class-heading \{\s*padding: 24px 28px/);
  assert.match(css,/var\(--sa-(accent|ink)/);
 });
 
@@ -96,10 +96,10 @@ test("Parent class cards have comfortable text-to-edge spacing without double fr
   ]);
   assert.match(css,/\.staff-app \.parents-panel\.parents-panel \{/);
   assert.match(css,/background: transparent;\s*border: 0;\s*border-radius: 0;\s*box-shadow: none/);
-  assert.match(css,/\.staff-app \.parents-class-group \.parents-class-heading\s*\{\s*padding: 21px 25px/);
-  assert.match(css,/\.staff-app \.parents-class-group \.parents-table-wrapper :is\(th,td\)\s*\{\s*padding: 19px 21px/);
+  assert.match(css,/\.staff-app \.parents-class-group \.parents-class-heading\s*\{\s*padding: 24px 28px/);
+  assert.match(css,/\.staff-app \.parents-class-group \.parents-table-wrapper :is\(th,td\)\s*\{\s*padding: 22px 24px/);
   assert.match(css,/@media\(max-width:780px\)/);
-  assert.match(css,/\.staff-app \.parents-class-group \.parents-table-wrapper tr \{\s*padding: 21px 22px/);
+  assert.match(css,/\.staff-app \.parents-class-group \.parents-table-wrapper tr \{\s*padding: 24px 25px/);
   assert.match(css,/@media\(max-width:375px\)/);
   assert.match(css,/var\(--sa-(ink|accent|muted)/);
   assert.match(jsx,/group\.students\.map\(\(student,index\)/);
