@@ -67,8 +67,8 @@ test("Parent class card has breathing room in desktop and narrow phone layouts",
  const css=await read("src/pages/Parents.css");
  assert.match(css,/padding:clamp\(16px,2\.2vw,24px\)/);
  assert.match(css,/\.parents-panel\{padding:16px 14px 18px\}/);
- assert.match(css,/\.parents-table-wrapper tr\{padding:17px 16px/);
- assert.match(css,/\.parents-class-heading\{padding:13px 16px\}/);
+ assert.match(css,/\.staff-app \.parents-class-group \.parents-table-wrapper tr \{\s*padding: 19px 20px/);
+ assert.match(css,/\.staff-app \.parents-class-group \.parents-class-heading \{\s*padding: 19px 23px/);
  assert.match(css,/var\(--sa-(accent|ink)/);
 });
 
