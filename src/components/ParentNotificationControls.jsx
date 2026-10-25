@@ -68,7 +68,7 @@ export function ParentPushSettings() {
           {checked
             ? enabled
               ? "Aktif"
-              : "Tidak aktif"
+              : error ? "Perlu diperiksa" : "Tidak aktif"
             : "Memeriksa…"}
         </span>
         {!enabled && <p role="status">{preparing ? "Menyiapkan notifikasi…" : ready ? "Perangkat siap untuk diaktifkan." : "Persiapan notifikasi belum berhasil."}</p>}
