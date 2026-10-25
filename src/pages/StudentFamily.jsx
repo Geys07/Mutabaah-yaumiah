@@ -47,6 +47,31 @@ function prepareCodes(data) {
   }));
 }
 
+// Persetujuan mencakup siswa tertentu, bukan sekadar nomor HP.
+// Siswa baru yang memakai nomor sama tetap harus dikonfirmasi tersendiri.
+function issueApproval(item) {
+  return {relationship:item.relationship,phone:item.phone,
+    students:(item.students||[]).map(other=>({id:other.id,relationship:other.relationship}))};
+}
+function approvalCoversIssue(approval,item) {
+  return approval.relationship===item.relationship && approval.phone===item.phone &&
+    (item.students||[]).every(other=>(approval.students||[]).some(saved=>
+      saved.id===other.id && saved.relationship===other.relationship
+    ));
+}
+function combineApprovals(previous,additional) {
+  const mapped=new Map();
+  for(const entry of [...previous,...additional]){
+    const key=entry.relationship+":"+entry.phone;
+    const old=mapped.get(key)||{relationship:entry.relationship,phone:entry.phone,students:[]};
+    const siblings=[...old.students,...entry.students];
+    old.students=siblings.filter((person,index)=>siblings.findIndex(other=>
+      other.id===person.id&&other.relationship===person.relationship)===index);
+    mapped.set(key,old);
+  }
+  return [...mapped.values()];
+}
+
 export default function StudentFamily({ student, onClose }) {
   const [contacts, setContacts] = useState(emptyContacts);
   const [savedContacts, setSavedContacts] = useState(
@@ -215,7 +240,7 @@ export default function StudentFamily({ student, onClose }) {
     const current=contacts[type];
     const phone=normalizePhone(current?.phone);
     if(!/^08\d{8,11}$/.test(phone)||!current?.full_name?.trim())return;
-    if(approvedFamilyPhones.some(item=>item.relationship===type && item.phone===phone))return;
+    // Periksa ulang daftar saudara dari server; mungkin ada saudara baru.
     const version=++previewVersion.current;
     const payload=Object.fromEntries(TYPES.map(item=>[
       item.id,{full_name:contacts[item.id].full_name.trim(),
@@ -229,7 +254,10 @@ export default function StudentFamily({ student, onClose }) {
       if(previewVersion.current!==version)return;
       const matches=(Array.isArray(data)?data:[])
         .filter(item=>item.relationship===type && item.phone===phone);
-      if(matches.length)setFamilyConfirmation({matches,payload:null,saveAfter:false});
+      const unconfirmed=matches.filter(item=>!approvedFamilyPhones.some(approved=>
+        approvalCoversIssue(approved,item)
+      ));
+      if(unconfirmed.length)setFamilyConfirmation({matches:unconfirmed,payload:null,saveAfter:false});
     }catch{
       // Gangguan pratinjau tidak menghambat pengisian; Simpan memeriksa ulang.
     }
@@ -280,7 +308,7 @@ export default function StudentFamily({ student, onClose }) {
       if(previewError)throw previewError;
       if(!Array.isArray(data))throw new Error("Konfirmasi keluarga tidak dapat diperiksa.");
       const remaining=data.filter(item=>!approvedFamilyPhones.some(approval=>
-        approval.relationship===item.relationship && approval.phone===item.phone
+        approvalCoversIssue(approval,item)
       ));
       if(remaining.length){
         setFamilyConfirmation({payload,matches:remaining,saveAfter:true});
@@ -297,10 +325,8 @@ export default function StudentFamily({ student, onClose }) {
   function confirmSameFamily(){
     if(saving||!familyConfirmation)return;
     const {payload,matches,saveAfter}=familyConfirmation;
-    const additional=matches.map(match=>({relationship:match.relationship,phone:match.phone}));
-    const approvals=[...approvedFamilyPhones,...additional]
-      .filter((match,index,all)=>all.findIndex(other=>
-        other.relationship===match.relationship&&other.phone===match.phone)===index);
+    const additional=matches.map(issueApproval);
+    const approvals=combineApprovals(approvedFamilyPhones,additional);
     if(saveAfter){
       void persistContacts(payload,approvals);
     }else{
