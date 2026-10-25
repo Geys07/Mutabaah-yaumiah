@@ -11,6 +11,8 @@ export default function DashboardBarChart({
 }) {
   const canvasRef = useRef(null);
   const chartRef = useRef(null);
+  const lastDataRef = useRef(null);
+  const lastOptionsRef = useRef(null);
   const onItemClickRef = useRef(onItemClick);
   const [visible, setVisible] = useState(false);
 
@@ -81,16 +83,23 @@ export default function DashboardBarChart({
     });
 
     chartRef.current = chart;
+    lastDataRef.current = data;
+    lastOptionsRef.current = options;
     return () => {
       chart.destroy();
       chartRef.current = null;
+      lastDataRef.current = null;
+      lastOptionsRef.current = null;
     };
   }, [visible, type]);
 
   useEffect(() => {
     const chart = chartRef.current;
     if (!chart) return;
+    if (lastDataRef.current === data && lastOptionsRef.current === options) return;
     chart.data = data;
+    lastDataRef.current = data;
+    lastOptionsRef.current = options;
     chart.options = {
       ...chart.options,
       ...options,
