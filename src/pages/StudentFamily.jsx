@@ -343,23 +343,41 @@ export default function StudentFamily({ student, onClose }) {
 
     for (const type of TYPES) {
       const current = nextPayload[type.id];
-      if (normalizePhone(current.phone)) continue;
-      const candidates = (data || []).filter((row) =>
-        row.relationship === type.id && /^08\d{8,11}$/.test(normalizePhone(row.phone))
-      );
-      const phones = [...new Set(candidates.map((row) => normalizePhone(row.phone)))];
-      if (phones.length !== 1) continue;
-      const phone = phones[0];
-      const names = candidates.filter((row) => normalizePhone(row.phone) === phone)
-        .map((row) => cleanName(row.full_name)).filter(Boolean);
-      const counts = new Map();
-      for (const name of names) counts.set(name, (counts.get(name) || 0) + 1);
-      const rankedNames = [...counts.entries()].sort((a, b) => b[1] - a[1]);
-      if (!rankedNames.length || (rankedNames[1] && rankedNames[1][1] === rankedNames[0][1])) continue;
-      const fullName = rankedNames[0][0];
-      if (cleanName(current.full_name) && cleanName(current.full_name) !== fullName) continue;
-      nextPayload[type.id] = { full_name: fullName, phone };
-      filled[type.id] = true;
+      const candidates = (data || []).filter((row) => row.relationship === type.id);
+      const namedCandidates = candidates.map((row) => cleanName(row.full_name)).filter(Boolean);
+      const nameCounts = new Map();
+      for (const name of namedCandidates) nameCounts.set(name, (nameCounts.get(name) || 0) + 1);
+      const rankedNames = [...nameCounts.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], "id"));
+      const nameIsAmbiguous = rankedNames[1] && rankedNames[1][1] === rankedNames[0][1];
+      const inferredName = !nameIsAmbiguous ? rankedNames[0]?.[0] || "" : "";
+
+      // Nama wali tetap dapat diambil meskipun saudara tidak memiliki nomor HP.
+      if (!cleanName(current.full_name) && inferredName) {
+        current.full_name = inferredName;
+        filled[type.id] = true;
+      }
+
+      // Nomor hanya disalin jika data saudara yang cocok menunjukkan satu nomor.
+      if (!normalizePhone(current.phone)) {
+        const phoneCandidates = candidates.filter((row) =>
+          /^08\d{8,11}$/.test(normalizePhone(row.phone))
+        );
+        const phones = [...new Set(phoneCandidates.map((row) => normalizePhone(row.phone)))];
+        if (phones.length === 1) {
+          const phone = phones[0];
+          const namesForPhone = phoneCandidates
+            .filter((row) => normalizePhone(row.phone) === phone)
+            .map((row) => cleanName(row.full_name)).filter(Boolean);
+          const uniqueNamesForPhone = [...new Set(namesForPhone)];
+          const currentName = cleanName(current.full_name);
+          if (uniqueNamesForPhone.length <= 1 &&
+              (!currentName || !uniqueNamesForPhone.length || currentName === uniqueNamesForPhone[0])) {
+            current.phone = phone;
+          }
+        }
+      }
+
+      nextPayload[type.id] = { ...current };
     }
     return { payload: nextPayload, filled };
   }
