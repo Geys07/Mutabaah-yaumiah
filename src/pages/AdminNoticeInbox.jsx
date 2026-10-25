@@ -4,6 +4,7 @@ import { PAGE_SIZE } from "../lib/pagination";
 import Pagination from "../components/Pagination";
 import EmptyState from "../components/EmptyState";
 import useNotificationPulse from "../hooks/useNotificationPulse";
+import AppConfirmDialog from "../components/AppConfirmDialog";
 import "./AdminNoticeInbox.css";
 
 const FILTERS = [
@@ -181,17 +182,14 @@ export default function AdminNoticeInbox({ onChanged, onOpenRequest }) {
 
       <Pagination page={page} total={total} loading={loading || busy} onChange={setPage} />
 
-      {confirmation && <div className="notice-inbox-overlay">
-        <div role="dialog" aria-modal="true" aria-labelledby="notice-confirm-title" className="notice-inbox-dialog">
-          <h3 id="notice-confirm-title">{confirmation.title}</h3>
-          <p>Tindakan ini hanya menghapus pesan dari kotak masuk admin. Data permintaan dan catatan sistem tetap tersimpan.</p>
-          <div className="notice-inbox-dialog-actions">
-            <button type="button" disabled={busy} onClick={() => setConfirmation(null)}>Batal</button>
-            <button type="button" className="is-danger" disabled={busy}
-              onClick={() => void act(confirmation.action, confirmation.id)}>{busy ? "Memproses…" : "Ya, Hapus"}</button>
-          </div>
-        </div>
-      </div>}
+      {confirmation && <AppConfirmDialog
+        danger
+        title={confirmation.title}
+        description="Pesan hanya dihapus dari kotak masuk Admin. Data permintaan dan catatan sistem tetap tersimpan."
+        confirmLabel="Ya, Hapus" busy={busy} error={error}
+        onCancel={()=>{setConfirmation(null);setError("");}}
+        onConfirm={()=>void act(confirmation.action,confirmation.id)}
+      />}
     </section>
   );
 }
