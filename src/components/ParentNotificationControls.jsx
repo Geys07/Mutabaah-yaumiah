@@ -133,7 +133,8 @@ export default function ParentNotificationGate() {
 
 
 
-  const device = usePushDevice("parent", Boolean(userId && authorizedParentId === userId && open === userId));
+  // Sinkronkan push secara diam-diam walau popup tidak terbuka.
+  const device = usePushDevice("parent", Boolean(userId && authorizedParentId === userId));
   const { busy, error, ready, preparing, checked } = device;
 
   useEffect(() => {
@@ -222,7 +223,7 @@ export default function ParentNotificationGate() {
       authorizedParentId !== userId ||
       !userId ||
       !available() ||
-      Notification.permission === "denied"
+      Notification.permission !== "default"
     ) {
       return undefined;
     }
@@ -259,8 +260,7 @@ export default function ParentNotificationGate() {
       checking = true;
 
       try {
-        const subscribed =
-          await deviceIsEnabled();
+        const subscribed = Notification.permission === "granted" || await deviceIsEnabled();
 
         if (!live) {
           return;
