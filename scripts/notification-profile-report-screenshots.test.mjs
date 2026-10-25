@@ -32,8 +32,10 @@ test("hubungkan anak ditangani Admin saja tanpa popup klaim di Profil Orang Tua"
   ]);
   assert.doesNotMatch(parent,/Hubungkan Anak|claim-parent|linkChild\(/);
   assert.match(parent,/Penambahan anak ditangani Admin madrasah/);
-  assert.match(manage,/rpc\("admin_link_existing_parent"/);
-  assert.match(manage,/linkExistingAccount\(type\.id\)/);
+  assert.match(manage,/admin_preview_parent_family/);
+  assert.match(manage,/admin_save_parent_family/);
+  assert.match(manage,/Ya, Satu Keluarga/);
+  assert.doesNotMatch(manage,/linkExistingAccount\(type\.id\)/);
   assert.match(admin,/StudentFamily/);
 });
 

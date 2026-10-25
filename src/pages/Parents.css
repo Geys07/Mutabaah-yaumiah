@@ -1,7 +1,7 @@
 /* Admin — daftar Orang Tua sesuai palet StaffWorkspace empat waktu WIB. */
 .parents-panel{
   min-width:0;
-  padding:clamp(0px,1vw,12px);
+  padding:clamp(16px,2.2vw,24px);
   border:0;
   border-radius:0;
   background:transparent;
@@ -58,7 +58,7 @@
 .parents-error{padding:11px 13px;border-radius:9px;background:#fff0f0;color:#a33c3c;font-size:12px}
 .parents-syncing{font-size:11px;color:var(--sa-muted,#718079)}
 @media(max-width:780px){
- .parents-panel{padding:0}
+ .parents-panel{padding:16px 14px 18px}
  .parents-filters{grid-template-columns:repeat(2,minmax(0,1fr))}
  .parents-filters label:first-child{grid-column:1/-1}
  .parents-class-heading{padding:12px}
@@ -88,3 +88,20 @@
 }
 
 .parents-table-wrapper .parents-number{width:44px;min-width:44px;color:var(--sa-accent,#178166);font-weight:750;text-align:center}
+
+/* Jarak tepi yang konsisten pada menu Orang Tua; hindari teks
+   menempel ke batas card pada layar 360–420px. */
+.parents-panel .parents-heading{padding:0 2px}
+.parents-panel .parents-filters{margin:20px 0 22px}
+.parents-panel .parents-class-groups{margin-top:16px}
+.parents-class-heading{padding:15px 18px}
+@media(max-width:780px){
+  .parents-panel .parents-heading{padding:0 1px}
+  .parents-class-heading{padding:13px 16px}
+  .parents-table-wrapper tr{padding:17px 16px;row-gap:13px}
+  .parents-student-name{max-width:none}
+}
+@media(max-width:375px){
+  .parents-panel{padding:14px 12px 17px}
+  .parents-table-wrapper tr{padding:15px 13px}
+}

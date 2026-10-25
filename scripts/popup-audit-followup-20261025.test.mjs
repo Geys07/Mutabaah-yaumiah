@@ -32,7 +32,8 @@ test("generated activation codes cannot silently rotate after read-back failure"
   assert.match(code,/codeReadFailed \? retryReadCodes\(\) : generateCode\(type\.id\)/);
   assert.match(code,/codeReadFailed\) return/);
   assert.match(code,/Muat Ulang Kode/);
-  assert.match(code,/onClose\(\); \/\/ Tutup hanya setelah server memastikan data berhasil tersimpan/);
+  assert.match(code,/if\(data\?\.success !== true\)/);
+  assert.match(code,/announceStudentDataChange\(\);\s*onClose\(\);/);
 });
 
 test("school import success is never presented as a failed database import due to callback",async()=>{
