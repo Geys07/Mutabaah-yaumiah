@@ -6,9 +6,10 @@ import Pagination from "../components/Pagination";
 import "./TeacherAccounts.css";
 import EmptyState from "../components/EmptyState";
 
+const INITIAL_STAFF_PASSWORD = "123456";
 const BLANK = {
   full_name: "", username: "", phone: "",
-  password: "", confirm_password: "", active: true,
+  active: true,
 };
 function normalizePhone(value) {
   const digits = String(value || "").replace(/\D/g, "");
@@ -35,7 +36,6 @@ export default function TeacherAccounts({ role = "homeroom_teacher" }) {
   const [editingId,setEditingId] = useState("");
   const [form,setForm] = useState(BLANK);
   const [saving,setSaving] = useState(false);
-  const [showPassword,setShowPassword] = useState(false);
   const [formError,setFormError] = useState("");
   const [notice,setNotice] = useState("");
   const load = useCallback((signal) => staffPage(supabase,search,page,signal,role),[search,page,role]);
@@ -48,7 +48,6 @@ export default function TeacherAccounts({ role = "homeroom_teacher" }) {
     setEditingId("");
     setForm({ ...BLANK });
     setFormError("");
-    setShowPassword(false);
   }, [saving]);
   useEffect(() => {
     if (!modal) return undefined;
@@ -70,7 +69,6 @@ export default function TeacherAccounts({ role = "homeroom_teacher" }) {
       full_name: person.full_name || "",
       username: person.username || "",
       phone: person.phone || "",
-      password: "", confirm_password: "",
       active: person.account_status === "active",
     });
     setFormError("");
@@ -93,10 +91,6 @@ export default function TeacherAccounts({ role = "homeroom_teacher" }) {
       return setFormError("Nama pengguna: 4–24 karakter, diawali huruf, tidak boleh 'admin'.");
     if (phone && !/^08\d{8,11}$/.test(phone))
       return setFormError("Nomor HP opsional, tetapi jika diisi gunakan 08xxxxxxxxxx.");
-    if (modal === "create" &&
-      (form.password.length < 6 || form.password.length > 72 ||
-       form.password !== form.confirm_password))
-      return setFormError("Kata sandi harus 6–72 karakter dan konfirmasinya cocok.");
 
     setSaving(true);
     setFormError("");
@@ -104,7 +98,7 @@ export default function TeacherAccounts({ role = "homeroom_teacher" }) {
     try {
       if (modal === "create") {
         const {data,error} = await supabase.functions.invoke("create-teacher-account", {
-          body: { role, full_name:name, username, phone:phone || null, password:form.password },
+          body: { role, full_name:name, username, phone:phone || null, password:INITIAL_STAFF_PASSWORD },
         });
         if (error) throw new Error(await errorMessage(error));
         if (!data?.success) throw new Error(data?.error || "Gagal membuat akun.");
@@ -122,7 +116,6 @@ export default function TeacherAccounts({ role = "homeroom_teacher" }) {
       setModal("");
       setEditingId("");
       setForm({ ...BLANK });
-      setShowPassword(false);
       setNotice(modal === "create" ? "Akun berhasil dibuat." : "Akun berhasil diperbarui.");
       setRefresh((n) => n + 1);
     } catch(error) { setFormError(await errorMessage(error)); }
@@ -187,25 +180,11 @@ export default function TeacherAccounts({ role = "homeroom_teacher" }) {
                 placeholder="08xxxxxxxxxx" value={form.phone}
                 onChange={(e)=>updateField("phone",e.target.value)}/>
             </label>
-            {modal === "create" && <>
-              <label className="teacher-accounts-field">
-                <span>Kata Sandi Awal</span>
-                <input required minLength={6} maxLength={72} autoComplete="new-password"
-                  type={showPassword ? "text" : "password"} disabled={saving}
-                  value={form.password} onChange={(e)=>updateField("password",e.target.value)}/>
-              </label>
-              <label className="teacher-accounts-field">
-                <span>Konfirmasi Kata Sandi</span>
-                <input required minLength={6} maxLength={72} autoComplete="new-password"
-                  type={showPassword ? "text" : "password"} disabled={saving}
-                  value={form.confirm_password} onChange={(e)=>updateField("confirm_password",e.target.value)}/>
-              </label>
-              <label className="teacher-accounts-check">
-                <input type="checkbox" checked={showPassword} disabled={saving}
-                  onChange={(e)=>setShowPassword(e.target.checked)}/>
-                <span>Tampilkan kata sandi</span>
-              </label>
-            </>}
+            {modal === "create" && (
+              <p className="teacher-accounts-initial-password" role="note">
+                Kata sandi awal otomatis: <strong>123456</strong>. Wajib diganti saat pertama masuk.
+              </p>
+            )}
             {modal === "edit" && <label className="teacher-accounts-check">
               <input type="checkbox" checked={form.active} disabled={saving}
                 onChange={(e)=>updateField("active",e.target.checked)}/>
