@@ -88,3 +88,19 @@ test("newly discovered siblings require a fresh explicit confirmation, never bla
  assert.match(sql,/p_approved_matches @> pg_catalog\.jsonb_build_array/);
  assert.match(sql,/REVOKE ALL ON FUNCTION public\.admin_save_parent_family/);
 });
+
+
+test("Parent class cards have comfortable text-to-edge spacing without double frame", async()=>{
+  const [css,jsx]=await Promise.all([
+    read("src/pages/Parents.css"),read("src/pages/Parents.jsx")
+  ]);
+  assert.match(css,/\.staff-app \.parents-panel\.parents-panel \{/);
+  assert.match(css,/background: transparent;\s*border: 0;\s*border-radius: 0;\s*box-shadow: none/);
+  assert.match(css,/\.staff-app \.parents-class-group \.parents-class-heading\s*\{\s*padding: 19px 23px/);
+  assert.match(css,/\.staff-app \.parents-class-group \.parents-table-wrapper :is\(th,td\)\s*\{\s*padding: 17px 19px/);
+  assert.match(css,/@media\(max-width:780px\)/);
+  assert.match(css,/\.staff-app \.parents-class-group \.parents-table-wrapper tr \{\s*padding: 19px 20px/);
+  assert.match(css,/@media\(max-width:375px\)/);
+  assert.match(css,/var\(--sa-(ink|accent|muted)/);
+  assert.match(jsx,/group\.students\.map\(\(student,index\)/);
+});
