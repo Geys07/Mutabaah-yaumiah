@@ -10,7 +10,11 @@ test("Admin family editor removes manual linking and confirms shared phone befor
  assert.doesNotMatch(ui,/Hubungkan ke Akun|linkExistingAccount|admin_link_existing_parent/);
  assert.match(ui,/admin_preview_parent_family/);
  assert.match(ui,/async function checkSharedPhone\(type\)/);
- assert.match(ui,/onBlur=\{\(\) => void checkSharedPhone\(type\.id\)\}/);
+ assert.match(ui,/scheduleSharedPhoneCheck\(type\.id, value\)/);
+ assert.match(ui,/onBlur=\{\(\) => \{/);
+ assert.match(ui,/async function autofillSiblingContacts\(matches, basePayload\)/);
+ assert.match(ui,/\.in\("student_id", siblingIds\)/);
+ assert.match(ui,/Kontak saudara yang cocok sudah diisi otomatis/);
  assert.match(ui,/approvedFamilyPhones/);
  assert.match(ui,/previewVersion\.current/);
  assert.match(ui,/saveAfter:false/);
