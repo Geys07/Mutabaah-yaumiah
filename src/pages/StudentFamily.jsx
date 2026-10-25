@@ -55,6 +55,7 @@ export default function StudentFamily({ student, onClose }) {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [generating, setGenerating] = useState("");
+  const [codeReadFailed, setCodeReadFailed] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
@@ -241,8 +242,28 @@ export default function StudentFamily({ student, onClose }) {
     }
   }
 
-  async function generateCode(type) {
+  async function retryReadCodes() {
     if (saving || generating) return;
+    setGenerating("refresh");
+    setError("");
+    try {
+      const {data,error:problem}=await supabase
+        .from("parent_activation_codes")
+        .select("relationship, phone, code, expires_at, used_at")
+        .eq("student_id", student.id);
+      if (problem) throw problem;
+      setCodes(prepareCodes(data));
+      setCodeReadFailed(false);
+      setSuccess("Kode berhasil dimuat. Simpan kode sebelum menutup halaman.");
+    } catch {
+      setError("Kode sudah diterbitkan, tetapi belum dapat ditampilkan. Periksa koneksi dan coba Muat Ulang Kode.");
+    } finally {
+      setGenerating("");
+    }
+  }
+
+  async function generateCode(type) {
+    if (saving || generating || codeReadFailed) return;
 
     const current = contacts[type];
     const saved = savedContacts[type];
@@ -445,14 +466,16 @@ export default function StudentFamily({ student, onClose }) {
                           className="family-secondary"
                           disabled={busy}
                           onClick={() =>
-                            generateCode(type.id)
+                            codeReadFailed ? retryReadCodes() : generateCode(type.id)
                           }
                         >
-                          {generating === type.id
-                            ? "Membuat..."
-                            : validCode
-                              ? "Kode Baru"
-                              : "Buat Kode"}
+                          {generating === type.id || generating === "refresh"
+                            ? "Memuat..."
+                            : codeReadFailed
+                              ? "Muat Ulang Kode"
+                              : validCode
+                                ? "Kode Baru"
+                                : "Buat Kode"}
                         </button>
                       </div>
                     )}
