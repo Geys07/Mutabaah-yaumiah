@@ -43,6 +43,11 @@ BEGIN
  IF v_existing IS NOT NULL AND v_existing<>v_guardian THEN
    RAISE EXCEPTION 'Hubungan ini sudah terpasang pada akun lain. Periksa dulu lewat Admin';
  END IF;
+ IF EXISTS(
+   SELECT 1 FROM public.student_guardians sg
+   WHERE sg.student_id=p_student_id AND sg.guardian_id=v_guardian
+     AND sg.relationship<>p_relationship
+ ) THEN RAISE EXCEPTION 'Akun ini telah terhubung melalui hubungan lain. Periksa dulu data Admin'; END IF;
  SELECT EXISTS(
    SELECT 1 FROM public.student_guardians
    WHERE student_id=p_student_id AND guardian_id=v_guardian
