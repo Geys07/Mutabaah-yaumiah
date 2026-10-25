@@ -125,13 +125,19 @@ function ActivationBatchPanel({ isTeacher = false }) {
       if (!data || typeof data.created !== "number") {
         throw new Error("Hasil pembuatan kode tidak dikenali.");
       }
-      const latest = await loadRows();
-      setRows(latest);
+      // A successful server mutation closes the confirmation immediately.
+      // Listing/PDF refresh is follow-up work and must not trigger a duplicate issue.
       setConfirmAll(false);
       setNotice(data.created > 0
         ? String(data.created) + " kode baru dibuat. Kode valid sebelumnya tetap dipertahankan."
         : "Tidak ada kode baru yang diperlukan. Kode valid dan akun aktif tidak berubah.");
-      setRefresh((old) => old + 1);
+      try {
+        const latest = await loadRows();
+        setRows(latest);
+        setRefresh((old) => old + 1);
+      } catch {
+        setNotice("Perubahan kode tersimpan. Daftar terbaru belum dapat dimuat; tekan Perbarui untuk melihat kode.");
+      }
     } catch (caught) {
       setError(errorText(caught));
     } finally {
