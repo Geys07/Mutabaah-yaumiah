@@ -105,3 +105,24 @@
   .parents-panel{padding:14px 12px 17px}
   .parents-table-wrapper tr{padding:15px 13px}
 }
+
+/* Ruang napas kartu kelas dan konten kontak wali — desktop, tablet, HP. */
+.parents-panel .parents-class-group { border-radius:15px; }
+.parents-panel .parents-class-heading {padding:18px 22px;}
+.parents-panel .parents-table-wrapper th,
+.parents-panel .parents-table-wrapper td {padding:16px 18px;line-height:1.65;}
+.parents-panel .parents-contact {gap:5px;line-height:1.55;}
+.parents-panel .parents-account-linked,
+.parents-panel .parents-account-neutral {padding:7px 11px;}
+@media(max-width:780px){
+  .parents-panel .parents-class-heading {padding:17px 19px;}
+  .parents-panel .parents-table-wrapper tr {
+    padding:19px 19px 21px;
+    row-gap:15px;
+  }
+  .parents-panel .parents-table-wrapper td {padding:0;}
+}
+@media(max-width:375px){
+  .parents-panel .parents-class-heading {padding:16px 17px;}
+  .parents-panel .parents-table-wrapper tr {padding:17px 16px 19px;}
+}
