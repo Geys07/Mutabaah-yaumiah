@@ -91,6 +91,8 @@ export default function DashboardBarChart({
       lastDataRef.current = null;
       lastOptionsRef.current = null;
     };
+  // The second effect updates data/options without destroying the chart animation.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visible, type]);
 
   useEffect(() => {
