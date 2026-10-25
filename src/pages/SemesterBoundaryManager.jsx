@@ -339,7 +339,7 @@ export default function SemesterBoundaryManager() {
 
       {confirmOpen && <AppConfirmDialog
         title="Simpan Batas Semester?"
-        description={`Tahun ajaran ${year?.start_year}/${year?.start_year+1} akan memulai Semester Genap pada ${chosen}; Semester Ganjil berakhir ${dateBefore(chosen)}.\\n\\nPerubahan dapat memengaruhi rapor yang belum diterbitkan. Arsip rapor yang sudah terbit tetap dilindungi.`}
+        description={`Tahun ajaran ${year?.start_year}/${year?.start_year+1} akan memulai Semester Genap pada ${chosen}; Semester Ganjil berakhir ${dateBefore(chosen)}.\n\nPerubahan dapat memengaruhi rapor yang belum diterbitkan. Arsip rapor yang sudah terbit tetap dilindungi.`}
         confirmLabel="Ya, Simpan" busy={busy} error={error}
         onCancel={()=>{setConfirmOpen(false);setError("");}}
         onConfirm={()=>void save()}
