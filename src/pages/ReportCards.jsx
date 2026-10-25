@@ -387,6 +387,37 @@ function rowsOf(table) {
   return childrenOf(table, "tr");
 }
 
+// Hilangkan HANYA garis pada tabel tanda tangan dari template DOCX.
+// Tabel capaian, apresiasi, ringkasan, dan catatan tidak berubah sama sekali.
+function removeSignatureBorders(table) {
+  const doc=table.ownerDocument;
+  const borderNames=["top","left","bottom","right","insideH","insideV","start","end"];
+  function clearBorders(target,propertiesName,bordersName) {
+    let properties=childrenOf(target,propertiesName)[0];
+    if (!properties) {
+      properties=doc.createElementNS(W,"w:"+propertiesName);
+      target.insertBefore(properties,target.firstChild);
+    }
+    let borders=childrenOf(properties,bordersName)[0];
+    if (!borders) {
+      borders=doc.createElementNS(W,"w:"+bordersName);
+      properties.appendChild(borders);
+    }
+    for(const name of borderNames){
+      let edge=childrenOf(borders,name)[0];
+      if(!edge){
+        edge=doc.createElementNS(W,"w:"+name);
+        borders.appendChild(edge);
+      }
+      edge.setAttributeNS(W,"w:val","nil");
+    }
+  }
+  clearBorders(table,"tblPr","tblBorders");
+  for(const row of rowsOf(table))
+    for(const cell of childrenOf(row,"tc"))
+      clearBorders(cell,"tcPr","tcBorders");
+}
+
 function makeDetails(table, groups, grading) {
   const existing = rowsOf(table);
   if (existing.length < 3) throw new Error("Tabel kegiatan dalam template tidak lengkap.");
@@ -486,6 +517,7 @@ function fillStudentPage(blocks, student, context, grading, groups) {
   setParagraph(noteCells[0], 1, notes.parent);
   setParagraph(noteCells[1], 1, student.note || "");
 
+  removeSignatureBorders(tables[tables.length - 1]);
   const signatures = rowsOf(tables[tables.length - 1]);
   setParagraph(childrenOf(signatures[0], "tc")[1], 0, `${context.signingLocation}, ${context.date}`);
   setCell(signatures[2], 1, context.teacherName || "(........................................)");
