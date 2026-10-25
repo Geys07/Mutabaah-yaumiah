@@ -453,3 +453,9 @@ Permintaan: perbaiki dalam satu rangkaian sisa masalah lintas Admin, Wali Kelas,
 - **Tidak** mengaitkan secara diam-diam seluruh siswa yang kebetulan memakai nomor sama; tidak ada perubahan massal data wali pada pemasangan migrasi. Kode lama yang masih aktif tetap berlaku sampai diaktivasi; kode yang sudah terkait akun dihabiskan saat penautan berhasil.
 - Screenshot Android menunjukkan konten menu Admin Orang Tua/Wali hampir menyentuh batas card; `Parents.css` kini memberikan padding pada panel, filter, judul kelas dan baris siswa, tanpa memunculkan kotak tambahan/garis ganda. Mengikuti warna `--sa-*` (empat waktu).
 - Pengujian `scripts/parent-shared-phone-auto-link.test.mjs` dan CI lint/build. Diperlukan QA langsung dengan **dua siswa uji di lingkungan isolasi** sebelum mengonfirmasi seluruh kasus yang melibatkan akun wali nyata; jangan mengubah data keluarga produksi untuk tes.
+
+
+## 25 Oktober 2026 — Tambahan verifikasi: persetujuan per siswa yang disebutkan
+
+- Pada nomor yang juga digunakan siswa lain, pratinjau Admin sekarang menyertakan ID dan hubungan masing-masing siswa yang disebut dalam popup. Persetujuan lama untuk satu nomor **tidak otomatis menyetujui siswa baru** yang kemudian memakai nomor tersebut. RPC membandingkan daftar siswa yang benar-benar ditampilkan dan disetujui dengan hasil baca ulang server sebelum membuat relasi.
+- Migrasi `20261025123800_family_approval_exact_siblings.sql` mengencangkan `admin_save_parent_family`, tanpa mengubah ulang data wali. Pengubahan teks status Aktivasi Akun Massal menjadi **Perlu konfirmasi keluarga** melengkapi penghapusan tombol manual.
