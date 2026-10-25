@@ -128,7 +128,7 @@ test("confirmation descriptions render actual line breaks, not visible backslash
    const end=file.indexOf("/>",start);
    assert.ok(start>=0 && end>start,path);
    const dialog=file.slice(start,end);
-   assert.equal(dialog.includes(String.raw\`\\n\`),false,path+" must not print literal escapes");
-   assert.ok(dialog.includes(String.raw\`\n\`),path+" includes a purposeful line break");
+   assert.equal(dialog.includes(String.fromCharCode(92,92,110)),false,path+" must not print literal escapes");
+   assert.ok(dialog.includes(String.fromCharCode(92,110)),path+" includes a purposeful line break");
  }
 });
