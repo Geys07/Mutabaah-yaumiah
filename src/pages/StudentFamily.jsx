@@ -318,7 +318,7 @@ export default function StudentFamily({ student, onClose }) {
       phoneLookupTimer.current = null;
     }
     const phone = normalizePhone(value);
-    if (!/^08\\d{8,11}$/.test(phone)) return;
+    if (!/^08\d{8,11}$/.test(phone)) return;
     phoneLookupTimer.current = window.setTimeout(() => {
       phoneLookupTimer.current = null;
       void checkSharedPhone(type, value);
@@ -345,7 +345,7 @@ export default function StudentFamily({ student, onClose }) {
       const current = nextPayload[type.id];
       if (normalizePhone(current.phone)) continue;
       const candidates = (data || []).filter((row) =>
-        row.relationship === type.id && /^08\\d{8,11}$/.test(normalizePhone(row.phone))
+        row.relationship === type.id && /^08\d{8,11}$/.test(normalizePhone(row.phone))
       );
       const phones = [...new Set(candidates.map((row) => normalizePhone(row.phone)))];
       if (phones.length !== 1) continue;
