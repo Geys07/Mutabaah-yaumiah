@@ -246,3 +246,6 @@
 
 /* Ruang konsisten antara tombol tambah dan empty state. */
 .staff-app .teacher-accounts-empty { margin-top: 20px; }
+
+.teacher-accounts-initial-password{margin:0;padding:11px 13px;border-radius:10px;background:var(--sa-soft,#eaf7ee);color:var(--sa-ink,#253b30);font-size:12px;line-height:1.6}
+.teacher-accounts-initial-password strong{font-variant-numeric:tabular-nums;letter-spacing:.05em;color:var(--sa-accent,#168060)}
