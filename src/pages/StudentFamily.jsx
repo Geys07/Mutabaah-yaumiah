@@ -271,6 +271,7 @@ export default function StudentFamily({ student, onClose }) {
     setError("");
     setSuccess("");
 
+    let issued = false;
     try {
       const { error: generateError } = await supabase.rpc(
         "generate_parent_activation_code",
@@ -279,30 +280,28 @@ export default function StudentFamily({ student, onClose }) {
           p_relationship: type,
         }
       );
-
-      if (generateError) {
-        throw generateError;
-      }
-
-      const { data, error: reloadError } = await supabase
-        .from("parent_activation_codes")
-        .select(
-          "relationship, phone, code, expires_at, used_at"
-        )
-        .eq("student_id", student.id);
-
-      if (reloadError) {
-        throw reloadError;
-      }
-
-      setCodes(prepareCodes(data));
+      if (generateError) throw generateError;
+      issued = true;
       announceStudentDataChange();
-      setSuccess("Kode berhasil dibuat.");
+      setSuccess("Kode berhasil dibuat. Simpan kode sebelum menutup halaman.");
+
+      // Terbitnya kode sudah berhasil. Gagal membaca ulang jangan dianggap
+      // gagal menerbitkan: pengulangan bisa mengganti kode yang baru dibuat.
+      try {
+        const { data, error: reloadError } = await supabase
+          .from("parent_activation_codes")
+          .select("relationship, phone, code, expires_at, used_at")
+          .eq("student_id", student.id);
+        if (reloadError) throw reloadError;
+        setCodes(prepareCodes(data));
+      } catch {
+        setCodeReadFailed(true);
+        setError("Kode telah dibuat, tetapi tidak dapat ditampilkan karena gangguan koneksi. Tutup lalu buka kembali pengelolaan wali; jangan membuat kode kedua.");
+      }
     } catch (generateError) {
-      setError(
-        generateError.message ||
-          "Gagal membuat kode."
-      );
+      if (!issued) {
+        setError(generateError.message || "Gagal membuat kode.");
+      }
     } finally {
       setGenerating("");
     }
