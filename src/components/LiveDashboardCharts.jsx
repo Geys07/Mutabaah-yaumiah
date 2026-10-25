@@ -85,12 +85,7 @@ export default function LiveDashboardCharts({
       : "Ketercapaian pengisian";
 
   useEffect(() => {
-    if (!date || rows.length === 0) {
-      setHistory([]);
-      setHistoryLoading(false);
-      setHistoryNotice("");
-      return undefined;
-    }
+    if (!date || rows.length === 0) return undefined;
 
     let cancelled = false;
     const dateList = Array.from({ length: 7 }, (_, index) =>
