@@ -1221,6 +1221,7 @@ const [loggingOut, setLoggingOut] =
                       <button
                         type="button"
                         onClick={() => openDay(today)}
+                        disabled={!selectedChild}
                       >
                         <span className="green">
                           <Icon name="book" />
@@ -1315,7 +1316,7 @@ const [loggingOut, setLoggingOut] =
                   />
                 ) : (
                   <p className="pd-muted">
-                    Hubungkan anak untuk melihat kalender.
+                    Hubungi Admin madrasah untuk menghubungkan data anak.
                   </p>
                 )}
 
