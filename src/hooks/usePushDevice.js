@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { supabase } from "../lib/supabase";
-import { checkPushDevice, preparePushDevice, enablePushDevice, disablePushDevice, pushAvailable, prefersPushDevice, PUSH_DEVICE_EVENT } from "../lib/pushDevice";
+import { checkPushDevice, preparePushDevice, enablePushDevice, disablePushDevice, pushAvailable, prefersPushDevice, reconnectPushDevice, pushPermissionState, PUSH_DEVICE_EVENT } from "../lib/pushDevice";
 
 const initial = { enabled: false, checked: false, busy: false, ready: false, preparing: true, error: "" };
 export default function usePushDevice(kind, allowed = true) {
@@ -45,8 +45,7 @@ export default function usePushDevice(kind, allowed = true) {
       // pengguna kembali login, sambungkan ulang secara diam-diam.
       if (!enabled && context && Notification.permission === "granted" &&
           prefersPushDevice(kind,id)) {
-        await enablePushDevice(kind,id,context);
-        enabled = true;
+        enabled = await reconnectPushDevice(kind,id,context);
       }
       if (version !== generation.current) return;
       prepared.current = context;
@@ -96,5 +95,9 @@ export default function usePushDevice(kind, allowed = true) {
     }
     return false;
   }
-  return { ...state, id, toggle, refresh, prepare: () => refresh(false) };
+  return {
+    ...state, id, toggle, refresh, prepare: () => refresh(false),
+    // Jangan menyamakan izin PWA dengan status langganan akun.
+    permission: pushPermissionState(), optIn: id ? prefersPushDevice(kind,id) : false,
+  };
 }
