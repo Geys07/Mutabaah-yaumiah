@@ -317,7 +317,11 @@ const [loggingOut, setLoggingOut] =
     `${selectedDate.slice(0, 7)}-01`;
 
   useEffect(() => {
-    setCurrentAccount(account || {});
+    let active = true;
+    Promise.resolve().then(() => {
+      if (active) setCurrentAccount(account || {});
+    });
+    return () => { active = false; };
   }, [account]);
 
   const accountId =
