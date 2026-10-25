@@ -33,3 +33,5 @@
 .app-confirm-dialog footer button:disabled{opacity:.5;cursor:not-allowed}
 .app-confirm-dialog footer button:focus-visible{outline:3px solid var(--confirm-accent);outline-offset:2px}
 @media(max-width:550px){.app-confirm-dialog{border-radius:16px}.app-confirm-dialog footer button{min-width:0}}
+/* While a confirmation is open, the content behind it must not scroll. */
+body:has(.app-confirm-overlay){overflow:hidden}
