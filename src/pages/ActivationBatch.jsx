@@ -287,9 +287,17 @@ export default function ActivationBatch({ isTeacher = false }) {
     <div className="activation-batch-shell">
       {!isTeacher && <button className="activation-batch-toggle" type="button"
         aria-expanded={open} onClick={()=>setOpen(previous=>!previous)}>
-        <span>Aktivasi Akun Massal</span>
+        <span className="activation-batch-toggle-title">
+          <svg aria-hidden="true" width="19" height="19" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="3"/>
+            <circle cx="9" cy="9" r="2"/>
+            <path d="M5.7 16c.2-2 1.3-3 3.3-3s3.1 1 3.3 3M15 8h3M15 12h3M15 16h3"/>
+          </svg>
+          Aktivasi Akun Massal
+        </span>
         <small>{open ? "Tutup pengelolaan kode" : "Buka untuk membuat atau mencetak kode"}</small>
-        <svg className={`activation-batch-chevron ${open ? "is-open" : ""}`} aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+        <span className="activation-batch-toggle-action" aria-hidden="true">{open ? "Tutup" : "Buka"}</span>
       </button>}
       {open && <ActivationBatchPanel isTeacher={isTeacher}/>}
     </div>

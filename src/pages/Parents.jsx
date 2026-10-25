@@ -74,7 +74,7 @@ export default function Parents() {
   const groups=useMemo(()=>groupParentsByClass(visible),[visible]);
 
   function editStudent(student) {
-    setSelectedStudent({id:student.id,full_name:student.student_name});
+    setSelectedStudent({id:student.id,full_name:student.student_name,linkedContacts:student.contacts});
   }
   function closeStudent() {
     // Simpan/kode sudah mengirim sinyal refresh; jangan melakukan query dua kali.

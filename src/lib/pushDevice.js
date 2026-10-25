@@ -6,7 +6,10 @@ import { pushErrorMessage } from "./pushErrors";
 const OWNER_KEY = "mutabaah-push-owner-v2";
 const OPT_IN_KEY = (kind, id) => `mutabaah-push-opt-in-v1:${kind}:${id}`;
 export function prefersPushDevice(kind, id) {
-  return Boolean(id) && localStorage.getItem(OPT_IN_KEY(kind,id)) === "1";
+  if (!id || !pushAvailable() || Notification.permission !== "granted") return false;
+  // Izin OS berlaku untuk keseluruhan aplikasi, bukan per halaman.
+  // Pengguna yang sengaja mematikan melalui Profil harus tetap dihormati.
+  return localStorage.getItem(OPT_IN_KEY(kind,id)) !== "0";
 }
 export const PUSH_DEVICE_EVENT = "mutabaah-parent-push-updated";
 let queue = Promise.resolve();
@@ -179,7 +182,7 @@ export function disablePushDevice(kind, id) {
     // Stop delivery locally first, even if the network is offline. A stale server
     // record is harmless after unsubscribe and is pruned on a later 404/410.
     await localOff();
-    localStorage.removeItem(OPT_IN_KEY(kind,id));
+    localStorage.setItem(OPT_IN_KEY(kind,id), "0");
     if (sub) await invokePush(kind, "unsubscribe", { endpoint: sub.endpoint });
   });
 }

@@ -261,7 +261,7 @@ Deno.serve(async (request: Request): Promise<Response> => {
       return respond(
         {
           error:
-            "Nomor HP sudah memiliki akun. Silakan masuk, kemudian gunakan Hubungkan Anak.",
+            "Nomor HP sudah memiliki akun. Silakan hubungi Admin madrasah untuk menghubungkan anak tambahan.",
         },
         409
       );

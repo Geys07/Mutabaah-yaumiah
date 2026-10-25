@@ -13,7 +13,7 @@ test("notifications persist without daily permission and recover their existing 
  assert.match(push,/if \(!binding \|\| refresh\)/);
  assert.match(push,/invokePush\(kind, "subscribe", \{ subscription: sub\.toJSON\(\) \}\)/);
  assert.match(push,/localStorage\.setItem\(OPT_IN_KEY\(kind,id\), "1"\)/);
- assert.match(push,/localStorage\.removeItem\(OPT_IN_KEY\(kind,id\)\)/);
+ assert.match(push,/localStorage\.setItem\(OPT_IN_KEY\(kind,id\), "0"\)/);
  assert.match(hook,/prefersPushDevice\(kind,id\)/);
  assert.match(hook,/Notification\.permission === "granted"/);
  assert.match(hook,/await enablePushDevice\(kind,id,context\)/);
@@ -37,7 +37,7 @@ test("new activities pick their position without asking admin for a sort number"
  assert.doesNotMatch(s,/<span>\s*Urutan\s*<\/span>\s*<input/);
  assert.match(s,/sort_order: sort/);
 });
-test("students are numbered by class and activation uses a vector chevron",async()=>{
+test("students are numbered by class and activation has a meaningful icon",async()=>{
  const [parents,history,students,activation]=await Promise.all([
  read("src/pages/Parents.jsx"),read("src/pages/StudentHistoryPanel.jsx"),
  read("src/pages/StudentsBase.jsx"),read("src/pages/ActivationBatch.jsx")
@@ -46,8 +46,8 @@ test("students are numbered by class and activation uses a vector chevron",async
  assert.match(parents,/index\+1/);
  assert.match(history,/className="sh-row-number"/);
  assert.match(students,/className="students-number"/);
- assert.match(activation,/activation-batch-chevron/);
- assert.match(activation,/<svg className=\{/);
+ assert.match(activation,/activation-batch-toggle-action/);
+ assert.match(activation,/<svg aria-hidden="true"/);
 });
 test("only generated Word signature table has borders disabled; details stay unchanged",async()=>{
  const s=await read("src/pages/ReportCards.jsx");
