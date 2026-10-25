@@ -289,7 +289,7 @@ export default function ActivationBatch({ isTeacher = false }) {
         aria-expanded={open} onClick={()=>setOpen(previous=>!previous)}>
         <span>Aktivasi Akun Massal</span>
         <small>{open ? "Tutup pengelolaan kode" : "Buka untuk membuat atau mencetak kode"}</small>
-        <span className="activation-batch-chevron" aria-hidden="true">{open ? "⌃" : "⌄"}</span>
+        <svg className={`activation-batch-chevron ${open ? "is-open" : ""}`} aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
       </button>}
       {open && <ActivationBatchPanel isTeacher={isTeacher}/>}
     </div>
