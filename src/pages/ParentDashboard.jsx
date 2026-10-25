@@ -217,24 +217,6 @@ function dayStatus(status) {
   };
 }
 
-async function functionError(error) {
-  if (error?.context) {
-    try {
-      const body = await error.context.json();
-
-      return (
-        body?.error ||
-        body?.message ||
-        error?.message ||
-        "Permintaan gagal."
-      );
-    } catch {
-      return error?.message || "Permintaan gagal.";
-    }
-  }
-
-  return error?.message || "Permintaan gagal.";
-}
 
 function ChildChoice({
   student,
@@ -289,7 +271,7 @@ export default function ParentDashboard({
   const [loadingChildren, setLoadingChildren] =
     useState(true);
 
-  const [childrenRevision, setChildrenRevision] =
+  const [childrenRevision] =
     useState(0);
   const [statusRevision, setStatusRevision] =
     useState(0);
@@ -304,11 +286,8 @@ export default function ParentDashboard({
     useState("");
 
   const [chooserOpen, setChooserOpen] = useState(false);
-  const [linkOpen, setLinkOpen] = useState(false);
-  const [activationCode, setActivationCode] =
-    useState("");
-  const [linking, setLinking] = useState(false);
-  const [loggingOut, setLoggingOut] =
+
+const [loggingOut, setLoggingOut] =
     useState(false);
 
   useNotificationPulse(
@@ -323,10 +302,8 @@ export default function ParentDashboard({
   const { push: pushPage, replace: replacePage } = usePanelHistory("parent", "today", (page) => {
     setDailyOpen(false);
     setChooserOpen(false);
-    setLinkOpen(false);
     if (page.startsWith("daily:")) { setSelectedDate(page.slice(6)); setDailyOpen(true); }
     else if (page === "chooser") setChooserOpen(true);
-    else if (page === "link") setLinkOpen(true);
     else if (MENU.some((item) => item.id === page) || page === "install-app") setTab(page);
   });
   const [quote] = useState(() => getRandomQuote());
@@ -649,13 +626,12 @@ export default function ParentDashboard({
   const closeOverlay = useCallback(() => {
     const route = window.history.state?.__mutabaahNav;
     if (route?.scope === "parent" &&
-        (route.page?.startsWith("daily:") || route.page === "chooser" || route.page === "link")) {
+        (route.page?.startsWith("daily:") || route.page === "chooser")) {
       window.history.back();
     } else {
       setDailyOpen(false);
       setChooserOpen(false);
-      setLinkOpen(false);
-      replacePage(tab);
+        replacePage(tab);
     }
   }, [replacePage, tab]);
 
@@ -663,15 +639,13 @@ export default function ParentDashboard({
     if (
       !dailyOpen &&
       !chooserOpen &&
-      !linkOpen
-    ) {
+) {
       return undefined;
     }
 
     function escape(event) {
       if (event.key !== "Escape") return;
 
-      if (linkOpen && linking) return;
       closeOverlay();
     }
 
@@ -682,9 +656,7 @@ export default function ParentDashboard({
   }, [
     dailyOpen,
     chooserOpen,
-    linkOpen,
-    linking,
-    closeOverlay,
+closeOverlay,
   ]);
 
   const selectedChild = children.find(
@@ -761,20 +733,8 @@ export default function ParentDashboard({
     );
   }
 
-  function openLink() {
-    pushPage("link");
-    setChooserOpen(false);
-    setError("");
-    setMessage("");
-    setActivationCode("");
-    setLinkOpen(true);
-  }
-
   function openDay(date = today) {
-    if (!selectedChild) {
-      openLink();
-      return;
-    }
+    if (!selectedChild) return;
 
     if (
       !date ||
@@ -787,70 +747,6 @@ export default function ParentDashboard({
     pushPage(`daily:${date}`);
     setSelectedDate(date);
     setDailyOpen(true);
-  }
-
-  async function linkChild(event) {
-    event.preventDefault();
-    if (linking) return;
-
-    const code = activationCode
-      .trim()
-      .toLowerCase();
-
-    if (!/^[a-z]{4}$/.test(code)) {
-      setError(
-        "Kode aktivasi harus terdiri dari 4 huruf."
-      );
-      return;
-    }
-
-    setLinking(true);
-    setError("");
-    setMessage("");
-
-    try {
-      const {
-        data,
-        error: failure,
-      } = await supabase.functions.invoke(
-        "claim-parent",
-        {
-          body: { code },
-        }
-      );
-
-      if (failure) {
-        throw new Error(
-          await functionError(failure),
-          { cause: failure }
-        );
-      }
-
-      if (!data?.success) {
-        throw new Error(
-          data?.error ||
-          "Gagal menghubungkan anak."
-        );
-      }
-
-      setLinkOpen(false);
-      replacePage(tab);
-      setActivationCode("");
-
-      setMessage(
-        "Anak berhasil dihubungkan."
-      );
-
-      setLoadingChildren(true);
-      setChildrenRevision((n) => n + 1);
-    } catch (caught) {
-      setError(
-        caught?.message ||
-        "Gagal menghubungkan anak."
-      );
-    } finally {
-      setLinking(false);
-    }
   }
 
   async function logout() {
@@ -883,11 +779,8 @@ export default function ParentDashboard({
     if (children.length === 0) {
       return (
         <div className="pd-no-child">
-          <EmptyState kind="people" illustration="parent" title="Belum ada anak terhubung" />
-          <button type="button" onClick={openLink}>
-            <Icon name="plus" size={18} />
-            Hubungkan Anak
-          </button>
+          <EmptyState kind="people" illustration="parent" title="Belum ada anak terhubung"
+            description="Hubungi Admin madrasah untuk menghubungkan data anak dengan akun Anda." />
         </div>
       );
     }
@@ -1115,7 +1008,8 @@ export default function ParentDashboard({
             </p>
           )}
 
-          {error && !linkOpen && (
+          {error &&
+&& (
             <p className="pd-error" role="alert">
               {error}
             </p>
@@ -1274,7 +1168,7 @@ export default function ParentDashboard({
                         <small>
                           {selectedChild
                             ? day.detail
-                            : "Hubungkan anak terlebih dahulu untuk mengisi Mutabaah."}
+                            : "Hubungi Admin madrasah untuk menghubungkan data anak."}
                         </small>
                       </div>
                     </div>
@@ -1283,9 +1177,10 @@ export default function ParentDashboard({
                       type="button"
                       className="pd-primary-button"
                       onClick={() => openDay(selectedDate)}
+                      disabled={!selectedChild}
                     >
                       {!selectedChild
-                        ? "Hubungkan Anak"
+                        ? "Belum ada anak terhubung"
                         : selectedStatus === "finalized"
                           ? "Lihat / Edit Mutabaah"
                           : selectedStatus === "draft"
@@ -1471,15 +1366,7 @@ export default function ParentDashboard({
                     </div>
                   </div>
                 ))}
-
-                <button
-                  type="button"
-                  className="pd-outline-button"
-                  onClick={openLink}
-                >
-                  <Icon name="plus" size={18} />
-                  Hubungkan Anak
-                </button>
+                <p className="pd-muted">Penambahan anak ditangani Admin madrasah. Hubungi Admin jika ada anak yang belum tampil.</p>
 
                 <AccountSecurity account={account} />
 
@@ -1610,118 +1497,12 @@ export default function ParentDashboard({
                   onClick={() => selectChild(child.id)}
                 />
               ))}
-
-              <button
-                type="button"
-                className="pd-add-child"
-                onClick={openLink}
-              >
-                <span>
-                  <Icon name="plus" size={24} />
-                </span>
-                <strong>Hubungkan Anak</strong>
-                <small>Masukkan kode aktivasi</small>
-              </button>
             </div>
           </section>
         </div>
       )}
 
-      {linkOpen && (
-        <div
-          className="pd-modal-backdrop"
-          onMouseDown={(event) => {
-            if (
-              event.target === event.currentTarget &&
-              !linking
-            ) {
-              closeOverlay();
-            }
-          }}
-        >
-          <section
-            className="pd-modal pd-link-modal"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="pd-link-title"
-          >
-            <button
-              type="button"
-              className="pd-modal-close"
-              aria-label="Tutup"
-              disabled={linking}
-              onClick={() => {
-                closeOverlay();
-                setError("");
-              }}
-            >
-              <Icon name="close" />
-            </button>
 
-            <h2 id="pd-link-title">
-              Hubungkan Anak
-            </h2>
-
-            <p>
-              Masukkan kode aktivasi 4 huruf
-              yang diberikan madrasah.
-            </p>
-
-            <form onSubmit={linkChild}>
-              <label htmlFor="pd-activation-code">
-                Kode Aktivasi
-              </label>
-
-              <input
-                id="pd-activation-code"
-                autoFocus
-                maxLength={4}
-                autoComplete="off"
-                spellCheck={false}
-                autoCapitalize="none"
-                placeholder="Contoh: abcd"
-                disabled={linking}
-                value={activationCode}
-                onChange={(event) => {
-                  setActivationCode(
-                    event.target.value
-                      .toLowerCase()
-                      .replace(/[^a-z]/g, "")
-                  );
-                  setError("");
-                }}
-              />
-
-              {error && (
-                <p className="pd-error" role="alert">
-                  {error}
-                </p>
-              )}
-
-              <div className="pd-link-actions">
-                <button
-                  type="button"
-                  className="pd-outline-button"
-                  disabled={linking}
-                  onClick={closeOverlay}
-                >
-                  Batal
-                </button>
-
-                <button
-                  type="submit"
-                  className="pd-primary-button"
-                  disabled={linking}
-                >
-                  {linking
-                    ? "Menghubungkan..."
-                    : "Hubungkan"}
-                </button>
-              </div>
-            </form>
-          </section>
-        </div>
-      )}
     </div>
   );
 }
