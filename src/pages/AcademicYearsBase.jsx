@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabase";
 import { fetchAll } from "../lib/pagination";
+import { listenStudentDataChanges } from "../lib/studentDataUpdates";
 import "./AcademicYears.css";
 
 const CURRENT_YEAR = new Date().getFullYear();
@@ -32,6 +33,10 @@ export default function AcademicYears() {
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
   const [reloadKey, setReloadKey] = useState(0);
+
+  useEffect(() => listenStudentDataChanges(() => {
+    if (!document.hidden) setReloadKey((value) => value + 1);
+  }), []);
 
   useEffect(() => {
     let cancelled = false;
