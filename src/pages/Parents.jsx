@@ -131,14 +131,15 @@ export default function Parents() {
               <div className="parents-table-wrapper">
                 <table aria-label={`Orang tua siswa kelas ${group.name}`}>
                   <thead><tr>
-                    <th>Siswa</th><th>Ayah</th><th>Ibu</th><th>Wali Lain</th>
+                    <th>No.</th><th>Siswa</th><th>Ayah</th><th>Ibu</th><th>Wali Lain</th>
                     <th>Akun</th><th>Tindakan</th>
                   </tr></thead>
                   <tbody>
-                    {group.students.map(student=>{
+                    {group.students.map((student,index)=>{
                       const linked=Object.values(student.contacts).some(c=>c?.account_linked);
                       return (
                         <tr key={student.id}>
+                          <td className="parents-number">{index+1}</td>
                           <td className="parents-student-name">{student.student_name}</td>
                           <td><ContactCell contact={student.contacts.father}/></td>
                           <td><ContactCell contact={student.contacts.mother}/></td>
