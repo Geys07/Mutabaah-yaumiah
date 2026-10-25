@@ -4,6 +4,10 @@ import { pushErrorMessage } from "./pushErrors";
 
 // Ownership metadata only: never store endpoint keys or auth credentials here.
 const OWNER_KEY = "mutabaah-push-owner-v2";
+const OPT_IN_KEY = (kind, id) => `mutabaah-push-opt-in-v1:${kind}:${id}`;
+export function prefersPushDevice(kind, id) {
+  return Boolean(id) && localStorage.getItem(OPT_IN_KEY(kind,id)) === "1";
+}
 export const PUSH_DEVICE_EVENT = "mutabaah-parent-push-updated";
 let queue = Promise.resolve();
 const base = (import.meta.env.BASE_URL || "/").replace(/\/?$/, "/");
@@ -76,14 +80,22 @@ function decode(key) {
   return Uint8Array.from(atob(fixed.padEnd(Math.ceil(fixed.length / 4) * 4, "=")), c => c.charCodeAt(0));
 }
 export function reconcilePushAccount(id) {
-  return serial(async () => { if (pushAvailable() && (!id || owner()?.id !== id)) await localOff(); });
+  return serial(async () => {
+    const current = owner();
+    // Jangan membatalkan langganan yang masih ada hanya karena metadata
+    // sementara belum tersedia saat PWA dibuka lagi.
+    if (pushAvailable() && current && (!id || current.id !== id)) await localOff();
+  });
 }
 export function detachPushDevice() { return serial(localOff); }
 export function checkPushDevice(kind, id, refresh = false) {
   return serial(async () => {
     if (!pushAvailable()) return false;
     const binding = owner();
-    if (!id || !binding || binding.id !== id || binding.kind !== kind) {
+    if (!id) return false;
+    // Jika benar-benar berganti akun, jangan biarkan akun baru menerima push
+    // akun sebelumnya. Metadata yang hilang bukan bukti pergantian akun.
+    if (binding && (binding.id !== id || binding.kind !== kind)) {
       await localOff();
       return false;
     }
@@ -91,9 +103,14 @@ export function checkPushDevice(kind, id, refresh = false) {
     const reg = await registration();
     const sub = await reg?.pushManager.getSubscription();
     if (!sub || Notification.permission !== "granted") return false;
-    if (refresh) {
+    // Server mengonfirmasi kepemilikan endpoint: hanya user berizin dapat
+    // mendaftarkan kembali endpoint miliknya, tanpa meminta izin OS ulang.
+    if (!binding || refresh) {
       await invokePush(kind, "subscribe", { subscription: sub.toJSON() });
-      if (await currentId() !== id) { await localOff(); return false; }
+      if (await currentId() !== id) return false;
+      localStorage.setItem(OWNER_KEY, JSON.stringify({ kind, id }));
+      localStorage.setItem(OPT_IN_KEY(kind,id), "1");
+      localStorage.setItem(OPT_IN_KEY(kind,id), "1");
     }
     return true;
   });
@@ -162,6 +179,7 @@ export function disablePushDevice(kind, id) {
     // Stop delivery locally first, even if the network is offline. A stale server
     // record is harmless after unsubscribe and is pruned on a later 404/410.
     await localOff();
+    localStorage.removeItem(OPT_IN_KEY(kind,id));
     if (sub) await invokePush(kind, "unsubscribe", { endpoint: sub.endpoint });
   });
 }
