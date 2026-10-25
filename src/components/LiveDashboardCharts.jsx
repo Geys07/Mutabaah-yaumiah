@@ -201,7 +201,7 @@ export default function LiveDashboardCharts({
             <span>Belum disubmit</span>
             <strong>{notSubmitted.toLocaleString("id-ID")}</strong>
           </div>
-          <small>{isClass ? (rows[0]?.class_name || "Kelas saya") : dateLabel(date, { day: "numeric", month: "long", year: "numeric" })}</small>
+          <small>{isClass ? (rows[0]?.class_name || "Kelas saya") : mode === "admin" ? `${summary.students.toLocaleString("id-ID")} siswa aktif dalam rekap · ${dateLabel(date, { day: "numeric", month: "long", year: "numeric" })}` : dateLabel(date, { day: "numeric", month: "long", year: "numeric" })}</small>
         </div>
       </section>
 
