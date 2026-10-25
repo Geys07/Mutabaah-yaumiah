@@ -15,9 +15,7 @@ import useJakartaClock from "../hooks/useJakartaClock";
 const MonthlyReports = lazy(() => import("./MonthlyReports"));
 const ReportCards = lazy(() => import("./ReportCards"));
 import AccountSecurity from "./AccountSecurity";
-import StaffWorkspace, {
-  StaffKpi,
-} from "../components/StaffWorkspace";
+import StaffWorkspace from "../components/StaffWorkspace";
 
 import "./PrincipalDashboard.css";
 
@@ -107,10 +105,6 @@ function summarizeStatuses(rows) {
   }
 
   return count;
-}
-
-function percent(part, total) {
-  return total ? Math.round((100 * part) / total) : 0;
 }
 
 async function fetchClassSummaries(
