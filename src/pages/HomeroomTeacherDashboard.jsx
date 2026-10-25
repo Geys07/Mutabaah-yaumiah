@@ -15,10 +15,7 @@ const MonthlyReports = lazy(() => import("./MonthlyReports"));
 const ReportCards = lazy(() => import("./ReportCards"));
 const ActivationBatch = lazy(() => import("./ActivationBatch"));
 import AccountSecurity from "./AccountSecurity";
-import StaffWorkspace, {
-  StaffKpi,
-  StaffMeter,
-} from "../components/StaffWorkspace";
+import StaffWorkspace from "../components/StaffWorkspace";
 
 import "./TeacherDashboard.css";
 
