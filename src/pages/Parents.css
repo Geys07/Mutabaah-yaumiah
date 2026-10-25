@@ -1,9 +1,10 @@
 /* Admin — daftar Orang Tua sesuai palet StaffWorkspace empat waktu WIB. */
 .parents-panel{
-  min-width:0;padding:clamp(15px,2.5vw,24px);
-  border:1px solid var(--sa-line,#dfe9e4);
-  border-radius:16px;
-  background:var(--sa-card,#fff);
+  min-width:0;
+  padding:clamp(0px,1vw,12px);
+  border:0;
+  border-radius:0;
+  background:transparent;
   color:var(--sa-ink,#243f30);
 }
 .parents-heading{display:flex;align-items:center;justify-content:space-between;gap:12px}
@@ -24,7 +25,7 @@
   border-radius:10px;background:var(--sa-card,#fff);
   color:var(--sa-ink,#243f30);font:inherit;font-size:12px;font-weight:400
 }
-.parents-class-groups{display:grid;gap:16px;margin:16px 0}
+.parents-class-groups{display:grid;gap:14px;margin:14px 0}
 .parents-class-group{min-width:0;border:1px solid var(--sa-line,#dfe9e4);border-radius:13px;overflow:hidden;background:var(--sa-card,#fff)}
 .parents-class-heading{
   display:flex;align-items:center;justify-content:space-between;gap:10px;
@@ -57,7 +58,7 @@
 .parents-error{padding:11px 13px;border-radius:9px;background:#fff0f0;color:#a33c3c;font-size:12px}
 .parents-syncing{font-size:11px;color:var(--sa-muted,#718079)}
 @media(max-width:780px){
- .parents-panel{padding:15px 12px}
+ .parents-panel{padding:0}
  .parents-filters{grid-template-columns:repeat(2,minmax(0,1fr))}
  .parents-filters label:first-child{grid-column:1/-1}
  .parents-class-heading{padding:12px}
