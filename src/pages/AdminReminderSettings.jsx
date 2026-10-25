@@ -174,7 +174,7 @@ export default function AdminReminderSettings({ onPreview, onChanged }) {
 
       <div className="reminder-settings-footer">
         <button type="button" onClick={() => void load()} disabled={loading || Boolean(busy)}>Perbarui Status</button>
-        <small>Tombol contoh hanya menguji penerimaan push pada perangkat admin ini; pengingat otomatis wali murid tetap OFF.</small>
+        <small>Push contoh hanya dikirim ke perangkat Admin ini. Pengingat otomatis wali murid mengikuti sakelar {enabled ? "ON" : "OFF"} di atas.</small>
       </div>
       {error && <p className="reminder-settings-error" role="alert">{error}</p>}
       {notice && <p className="reminder-settings-success" role="status">{notice}</p>}
