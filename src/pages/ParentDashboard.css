@@ -128,11 +128,11 @@
 .parent-student-avatar {
   position:relative;display:grid;place-items:center;overflow:hidden;isolation:isolate;
   flex:0 0 62px;width:62px;height:62px;box-sizing:border-box;border-radius:50%;
-  border:1.5px solid #e3f0e8;background:radial-gradient(circle at 50% 35%,#fff 0,#f3faf5 82%);
+  border:0;background:transparent;
 }
 .parent-student-avatar-image {
-  display:block;width:100%;height:100%;max-width:none;object-fit:cover;
-  object-position:center 45%;transform:scale(1.06);border:0;border-radius:50%;
+  display:block;width:100%;height:100%;max-width:none;object-fit:contain;
+  object-position:center;transform:none;border:0;border-radius:0;
 }
 .pd-current-child > div { display:grid;flex:1;min-width:0;gap:4px; }
 .pd-current-child strong { font-size:16px;font-weight:800;color:#193b57; }
