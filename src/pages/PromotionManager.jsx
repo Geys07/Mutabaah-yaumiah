@@ -460,7 +460,7 @@ export default function PromotionManager() {
 
       {confirmOpen && <AppConfirmDialog
         title="Konfirmasi Kenaikan dan Kelulusan?"
-        description={`${moving.length} siswa akan naik kelas dan ${graduating.length} siswa kelas IX akan lulus.\\n\\nIdentitas dan riwayat tetap tersimpan. Proses ini tidak dapat dibatalkan dari panel.`}
+        description={`${moving.length} siswa akan naik kelas dan ${graduating.length} siswa kelas IX akan lulus.\n\nIdentitas dan riwayat tetap tersimpan. Proses ini tidak dapat dibatalkan dari panel.`}
         confirmLabel="Ya, Konfirmasi" busy={busy} error={error}
         onCancel={()=>{setConfirmOpen(false);setError("");}}
         onConfirm={()=>void commit()}

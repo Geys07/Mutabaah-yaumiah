@@ -552,7 +552,7 @@ export default function AdminNotifications({
         <AppConfirmDialog
           title={DECISION_TEXT[confirmation.decision] || "Konfirmasi"}
           description={
-            confirmation.name + "\\n\\n" +
+            confirmation.name + "\n\n" +
             (confirmation.decision === "approve"
               ? "Pastikan identitas pemohon telah diverifikasi sebelum menyetujui."
               : confirmation.decision === "reissue"
