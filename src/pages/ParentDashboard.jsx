@@ -13,6 +13,7 @@ import { SCHOOL_LOGO_URL } from "../lib/branding";
 import { getRandomQuote } from "../data/islamicQuotes";
 import StudentAvatar from "../components/StudentAvatar";
 import { createAvatarVariants } from "../lib/avatarVariants";
+import { useLiveDataRevision } from "../lib/studentDataUpdates";
 import ParentDaily from "./ParentDaily";
 import ParentCalendar from "./ParentCalendar";
 import AccountSecurity from "./AccountSecurity";
@@ -271,8 +272,6 @@ export default function ParentDashboard({
   const [loadingChildren, setLoadingChildren] =
     useState(true);
 
-  const [childrenRevision, setChildrenRevision] =
-    useState(0);
   const [statusRevision, setStatusRevision] =
     useState(0);
 
@@ -325,22 +324,7 @@ const [loggingOut, setLoggingOut] =
     account?.id ||
     account?.user_id ||
     "";
-  // Sesudah Admin menghubungkan anak di perangkat lain, perbarui daftar
-  // ketika wali kembali membuka PWA. Tidak perlu notifikasi khusus.
-  useEffect(() => {
-    if (!accountId) return undefined;
-    const refresh = () => {
-      if (!document.hidden) setChildrenRevision((n) => n + 1);
-    };
-    const timer = window.setInterval(refresh, 45000);
-    window.addEventListener("focus", refresh);
-    document.addEventListener("visibilitychange", refresh);
-    return () => {
-      window.clearInterval(timer);
-      window.removeEventListener("focus", refresh);
-      document.removeEventListener("visibilitychange", refresh);
-    };
-  }, [accountId]);
+  const liveRevision = useLiveDataRevision(Boolean(accountId));
 
 
   const assetBase = (
@@ -555,7 +539,7 @@ const [loggingOut, setLoggingOut] =
     return () => {
       cancelled = true;
     };
-  }, [accountId, childrenRevision, today]);
+  }, [accountId, today, liveRevision]);
 
   useEffect(() => {
     if (!studentId) return undefined;
@@ -638,6 +622,7 @@ const [loggingOut, setLoggingOut] =
     selectedMonth,
     currentMonth,
     statusRevision,
+    liveRevision,
   ]);
 
   const closeOverlay = useCallback(() => {
