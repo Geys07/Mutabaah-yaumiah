@@ -16,7 +16,9 @@ export default function DashboardBarChart({
   const onItemClickRef = useRef(onItemClick);
   const [visible, setVisible] = useState(false);
 
-  onItemClickRef.current = onItemClick;
+  useEffect(() => {
+    onItemClickRef.current = onItemClick;
+  }, [onItemClick]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
