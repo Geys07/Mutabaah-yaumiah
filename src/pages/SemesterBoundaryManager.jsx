@@ -181,8 +181,9 @@ export default function SemesterBoundaryManager() {
 
       if (problem) throw problem;
 
-      await loadData();
-
+      // Persisted successfully: close dialog now. A failed readback must not
+      // imply the administrator needs to submit the same change again.
+      setConfirmOpen(false);
       setDrafts((previous) => {
         const next = { ...previous };
         delete next[yearId];
@@ -192,8 +193,11 @@ export default function SemesterBoundaryManager() {
       setSuccess(
         "Batas semester berhasil disimpan tanpa jeda tanggal."
       );
-
-      setConfirmOpen(false);
+      try {
+        await loadData();
+      } catch {
+        setError("Batas semester telah tersimpan, tetapi daftar terbaru belum dapat dimuat. Gunakan Muat Ulang.");
+      }
     } catch (caught) {
       setError(
         caught.message ||
