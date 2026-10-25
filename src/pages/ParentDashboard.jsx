@@ -1022,8 +1022,7 @@ const [loggingOut, setLoggingOut] =
             </p>
           )}
 
-          {error &&
-&& (
+          {error && (
             <p className="pd-error" role="alert">
               {error}
             </p>
