@@ -12,10 +12,7 @@ import { listenStudentDataChanges } from "../lib/studentDataUpdates";
 import { signOut } from "../lib/auth";
 import usePanelHistory from "../hooks/usePanelHistory";
 import useJakartaClock from "../hooks/useJakartaClock";
-import StaffWorkspace, {
-  StaffKpi,
-  StaffMeter,
-} from "../components/StaffWorkspace";
+import StaffWorkspace from "../components/StaffWorkspace";
 
 import AcademicYears from "./AcademicYears";
 import Classes from "./Classes";
