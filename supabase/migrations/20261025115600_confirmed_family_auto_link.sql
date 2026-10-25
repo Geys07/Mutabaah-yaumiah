@@ -105,8 +105,8 @@ DECLARE
  v_old_phone text;
  v_other text;
  v_preview jsonb;
- v_issue jsonb;
- v_match jsonb;
+ v_issue record;
+ v_match record;
  v_user uuid;
  v_linked integer := 0;
  v_matched_id uuid;
@@ -134,7 +134,7 @@ BEGIN
  v_preview := public.admin_preview_parent_family(p_student_id,p_contacts);
  FOR v_issue IN SELECT value FROM pg_catalog.jsonb_array_elements(v_preview) LOOP
    IF NOT (p_approved_matches @> pg_catalog.jsonb_build_array(
-      pg_catalog.jsonb_build_object('relationship',v_issue->>'relationship','phone',v_issue->>'phone')
+      pg_catalog.jsonb_build_object('relationship',v_issue.value->>'relationship','phone',v_issue.value->>'phone')
    )) THEN
       RAISE EXCEPTION 'Nomor dipakai keluarga lain. Konfirmasikan hubungan keluarga sebelum menyimpan.';
    END IF;
@@ -154,9 +154,9 @@ BEGIN
  PERFORM public.save_student_family_contacts(p_student_id,p_contacts);
 
  FOR v_issue IN SELECT value FROM pg_catalog.jsonb_array_elements(v_preview) LOOP
-   v_rel := v_issue->>'relationship';
-   v_phone := v_issue->>'phone';
-   IF pg_catalog.jsonb_array_length(v_issue->'students')=0 THEN
+   v_rel := v_issue.value->>'relationship';
+   v_phone := v_issue.value->>'phone';
+   IF pg_catalog.jsonb_array_length(v_issue.value->'students')=0 THEN
      -- Confirmed registered account, with no other student matching contacts.
      INSERT INTO public.parent_family_consents(
        student_id,relationship,matched_student_id,matched_relationship,phone,confirmed_by)
@@ -164,10 +164,10 @@ BEGIN
      ON CONFLICT(student_id,relationship,matched_student_id,matched_relationship)
        DO UPDATE SET phone=excluded.phone,confirmed_by=excluded.confirmed_by,confirmed_at=now();
    ELSE
-     FOR v_match IN SELECT value FROM pg_catalog.jsonb_array_elements(v_issue->'students') LOOP
+     FOR v_match IN SELECT value FROM pg_catalog.jsonb_array_elements(v_issue.value->'students') LOOP
        INSERT INTO public.parent_family_consents(
         student_id,relationship,matched_student_id,matched_relationship,phone,confirmed_by)
-       VALUES(p_student_id,v_rel,(v_match->>'id')::uuid,v_match->>'relationship',v_phone,(SELECT auth.uid()))
+       VALUES(p_student_id,v_rel,(v_match.value->>'id')::uuid,v_match.value->>'relationship',v_phone,(SELECT auth.uid()))
        ON CONFLICT(student_id,relationship,matched_student_id,matched_relationship)
           DO UPDATE SET phone=excluded.phone,confirmed_by=excluded.confirmed_by,confirmed_at=now();
      END LOOP;
@@ -203,12 +203,12 @@ BEGIN
    v_linked := v_linked+1;
    FOR v_match IN
       SELECT pg_catalog.jsonb_build_object('id',c.matched_student_id,
-        'relationship',c.matched_relationship) FROM public.parent_family_consents c
+        'relationship',c.matched_relationship) AS value FROM public.parent_family_consents c
       WHERE c.student_id=p_student_id AND c.relationship=v_rel AND c.phone=v_phone
         AND c.matched_student_id<>p_student_id
    LOOP
-     v_matched_id := (v_match->>'id')::uuid;
-     v_matched_rel := v_match->>'relationship';
+     v_matched_id := (v_match.value->>'id')::uuid;
+     v_matched_rel := v_match.value->>'relationship';
      IF EXISTS(SELECT 1 FROM public.student_family_contacts f
        WHERE f.student_id=v_matched_id AND f.relationship=v_matched_rel
          AND f.phone=v_phone) THEN
