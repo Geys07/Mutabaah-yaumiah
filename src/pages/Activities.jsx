@@ -481,7 +481,7 @@ export default function Activities() {
     const next = all[index+1];
     const start = Number(last.sort_order)||0;
     const stop = next ? Number(next.sort_order) : Infinity;
-    if (Number.isSafeInteger(start) && stop-start>1)
+    if (next && Number.isSafeInteger(start) && stop-start>1)
       return Math.floor((stop+start)/2);
     return max+10;
   }
