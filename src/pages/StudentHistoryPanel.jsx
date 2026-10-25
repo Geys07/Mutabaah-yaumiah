@@ -158,7 +158,10 @@ export default function StudentHistoryPanel() {
     }
   }
 
-  liveHistoryRef.current = { selectedId, page, openHistory };
+  useEffect(() => {
+    liveHistoryRef.current = { selectedId, page, openHistory };
+  }, [selectedId, page, openHistory]);
+
   useEffect(() => {
     const current = liveHistoryRef.current;
     if (current.selectedId && current.openHistory) {
