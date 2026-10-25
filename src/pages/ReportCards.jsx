@@ -409,7 +409,10 @@ function removeSignatureBorders(table) {
         edge=doc.createElementNS(W,"w:"+name);
         borders.appendChild(edge);
       }
+      // Hanya border tabel tanda tangan: pastikan ukuran garis nol,
+      // sehingga WPS dan Word tidak menggambar garis yang diwarisi template.
       edge.setAttributeNS(W,"w:val","nil");
+      edge.setAttributeNS(W,"w:sz","0");
     }
   }
   clearBorders(table,"tblPr","tblBorders");
