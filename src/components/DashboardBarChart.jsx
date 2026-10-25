@@ -60,8 +60,8 @@ export default function DashboardBarChart({
               boxWidth: 8,
               boxHeight: 8,
               padding: 16,
-              color: "var(--sa-muted, #738176)",
-              font: { family: "inherit", size: 11 },
+              color: "#748176",
+              font: { family: "Arial, sans-serif", size: 11 },
             },
           },
           tooltip: {
