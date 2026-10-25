@@ -1280,9 +1280,15 @@ export default function ReportCards({ school }) {
         });
       }
 
-      await refreshArchives();
+      // Storage + PostgreSQL delete already succeeded. Closing must not
+      // depend on refreshing the list; a fetch failure is not a delete failure.
       setDeleteTarget(null);
       setNotice(`Arsip ${title} berhasil dihapus permanen.`);
+      try {
+        await refreshArchives();
+      } catch {
+        setNotice(`Arsip ${title} berhasil dihapus. Daftar terbaru belum dapat dimuat; perbarui halaman jika masih terlihat.`);
+      }
     } catch (caught) {
       setError(caught.message || "Gagal menghapus arsip rapor.");
     } finally {
