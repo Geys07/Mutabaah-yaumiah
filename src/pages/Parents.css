@@ -89,19 +89,43 @@
 
 .parents-table-wrapper .parents-number{width:44px;min-width:44px;color:var(--sa-accent,#178166);font-weight:750;text-align:center}
 
-/* Jarak tepi yang konsisten pada menu Orang Tua; hindari teks
-   menempel ke batas card pada layar 360–420px. */
-.parents-panel .parents-heading{padding:0 2px}
-.parents-panel .parents-filters{margin:20px 0 22px}
-.parents-panel .parents-class-groups{margin-top:16px}
-.parents-class-heading{padding:15px 18px}
-@media(max-width:780px){
-  .parents-panel .parents-heading{padding:0 1px}
-  .parents-class-heading{padding:13px 16px}
-  .parents-table-wrapper tr{padding:17px 16px;row-gap:13px}
-  .parents-student-name{max-width:none}
+/* Card kelas pada menu Orang Tua: teks diberi ruang dari garis tepi.
+   Tidak membuat card tambahan/double frame, aman untuk empat tema waktu WIB. */
+.staff-app .parents-panel.parents-panel {
+  padding: 22px 24px 26px;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
 }
-@media(max-width:375px){
-  .parents-panel{padding:14px 12px 17px}
-  .parents-table-wrapper tr{padding:15px 13px}
+.staff-app .parents-panel .parents-heading { padding: 0 2px 5px; }
+.staff-app .parents-panel .parents-filters { margin: 20px 0 24px; }
+.staff-app .parents-panel .parents-class-groups { gap: 18px; margin-top: 18px; }
+.staff-app .parents-class-group .parents-class-heading {
+  padding: 19px 23px;
+}
+.staff-app .parents-class-group .parents-table-wrapper :is(th,td) {
+  padding: 17px 19px;
+}
+.staff-app .parents-class-group .parents-contact { gap: 6px; }
+.staff-app .parents-class-group .parents-contact :is(strong,span,small) {
+  line-height: 1.55;
+}
+@media(max-width:780px) {
+  .staff-app .parents-panel.parents-panel {padding: 18px 16px 22px;}
+  .staff-app .parents-class-group .parents-class-heading {padding: 17px 20px;}
+  /* Card siswa adalah grid mobile; beri padding pada grid, bukan setiap cell. */
+  .staff-app .parents-class-group .parents-table-wrapper tr {
+    padding: 19px 20px;
+    column-gap: 15px;
+    row-gap: 14px;
+  }
+  .staff-app .parents-class-group .parents-table-wrapper td {
+    padding: 0;
+  }
+}
+@media(max-width:375px) {
+  .staff-app .parents-panel.parents-panel {padding: 16px 12px 20px;}
+  .staff-app .parents-class-group .parents-class-heading {padding: 15px 17px;}
+  .staff-app .parents-class-group .parents-table-wrapper tr {padding: 17px 16px;column-gap: 10px;}
 }
