@@ -262,6 +262,7 @@ export default function ParentDashboard({
   onLogout,
 }) {
   const [clock, setClock] = useState(jakartaNow);
+  const [currentAccount, setCurrentAccount] = useState(account || {});
   const [tab, setTab] = useState("today");
   const [selectedDate, setSelectedDate] =
     useState(clock.date);
@@ -315,16 +316,39 @@ const [loggingOut, setLoggingOut] =
   const selectedMonth =
     `${selectedDate.slice(0, 7)}-01`;
 
-  const parentName =
-    account?.name ||
-    account?.full_name ||
-    "Orang Tua";
+  useEffect(() => {
+    setCurrentAccount(account || {});
+  }, [account]);
 
   const accountId =
-    account?.id ||
-    account?.user_id ||
+    currentAccount?.id ||
+    currentAccount?.user_id ||
     "";
   const liveRevision = useLiveDataRevision(Boolean(accountId));
+  useEffect(() => {
+    if (!accountId) return undefined;
+    let active = true;
+    void supabase
+      .from("profiles")
+      .select("user_id,full_name,phone,account_status")
+      .eq("user_id", accountId)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (!active || !data) return;
+        setCurrentAccount((previous) => ({
+          ...previous,
+          ...data,
+          id: previous?.id || data.user_id,
+          name: data.full_name || previous?.name || "",
+        }));
+      });
+    return () => { active = false; };
+  }, [accountId, liveRevision]);
+
+  const parentName =
+    currentAccount?.name ||
+    currentAccount?.full_name ||
+    "Orang Tua";
 
 
   const assetBase = (
@@ -1331,7 +1355,7 @@ const [loggingOut, setLoggingOut] =
                   <div>
                     <strong>{parentName}</strong>
                     <small>
-                      {account?.phone ||
+                      {currentAccount?.phone ||
                         "Nomor HP tidak tersedia"}
                     </small>
                   </div>
@@ -1367,7 +1391,7 @@ const [loggingOut, setLoggingOut] =
                 ))}
                 <p className="pd-muted">Penambahan anak ditangani Admin madrasah. Hubungi Admin jika ada anak yang belum tampil.</p>
 
-                <AccountSecurity account={account} />
+                <AccountSecurity account={currentAccount} />
 
                 <hr className="install-menu-separator" />
                 <button type="button" className="pd-outline-button" onClick={() => navigate("install-app")}>Panduan Aplikasi</button>
