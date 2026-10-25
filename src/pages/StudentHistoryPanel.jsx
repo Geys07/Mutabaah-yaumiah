@@ -160,7 +160,7 @@ export default function StudentHistoryPanel() {
 
   useEffect(() => {
     liveHistoryRef.current = { selectedId, page, openHistory };
-  }, [selectedId, page, openHistory]);
+  });
 
   useEffect(() => {
     const current = liveHistoryRef.current;
