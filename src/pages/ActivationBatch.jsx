@@ -7,7 +7,7 @@ const LABEL = {
   ready: "Perlu dibuat",
   active: "Kode aktif",
   linked: "Akun terhubung",
-  needs_link: "Akun sudah ada",
+  needs_link: "Perlu konfirmasi keluarga",
   incomplete: "Kontak belum lengkap",
 };
 const RELATIONSHIP = { father: "Ayah", mother: "Ibu", guardian: "Wali" };
@@ -206,7 +206,7 @@ function ActivationBatchPanel({ isTeacher = false }) {
         <div><strong>{summary.ready}</strong><span>Perlu kode</span></div>
         <div><strong>{summary.active}</strong><span>Kode aktif</span></div>
         <div><strong>{summary.linked}</strong><span>Akun terhubung</span></div>
-        <div><strong>{summary.needs_link}</strong><span>Akun perlu dihubungkan</span></div>
+        <div><strong>{summary.needs_link}</strong><span>Perlu konfirmasi keluarga</span></div>
       </div>
 
       <div className="activation-batch-actions">
@@ -260,7 +260,7 @@ function ActivationBatchPanel({ isTeacher = false }) {
                       disabled={buttonsDisabled} onClick={() => void issue(item)}
                     >Buat Kode</button>
                   ) : item.code_state === "needs_link" ? (
-                    <small>Akun perlu dihubungkan ke siswa</small>
+                    <small>Buka Kelola Orang Tua untuk memeriksa nomor dan konfirmasi keluarga</small>
                   ) : "—"}</td>
                 </tr>
                   ))}
