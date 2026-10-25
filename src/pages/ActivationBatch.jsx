@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { supabase } from "../lib/supabase";
+import AppConfirmDialog from "../components/AppConfirmDialog";
 import "./ActivationBatch.css";
 
 const LABEL = {
@@ -263,20 +264,13 @@ function ActivationBatchPanel({ isTeacher = false }) {
         </div>
       )}
 
-      {confirmAll && (
-        <div className="activation-batch-backdrop">
-          <section className="activation-batch-dialog" role="dialog" aria-modal="true" aria-labelledby="activation-batch-confirm">
-            <h3 id="activation-batch-confirm">Buat {readyCount} kode aktivasi baru?</h3>
-            <p>Hanya kontak yang membutuhkan kode yang akan diproses. Kode valid dan akun yang sudah aktif tidak diubah.</p>
-            <div className="activation-batch-dialog-actions">
-              <button type="button" className="activation-batch-ghost"
-                disabled={busy} onClick={() => setConfirmAll(false)}>Batal</button>
-              <button type="button" className="activation-batch-primary"
-                disabled={busy} onClick={() => void issue()}>Ya, Buat Kode</button>
-            </div>
-          </section>
-        </div>
-      )}
+      {confirmAll && <AppConfirmDialog
+        title={`Buat ${readyCount} Kode Aktivasi?`}
+        description="Hanya kontak yang membutuhkan kode akan diproses. Kode yang masih valid dan akun aktif tidak berubah."
+        confirmLabel="Ya, Buat Kode" busy={busy} error={error}
+        onCancel={()=>{setConfirmAll(false);setError("");}}
+        onConfirm={()=>void issue()}
+      />}
     </section>
   );
 }
