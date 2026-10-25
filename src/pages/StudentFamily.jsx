@@ -332,7 +332,7 @@ export default function StudentFamily({ student, onClose }) {
     }else{
       setApprovedFamilyPhones(approvals);
       setFamilyConfirmation(null);
-      setSuccess("Satu keluarga telah dikonfirmasi. Tekan Simpan untuk menghubungkan akun.");
+      setSuccess("Satu keluarga telah dikonfirmasi. Saat disimpan, akun wali yang sudah aktif akan terhubung otomatis.");
     }
   }
 
