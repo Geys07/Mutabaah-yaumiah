@@ -1,5 +1,5 @@
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { supabase } from "../lib/supabase";
 import { announceStudentDataChange } from "../lib/studentDataUpdates";
 import AppConfirmDialog from "../components/AppConfirmDialog";
@@ -57,6 +57,8 @@ export default function StudentFamily({ student, onClose }) {
   const [saving, setSaving] = useState(false);
   const [generating, setGenerating] = useState("");
   const [familyConfirmation, setFamilyConfirmation] = useState(null);
+  const [approvedFamilyPhones, setApprovedFamilyPhones] = useState([]);
+  const previewVersion = useRef(0);
   const [codeReadFailed, setCodeReadFailed] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -143,6 +145,12 @@ export default function StudentFamily({ student, onClose }) {
   }, [saving, generating, familyConfirmation, onClose]);
 
   function changeField(type, field, value) {
+    previewVersion.current += 1;
+    if(field==="phone"){
+      setApprovedFamilyPhones((previous)=>previous.filter(item=>
+        item.relationship!==type || item.phone===normalizePhone(value)
+      ));
+    }
     setContacts((previous) => ({
       ...previous,
       [type]: {
@@ -200,6 +208,33 @@ export default function StudentFamily({ student, onClose }) {
     return payload;
   }
 
+  // Periksa setelah meninggalkan kolom, bukan pada tiap ketikan.
+  // Konfirmasi awal disimpan dalam state sampai tombol Simpan ditekan.
+  async function checkSharedPhone(type) {
+    if(saving||generating||familyConfirmation||loading)return;
+    const current=contacts[type];
+    const phone=normalizePhone(current?.phone);
+    if(!/^08\d{8,11}$/.test(phone)||!current?.full_name?.trim())return;
+    if(approvedFamilyPhones.some(item=>item.relationship===type && item.phone===phone))return;
+    const version=++previewVersion.current;
+    const payload=Object.fromEntries(TYPES.map(item=>[
+      item.id,{full_name:contacts[item.id].full_name.trim(),
+        phone:normalizePhone(contacts[item.id].phone)}
+    ]));
+    try{
+      const {data,error:problem}=await supabase.rpc("admin_preview_parent_family",{
+        p_student_id:student.id,p_contacts:payload
+      });
+      if(problem)throw problem;
+      if(previewVersion.current!==version)return;
+      const matches=(Array.isArray(data)?data:[])
+        .filter(item=>item.relationship===type && item.phone===phone);
+      if(matches.length)setFamilyConfirmation({matches,payload:null,saveAfter:false});
+    }catch{
+      // Gangguan pratinjau tidak menghambat pengisian; Simpan memeriksa ulang.
+    }
+  }
+
   async function persistContacts(payload,approvedMatches=[]) {
     setSaving(true);
     setError("");
@@ -233,6 +268,7 @@ export default function StudentFamily({ student, onClose }) {
       setError(problem.message);
       return;
     }
+    previewVersion.current += 1;
     setSaving(true);
     setError("");
     setSuccess("");
@@ -243,11 +279,14 @@ export default function StudentFamily({ student, onClose }) {
       );
       if(previewError)throw previewError;
       if(!Array.isArray(data))throw new Error("Konfirmasi keluarga tidak dapat diperiksa.");
-      if(data.length){
-        setFamilyConfirmation({payload,matches:data});
+      const remaining=data.filter(item=>!approvedFamilyPhones.some(approval=>
+        approval.relationship===item.relationship && approval.phone===item.phone
+      ));
+      if(remaining.length){
+        setFamilyConfirmation({payload,matches:remaining,saveAfter:true});
         return;
       }
-      await persistContacts(payload);
+      await persistContacts(payload,approvedFamilyPhones);
     }catch(problem){
       setError(problem.message||"Pemeriksaan nomor HP gagal. Tidak ada perubahan tersimpan.");
     }finally{
@@ -257,9 +296,18 @@ export default function StudentFamily({ student, onClose }) {
 
   function confirmSameFamily(){
     if(saving||!familyConfirmation)return;
-    const {payload,matches}=familyConfirmation;
-    const approvals=matches.map(match=>({relationship:match.relationship,phone:match.phone}));
-    void persistContacts(payload,approvals);
+    const {payload,matches,saveAfter}=familyConfirmation;
+    const additional=matches.map(match=>({relationship:match.relationship,phone:match.phone}));
+    const approvals=[...approvedFamilyPhones,...additional]
+      .filter((match,index,all)=>all.findIndex(other=>
+        other.relationship===match.relationship&&other.phone===match.phone)===index);
+    if(saveAfter){
+      void persistContacts(payload,approvals);
+    }else{
+      setApprovedFamilyPhones(approvals);
+      setFamilyConfirmation(null);
+      setSuccess("Satu keluarga telah dikonfirmasi. Tekan Simpan untuk menghubungkan akun.");
+    }
   }
 
   const familyDescription=familyConfirmation?.matches.map(item=>{
@@ -467,6 +515,7 @@ export default function StudentFamily({ student, onClose }) {
                               event.target.value
                             )
                           }
+                          onBlur={() => void checkSharedPhone(type.id)}
                         />
                       </label>
                     </div>
@@ -562,7 +611,8 @@ export default function StudentFamily({ student, onClose }) {
       </section>
       {familyConfirmation&&<AppConfirmDialog
         title="Konfirmasi Nomor HP Keluarga"
-        description={familyDescription}
+        description={familyConfirmation.saveAfter ? familyDescription :
+          familyDescription+"\n\nJika benar satu keluarga, lanjutkan mengisi formulir dan tekan Simpan."}
         confirmLabel="Ya, Satu Keluarga" cancelLabel="Tidak, Periksa Nomor"
         busy={saving} error={error}
         onConfirm={confirmSameFamily}
