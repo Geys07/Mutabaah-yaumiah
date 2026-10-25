@@ -112,6 +112,8 @@ export default function StudentFamily({ student, onClose }) {
   const [approvedFamilyPhones, setApprovedFamilyPhones] = useState([]);
   const [autoFilledNames, setAutoFilledNames] = useState({});
   const previewVersion = useRef(0);
+  const phoneLookupTimer = useRef(null);
+  const [confirmingFamily, setConfirmingFamily] = useState(false);
   const [codeReadFailed, setCodeReadFailed] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -194,8 +196,12 @@ export default function StudentFamily({ student, onClose }) {
     };
   }, [student.id]);
 
+  useEffect(() => () => {
+    if (phoneLookupTimer.current !== null) window.clearTimeout(phoneLookupTimer.current);
+  }, []);
+
   useEffect(() => {
-    if (saving || generating || familyConfirmation) return undefined;
+    if (saving || generating || confirmingFamily || familyConfirmation) return undefined;
 
     function handleEscape(event) {
       if (event.key === "Escape") {
@@ -272,18 +278,18 @@ export default function StudentFamily({ student, onClose }) {
     return payload;
   }
 
-  // Periksa setelah meninggalkan kolom, bukan pada tiap ketikan.
-  // Konfirmasi awal disimpan dalam state sampai tombol Simpan ditekan.
-  async function checkSharedPhone(type) {
-    if(saving||generating||familyConfirmation||loading)return;
+  // Periksa otomatis setelah nomor lengkap dan jeda singkat; onBlur menjadi pemeriksaan cadangan.
+  // Konfirmasi awal disimpan sampai tombol Simpan ditekan.
+  async function checkSharedPhone(type, phoneValue = contacts[type]?.phone) {
+    if(saving||generating||confirmingFamily||familyConfirmation||loading)return;
     const current=contacts[type];
-    const phone=normalizePhone(current?.phone);
+    const phone=normalizePhone(phoneValue);
     if(!/^08\d{8,11}$/.test(phone))return;
     // Periksa ulang daftar saudara dari server; mungkin ada saudara baru.
     const version=++previewVersion.current;
     const payload=Object.fromEntries(TYPES.map(item=>[
       item.id,{full_name:contacts[item.id].full_name.trim(),
-        phone:normalizePhone(contacts[item.id].phone)}
+        phone:item.id===type ? phone : normalizePhone(contacts[item.id].phone)}
     ]));
     try{
       const {data,error:problem}=await supabase.rpc("admin_preview_parent_family",{
@@ -305,6 +311,58 @@ export default function StudentFamily({ student, onClose }) {
     }catch{
       // Gangguan pratinjau tidak menghambat pengisian; Simpan memeriksa ulang.
     }
+  }
+
+  function scheduleSharedPhoneCheck(type, value) {
+    if (phoneLookupTimer.current !== null) {
+      window.clearTimeout(phoneLookupTimer.current);
+      phoneLookupTimer.current = null;
+    }
+    const phone = normalizePhone(value);
+    if (!/^08\\d{8,11}$/.test(phone)) return;
+    phoneLookupTimer.current = window.setTimeout(() => {
+      phoneLookupTimer.current = null;
+      void checkSharedPhone(type, value);
+    }, 550);
+  }
+
+  async function autofillSiblingContacts(matches, basePayload) {
+    const siblingIds = [...new Set((matches || []).flatMap((issue) =>
+      (issue.students || []).map((other) => other.id).filter((id) => id && id !== student.id)
+    ))];
+    const nextPayload = Object.fromEntries(TYPES.map((type) => [
+      type.id, { ...basePayload[type.id] },
+    ]));
+    const filled = {};
+    if (!siblingIds.length) return { payload: nextPayload, filled };
+
+    const { data, error: contactError } = await supabase
+      .from("student_family_contacts")
+      .select("student_id, relationship, full_name, phone")
+      .in("student_id", siblingIds);
+    if (contactError) throw contactError;
+
+    for (const type of TYPES) {
+      const current = nextPayload[type.id];
+      if (normalizePhone(current.phone)) continue;
+      const candidates = (data || []).filter((row) =>
+        row.relationship === type.id && /^08\\d{8,11}$/.test(normalizePhone(row.phone))
+      );
+      const phones = [...new Set(candidates.map((row) => normalizePhone(row.phone)))];
+      if (phones.length !== 1) continue;
+      const phone = phones[0];
+      const names = candidates.filter((row) => normalizePhone(row.phone) === phone)
+        .map((row) => cleanName(row.full_name)).filter(Boolean);
+      const counts = new Map();
+      for (const name of names) counts.set(name, (counts.get(name) || 0) + 1);
+      const rankedNames = [...counts.entries()].sort((a, b) => b[1] - a[1]);
+      if (!rankedNames.length || (rankedNames[1] && rankedNames[1][1] === rankedNames[0][1])) continue;
+      const fullName = rankedNames[0][0];
+      if (cleanName(current.full_name) && cleanName(current.full_name) !== fullName) continue;
+      nextPayload[type.id] = { full_name: fullName, phone };
+      filled[type.id] = true;
+    }
+    return { payload: nextPayload, filled };
   }
 
   async function persistContacts(payload,approvedMatches=[]) {
@@ -387,17 +445,36 @@ export default function StudentFamily({ student, onClose }) {
     }
   }
 
-  function confirmSameFamily(){
-    if(saving||!familyConfirmation)return;
+  async function confirmSameFamily(){
+    if(saving||confirmingFamily||!familyConfirmation)return;
     const {payload,matches,saveAfter}=familyConfirmation;
-    const additional=matches.map(issueApproval);
-    const approvals=combineApprovals(approvedFamilyPhones,additional);
-    if(saveAfter){
-      void persistContacts(payload,approvals);
-    }else{
-      setApprovedFamilyPhones(approvals);
-      setFamilyConfirmation(null);
-      setSuccess("Hubungan keluarga telah dikonfirmasi. Simpan data wali untuk menerapkan perubahan secara otomatis.");
+    setConfirmingFamily(true);
+    setError("");
+    try {
+      const basePayload = payload || Object.fromEntries(TYPES.map((type) => [
+        type.id, { full_name: cleanName(contacts[type.id].full_name), phone: normalizePhone(contacts[type.id].phone) },
+      ]));
+      const { payload: filledPayload, filled } = await autofillSiblingContacts(matches, basePayload);
+      const additional=matches.map(issueApproval);
+      const approvals=combineApprovals(approvedFamilyPhones,additional);
+      setContacts(previous=>Object.fromEntries(TYPES.map(type=>[
+        type.id,{...previous[type.id],...filledPayload[type.id]}
+      ])));
+      setAutoFilledNames(previous=>({...previous,...filled}));
+      if(saveAfter){
+        setConfirmingFamily(false);
+        await persistContacts(filledPayload,approvals);
+      }else{
+        setApprovedFamilyPhones(approvals);
+        setFamilyConfirmation(null);
+        setSuccess(Object.keys(filled).length
+          ? "Keluarga dikonfirmasi. Kontak saudara yang cocok sudah diisi otomatis; periksa lalu tekan Simpan."
+          : "Hubungan keluarga dikonfirmasi. Periksa data lalu tekan Simpan.");
+      }
+    } catch (problem) {
+      setError(problem.message || "Kontak saudara belum dapat dimuat. Silakan coba lagi.");
+    } finally {
+      setConfirmingFamily(false);
     }
   }
 
@@ -503,7 +580,7 @@ export default function StudentFamily({ student, onClose }) {
   }
 
 
-  const busy = saving || Boolean(generating);
+  const busy = saving || Boolean(generating) || confirmingFamily;
 
   return (
     <div
@@ -609,14 +686,18 @@ export default function StudentFamily({ student, onClose }) {
                           maxLength={17}
                           disabled={busy}
                           placeholder="08xxxxxxxxxx"
-                          onChange={(event) =>
-                            changeField(
-                              type.id,
-                              "phone",
-                              event.target.value
-                            )
-                          }
-                          onBlur={() => void checkSharedPhone(type.id)}
+                          onChange={(event) => {
+                            const value = event.target.value;
+                            changeField(type.id, "phone", value);
+                            scheduleSharedPhoneCheck(type.id, value);
+                          }}
+                          onBlur={() => {
+                            if (phoneLookupTimer.current !== null) {
+                              window.clearTimeout(phoneLookupTimer.current);
+                              phoneLookupTimer.current = null;
+                            }
+                            void checkSharedPhone(type.id, contact.phone);
+                          }}
                         />
                       </label>
                     </div>
@@ -715,7 +796,7 @@ export default function StudentFamily({ student, onClose }) {
         description={familyConfirmation.saveAfter ? familyDescription :
           familyDescription+"\n\nJika benar satu keluarga, lanjutkan mengisi formulir dan tekan Simpan."}
         confirmLabel="Ya, Satu Keluarga" cancelLabel="Tidak, Periksa Nomor"
-        busy={saving} error={error}
+        busy={saving || confirmingFamily} error={error}
         onConfirm={confirmSameFamily}
         onCancel={()=>{if(!saving){setFamilyConfirmation(null);setError("");}}}
       />}
