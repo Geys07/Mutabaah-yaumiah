@@ -10,11 +10,23 @@ export default function AppConfirmDialog({
   const titleId=useId();
   const detailId=useId();
   const cancelRef=useRef(null);
+  const dialogRef=useRef(null);
   const theme=getTimeTheme(getJakartaClock().hour).key;
   useEffect(()=>{
+    const previous=document.activeElement;
     cancelRef.current?.focus();
+    return()=>previous?.focus?.();
+  },[]);
+  useEffect(()=>{
     function keydown(event){
       if(event.key==="Escape"&&!busy){event.preventDefault();onCancel?.();}
+      if(event.key==="Tab" && dialogRef.current){
+        const focusables=[...dialogRef.current.querySelectorAll('button:not(:disabled),a[href],input:not(:disabled),select:not(:disabled),textarea:not(:disabled)')];
+        if(!focusables.length)return;
+        const first=focusables[0],last=focusables[focusables.length-1];
+        if(event.shiftKey && document.activeElement===first){event.preventDefault();last.focus();}
+        else if(!event.shiftKey && document.activeElement===last){event.preventDefault();first.focus();}
+      }
     }
     window.addEventListener("keydown",keydown);
     return()=>window.removeEventListener("keydown",keydown);
@@ -24,7 +36,7 @@ export default function AppConfirmDialog({
       role="presentation" onMouseDown={event=>{
         if(event.target===event.currentTarget&&!busy)onCancel?.();
       }}>
-      <section className="app-confirm-dialog" role="alertdialog" aria-modal="true"
+      <section ref={dialogRef} className="app-confirm-dialog" role="alertdialog" aria-modal="true"
         aria-labelledby={titleId} aria-describedby={detailId}>
         <div className="app-confirm-mark" aria-hidden="true">{danger?"!":"?"}</div>
         <h2 id={titleId}>{title}</h2>

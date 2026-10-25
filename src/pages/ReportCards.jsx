@@ -1280,9 +1280,15 @@ export default function ReportCards({ school }) {
         });
       }
 
-      await refreshArchives();
+      // Storage + PostgreSQL delete already succeeded. Closing must not
+      // depend on refreshing the list; a fetch failure is not a delete failure.
       setDeleteTarget(null);
       setNotice(`Arsip ${title} berhasil dihapus permanen.`);
+      try {
+        await refreshArchives();
+      } catch {
+        setNotice(`Arsip ${title} berhasil dihapus. Daftar terbaru belum dapat dimuat; perbarui halaman jika masih terlihat.`);
+      }
     } catch (caught) {
       setError(caught.message || "Gagal menghapus arsip rapor.");
     } finally {
@@ -1293,27 +1299,27 @@ export default function ReportCards({ school }) {
   return (
     <section className="mut-rapor-page">
       <style>{`
-        .mut-rapor-page { background:#fff; border:1px solid #e1e9e3; border-radius:12px; padding:20px; color:#253d31; }
-        .mut-rapor-page h2 { margin:0 0 18px; font-size:19px; color:#17533b; }
+        .mut-rapor-page { background:var(--sa-card,#fff); border:1px solid var(--sa-line,#e1e9e3); border-radius:12px; padding:20px; color:var(--sa-ink,#253d31); }
+        .mut-rapor-page h2 { margin:0 0 18px; font-size:19px; color:var(--sa-accent,#17533b); }
         .mut-rapor-filters { display:flex; flex-wrap:wrap; gap:14px; margin-bottom:14px; }
         .mut-rapor-filters label { display:grid; gap:7px; font-size:13px; flex:1 1 190px; }
-        .mut-rapor-filters select { width:100%; background:#fff; border:1px solid #d7e3da; padding:10px 12px; border-radius:8px; color:#253d31; }
-        .mut-rapor-button { border:1px solid #176a4a; padding:10px 17px; background:#176a4a; color:#fff; border-radius:8px; font-weight:600; font-size:13px; cursor:pointer; }
-        .mut-rapor-button.secondary { background:#fff; color:#176a4a; }
+        .mut-rapor-filters select { width:100%; background:var(--sa-card,#fff); border:1px solid var(--sa-line,#d7e3da); padding:10px 12px; border-radius:8px; color:var(--sa-ink,#253d31); }
+        .mut-rapor-button { border:1px solid var(--sa-accent,#176a4a); padding:10px 17px; background:var(--sa-accent,#176a4a); color:#fff; border-radius:8px; font-weight:600; font-size:13px; cursor:pointer; }
+        .mut-rapor-button.secondary { background:var(--sa-card,#fff); color:var(--sa-accent,#176a4a); }
         .mut-rapor-button:disabled { opacity:.5; cursor:default; }
         .mut-rapor-actions { display:flex; flex-wrap:wrap; align-items:center; gap:10px; margin-top:20px; }
-        .mut-rapor-muted { font-size:13px; color:#687970; }
+        .mut-rapor-muted { font-size:13px; color:var(--sa-muted,#687970); }
         .mut-rapor-message { font-size:13px; margin:14px 0 0; line-height:1.5; }
         .mut-rapor-message.error { color:#a32323; }
-        .mut-rapor-message.success { color:#12613e; }
-        .mut-rapor-archives { margin-top:26px; border-top:1px solid #e6ece7; padding-top:18px; }
-        .mut-rapor-archives h3 { font-size:15px; margin:0 0 12px; color:#173d2b; }
-        .mut-rapor-list { border:1px solid #e5ebe7; border-radius:9px; overflow:hidden; }
-        .mut-rapor-record { display:flex; flex-wrap:wrap; gap:12px; justify-content:space-between; align-items:center; padding:12px 14px; border-bottom:1px solid #edf1ed; }
+        .mut-rapor-message.success { color:var(--sa-accent,#12613e); }
+        .mut-rapor-archives { margin-top:26px; border-top:1px solid var(--sa-line,#e6ece7); padding-top:18px; }
+        .mut-rapor-archives h3 { font-size:15px; margin:0 0 12px; color:var(--sa-ink,#173d2b); }
+        .mut-rapor-list { border:1px solid var(--sa-line,#e5ebe7); border-radius:9px; overflow:hidden; }
+        .mut-rapor-record { display:flex; flex-wrap:wrap; gap:12px; justify-content:space-between; align-items:center; padding:12px 14px; border-bottom:1px solid var(--sa-line,#edf1ed); }
         .mut-rapor-record:last-child { border-bottom:0; }
-        .mut-rapor-record strong { display:block; font-size:13px; color:#253c31; margin-bottom:4px; overflow-wrap:anywhere; }
-        .mut-rapor-record small { display:block; color:#6c7f72; font-size:11px; line-height:1.5; }
-        .mut-rapor-record button { background:#fff; color:#176a4a; border:1px solid #b9d2c3; border-radius:8px; padding:8px 12px; font-size:12px; cursor:pointer; }
+        .mut-rapor-record strong { display:block; font-size:13px; color:var(--sa-ink,#253c31); margin-bottom:4px; overflow-wrap:anywhere; }
+        .mut-rapor-record small { display:block; color:var(--sa-muted,#6c7f72); font-size:11px; line-height:1.5; }
+        .mut-rapor-record button { background:var(--sa-card,#fff); color:var(--sa-accent,#176a4a); border:1px solid var(--sa-line,#b9d2c3); border-radius:8px; padding:8px 12px; font-size:12px; cursor:pointer; }
         .mut-rapor-record button:disabled { opacity:.5; cursor:default; }
         .mut-rapor-record-actions { display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
         .mut-rapor-record button.delete { color:#963434; border-color:#ecc4c4; }

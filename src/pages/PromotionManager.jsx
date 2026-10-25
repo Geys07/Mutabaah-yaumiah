@@ -1,6 +1,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "../lib/supabase";
+import AppConfirmDialog from "../components/AppConfirmDialog";
 import "./PromotionManager.css";
 
 const DESTINATIONS = {
@@ -204,7 +205,6 @@ export default function PromotionManager() {
         "Gagal mengonfirmasi kenaikan kelas."
       );
 
-      setConfirmOpen(false);
     } finally {
       setBusy(false);
     }
@@ -458,67 +458,13 @@ export default function PromotionManager() {
         </>
       )}
 
-      {confirmOpen && (
-        <div
-          className="pm-modal-overlay"
-          role="presentation"
-          onMouseDown={(e) => {
-            if (
-              e.target === e.currentTarget &&
-              !busy
-            ) {
-              setConfirmOpen(false);
-            }
-          }}
-        >
-          <section
-            className="pm-modal"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="pm-modal-title"
-          >
-            <h3 id="pm-modal-title">
-              Konfirmasi kenaikan kelas?
-            </h3>
-
-            <p>
-              Proses ini akan memindahkan{" "}
-              <strong>{moving.length} siswa</strong>
-              {" "}ke kelas berikutnya dan meluluskan{" "}
-              <strong>{graduating.length} siswa</strong>
-              {" "}kelas IX.
-            </p>
-
-            <p>
-              Identitas dan riwayat siswa tetap
-              tersimpan. Konfirmasi ini tidak dapat
-              dibatalkan dari panel.
-            </p>
-
-            <div className="pm-modal-actions">
-              <button
-                type="button"
-                className="is-secondary"
-                disabled={busy}
-                onClick={() => setConfirmOpen(false)}
-              >
-                Batal
-              </button>
-
-              <button
-                type="button"
-                autoFocus
-                disabled={busy}
-                onClick={() => void commit()}
-              >
-                {busy
-                  ? "Memproses..."
-                  : "Ya, Konfirmasi"}
-              </button>
-            </div>
-          </section>
-        </div>
-      )}
+      {confirmOpen && <AppConfirmDialog
+        title="Konfirmasi Kenaikan dan Kelulusan?"
+        description={`${moving.length} siswa akan naik kelas dan ${graduating.length} siswa kelas IX akan lulus.\\n\\nIdentitas dan riwayat tetap tersimpan. Proses ini tidak dapat dibatalkan dari panel.`}
+        confirmLabel="Ya, Konfirmasi" busy={busy} error={error}
+        onCancel={()=>{setConfirmOpen(false);setError("");}}
+        onConfirm={()=>void commit()}
+      />}
     </section>
   );
 }

@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabase";
 import { fetchAll } from "../lib/pagination";
+import AppConfirmDialog from "../components/AppConfirmDialog";
 import "./SemesterBoundaryManager.css";
 
 function dateBefore(day) {
@@ -180,8 +181,9 @@ export default function SemesterBoundaryManager() {
 
       if (problem) throw problem;
 
-      await loadData();
-
+      // Persisted successfully: close dialog now. A failed readback must not
+      // imply the administrator needs to submit the same change again.
+      setConfirmOpen(false);
       setDrafts((previous) => {
         const next = { ...previous };
         delete next[yearId];
@@ -191,15 +193,17 @@ export default function SemesterBoundaryManager() {
       setSuccess(
         "Batas semester berhasil disimpan tanpa jeda tanggal."
       );
-
-      setConfirmOpen(false);
+      try {
+        await loadData();
+      } catch {
+        setError("Batas semester telah tersimpan, tetapi daftar terbaru belum dapat dimuat. Gunakan Muat Ulang.");
+      }
     } catch (caught) {
       setError(
         caught.message ||
         "Gagal menyimpan batas semester."
       );
 
-      setConfirmOpen(false);
     } finally {
       setBusy(false);
     }
@@ -333,76 +337,13 @@ export default function SemesterBoundaryManager() {
         </p>
       )}
 
-      {confirmOpen && (
-        <div
-          className="sb-overlay"
-          role="presentation"
-          onMouseDown={(event) => {
-            if (
-              event.target ===
-                event.currentTarget &&
-              !busy
-            ) {
-              setConfirmOpen(false);
-            }
-          }}
-        >
-          <section
-            className="sb-dialog"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="sb-confirm-title"
-          >
-            <h3 id="sb-confirm-title">
-              Simpan batas semester?
-            </h3>
-
-            <p>
-              Tahun ajaran{" "}
-              {year?.start_year}/
-              {year?.start_year + 1}
-              {" "}akan memakai awal
-              Semester Genap{" "}
-              <strong>{chosen}</strong>.
-              Akhir Semester Ganjil
-              otomatis{" "}
-              <strong>
-                {dateBefore(chosen)}
-              </strong>.
-            </p>
-
-            <p>
-              Perubahan ini dapat memengaruhi
-              perhitungan rapor yang belum
-              diterbitkan. Arsip rapor yang
-              sudah terbit dilindungi.
-            </p>
-
-            <div className="sb-dialog-actions">
-              <button
-                type="button"
-                className="is-secondary"
-                disabled={busy}
-                onClick={() =>
-                  setConfirmOpen(false)
-                }
-              >
-                Batal
-              </button>
-
-              <button
-                type="button"
-                disabled={busy}
-                onClick={() => void save()}
-              >
-                {busy
-                  ? "Menyimpan…"
-                  : "Ya, Simpan"}
-              </button>
-            </div>
-          </section>
-        </div>
-      )}
+      {confirmOpen && <AppConfirmDialog
+        title="Simpan Batas Semester?"
+        description={`Tahun ajaran ${year?.start_year}/${year?.start_year+1} akan memulai Semester Genap pada ${chosen}; Semester Ganjil berakhir ${dateBefore(chosen)}.\\n\\nPerubahan dapat memengaruhi rapor yang belum diterbitkan. Arsip rapor yang sudah terbit tetap dilindungi.`}
+        confirmLabel="Ya, Simpan" busy={busy} error={error}
+        onCancel={()=>{setConfirmOpen(false);setError("");}}
+        onConfirm={()=>void save()}
+      />}
     </section>
   );
 }
