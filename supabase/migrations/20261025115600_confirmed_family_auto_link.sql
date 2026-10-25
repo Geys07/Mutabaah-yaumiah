@@ -117,7 +117,9 @@ BEGIN
  THEN RAISE EXCEPTION 'Hanya Admin aktif dapat menyimpan keluarga' USING ERRCODE='42501'; END IF;
  IF pg_catalog.jsonb_typeof(p_approved_matches) IS DISTINCT FROM 'array'
  THEN RAISE EXCEPTION 'Konfirmasi keluarga tidak valid'; END IF;
- PERFORM pg_catalog.pg_advisory_xact_lock(pg_catalog.hashtext('family-contact:'||p_student_id::text));
+ -- Serialize all Admin family writes; overlapping sibling edits cannot evade
+ -- the preview/consent check by racing from two separate browser sessions.
+ PERFORM pg_catalog.pg_advisory_xact_lock(pg_catalog.hashtext('family-contact-admin-confirmation'));
  IF NOT EXISTS(SELECT 1 FROM public.students s WHERE s.id=p_student_id)
  THEN RAISE EXCEPTION 'Siswa tidak ditemukan'; END IF;
  -- One parent account is one phone. Avoid silently overwriting relationship
@@ -275,6 +277,11 @@ DROP TRIGGER IF EXISTS confirmed_family_sibling_activation ON public.student_gua
 CREATE TRIGGER confirmed_family_sibling_activation
 AFTER INSERT ON public.student_guardians FOR EACH ROW
 EXECUTE FUNCTION public.link_confirmed_family_on_activation();
+
+-- Old manual RPCs must not remain alternate Data-API paths that bypass
+-- explicit family confirmation. Nested SECURITY DEFINER calls still work.
+REVOKE EXECUTE ON FUNCTION public.save_student_family_contacts(uuid,jsonb) FROM PUBLIC,anon,authenticated;
+REVOKE EXECUTE ON FUNCTION public.admin_link_existing_parent(uuid,text) FROM PUBLIC,anon,authenticated;
 
 REVOKE ALL ON FUNCTION public.admin_preview_parent_family(uuid,jsonb) FROM PUBLIC,anon;
 REVOKE ALL ON FUNCTION public.admin_save_parent_family(uuid,jsonb,jsonb) FROM PUBLIC,anon;
