@@ -271,7 +271,7 @@ export default function ParentDashboard({
   const [loadingChildren, setLoadingChildren] =
     useState(true);
 
-  const [childrenRevision] =
+  const [childrenRevision, setChildrenRevision] =
     useState(0);
   const [statusRevision, setStatusRevision] =
     useState(0);
@@ -325,6 +325,23 @@ const [loggingOut, setLoggingOut] =
     account?.id ||
     account?.user_id ||
     "";
+  // Sesudah Admin menghubungkan anak di perangkat lain, perbarui daftar
+  // ketika wali kembali membuka PWA. Tidak perlu notifikasi khusus.
+  useEffect(() => {
+    if (!accountId) return undefined;
+    const refresh = () => {
+      if (!document.hidden) setChildrenRevision((n) => n + 1);
+    };
+    const timer = window.setInterval(refresh, 45000);
+    window.addEventListener("focus", refresh);
+    document.addEventListener("visibilitychange", refresh);
+    return () => {
+      window.clearInterval(timer);
+      window.removeEventListener("focus", refresh);
+      document.removeEventListener("visibilitychange", refresh);
+    };
+  }, [accountId]);
+
 
   const assetBase = (
     import.meta.env.BASE_URL || "/"
@@ -631,15 +648,12 @@ const [loggingOut, setLoggingOut] =
     } else {
       setDailyOpen(false);
       setChooserOpen(false);
-        replacePage(tab);
+      replacePage(tab);
     }
   }, [replacePage, tab]);
 
   useEffect(() => {
-    if (
-      !dailyOpen &&
-      !chooserOpen &&
-) {
+    if (!dailyOpen && !chooserOpen) {
       return undefined;
     }
 
@@ -656,7 +670,7 @@ const [loggingOut, setLoggingOut] =
   }, [
     dailyOpen,
     chooserOpen,
-closeOverlay,
+    closeOverlay,
   ]);
 
   const selectedChild = children.find(
