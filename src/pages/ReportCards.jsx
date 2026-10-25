@@ -1407,7 +1407,7 @@ export default function ReportCards({ school }) {
       </div>
       {deleteTarget&&<AppConfirmDialog danger
         title="Hapus Arsip Rapor?"
-        description={`Hapus permanen file DOCX dan catatan arsip?\\n\\n${archiveReadableTitle(currentClass,currentPeriod)}\\nDisimpan: ${formatArchivedAt(deleteTarget.created_at)}\\nTindakan ini tidak dapat dibatalkan.`}
+        description={`Hapus permanen file DOCX dan catatan arsip?\n\n${archiveReadableTitle(currentClass,currentPeriod)}\nDisimpan: ${formatArchivedAt(deleteTarget.created_at)}\nTindakan ini tidak dapat dibatalkan.`}
         confirmLabel="Ya, Hapus Arsip" busy={Boolean(processing)} error={error}
         onCancel={()=>{setDeleteTarget(null);setError("")}}
         onConfirm={()=>void deleteArchive(deleteTarget)}
