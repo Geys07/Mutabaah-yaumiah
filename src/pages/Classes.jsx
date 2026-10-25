@@ -3,6 +3,7 @@ import EmptyState from "../components/EmptyState";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "../lib/supabase";
 import { fetchAll } from "../lib/pagination";
+import { listenStudentDataChanges } from "../lib/studentDataUpdates";
 import "./Classes.css";
 
 const GRADES = [
@@ -65,6 +66,10 @@ export default function Classes() {
   const [success, setSuccess] = useState("");
   const [reloadKey, setReloadKey] = useState(0);
 
+  useEffect(() => listenStudentDataChanges(() => {
+    if (!document.hidden) setReloadKey((value) => value + 1);
+  }), []);
+
   useEffect(() => {
     let cancelled = false;
 
@@ -101,7 +106,7 @@ export default function Classes() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [reloadKey]);
 
   useEffect(() => {
     if (!yearId) return undefined;
