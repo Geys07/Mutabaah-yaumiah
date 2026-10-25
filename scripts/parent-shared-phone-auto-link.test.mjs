@@ -9,6 +9,11 @@ test("Admin family editor removes manual linking and confirms shared phone befor
  ]);
  assert.doesNotMatch(ui,/Hubungkan ke Akun|linkExistingAccount|admin_link_existing_parent/);
  assert.match(ui,/admin_preview_parent_family/);
+ assert.match(ui,/async function checkSharedPhone\(type\)/);
+ assert.match(ui,/onBlur=\{\(\) => void checkSharedPhone\(type\.id\)\}/);
+ assert.match(ui,/approvedFamilyPhones/);
+ assert.match(ui,/previewVersion\.current/);
+ assert.match(ui,/saveAfter:false/);
  assert.match(ui,/admin_save_parent_family/);
  assert.match(ui,/familyConfirmation&&<AppConfirmDialog/);
  assert.match(ui,/Konfirmasi Nomor HP Keluarga/);
@@ -38,6 +43,9 @@ test("Family confirmation works when phone already has an account and later acti
  assert.match(sql,/c\.phone=v_phone/);
  assert.match(sql,/fc\.phone=v_phone/);
  assert.match(sql,/public\.has_role\('admin'\)/);
+ assert.match(sql,/family-contact-admin-confirmation/);
+ assert.match(sql,/REVOKE EXECUTE ON FUNCTION public\.save_student_family_contacts/);
+ assert.match(sql,/REVOKE EXECUTE ON FUNCTION public\.admin_link_existing_parent/);
  assert.match(sql,/public\.qa06_account_active\(\)/);
  assert.match(sql,/REVOKE ALL ON FUNCTION public\.admin_preview_parent_family\(uuid,jsonb\) FROM PUBLIC,anon/);
  assert.match(sql,/REVOKE ALL ON FUNCTION public\.admin_save_parent_family\(uuid,jsonb,jsonb\) FROM PUBLIC,anon/);
