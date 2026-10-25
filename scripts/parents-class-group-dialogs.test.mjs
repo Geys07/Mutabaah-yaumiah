@@ -90,7 +90,7 @@ test("student-related pickers group by class and update data across tabs without
   assert.match(adminTools,/<optgroup key=\{className\} label=\{className\}>/);
   assert.match(signals,/BroadcastChannel/);
   assert.match(signals,/45000/);
-  assert.doesNotMatch(signals,/full_name|student_name|phone/);
+  const broadcastPayload = signals.match(/channel\.postMessage\(([^)]*)\)/)?.[1] || "";\n  assert.equal(broadcastPayload, '"refresh"');\n  assert.doesNotMatch(broadcastPayload,/full_name|student_name|phone/);
 });
 
 
