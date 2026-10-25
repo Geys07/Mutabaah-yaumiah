@@ -15,8 +15,9 @@ test("notifications persist without daily permission and recover their existing 
  assert.match(push,/localStorage\.setItem\(OPT_IN_KEY\(kind,id\), "1"\)/);
  assert.match(push,/localStorage\.setItem\(OPT_IN_KEY\(kind,id\), "0"\)/);
  assert.match(hook,/prefersPushDevice\(kind,id\)/);
+ assert.match(push,/export function reconnectPushDevice/);
  assert.match(hook,/Notification\.permission === "granted"/);
- assert.match(hook,/await enablePushDevice\(kind,id,context\)/);
+ assert.match(hook,/await reconnectPushDevice\(kind,id,context\)/);
  assert.match(auth,/await detachPushDevice\(\)/); // explicit logout still detaches privately
 });
 test("teacher and principal account default password is system assigned with no entry boxes",async()=>{

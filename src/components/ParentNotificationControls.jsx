@@ -38,7 +38,7 @@ function AlertIcon() {
 }
 
 export function ParentPushSettings() {
-  const { enabled, busy, checked, ready, preparing, error, toggle, prepare } = usePushDevice("parent");
+  const { enabled, busy, checked, ready, preparing, error, toggle, prepare, permission, optIn } = usePushDevice("parent");
 
   return (
     <section
@@ -71,7 +71,18 @@ export function ParentPushSettings() {
               : error ? "Perlu diperiksa" : "Tidak aktif"
             : "Memeriksa…"}
         </span>
-        {!enabled && <p role="status">{preparing ? "Menyiapkan notifikasi…" : ready ? "Perangkat siap untuk diaktifkan." : "Persiapan notifikasi belum berhasil."}</p>}
+        {!enabled && <p role="status">{
+          preparing ? "Memeriksa langganan perangkat dan akun…"
+          : permission === "granted"
+            ? optIn
+              ? ready
+                ? "Izin notifikasi HP aktif. Langganan akun ini belum tersambung; tekan Hubungkan Notifikasi."
+                : "Izin notifikasi HP aktif. Memeriksa kembali sambungan akun."
+              : "Izin HP aktif, tetapi notifikasi untuk akun ini pernah dinonaktifkan."
+            : permission === "denied"
+              ? "Notifikasi diblokir oleh perangkat. Ubah izin di pengaturan aplikasi."
+              : ready ? "Perangkat siap untuk mengaktifkan izin dan notifikasi." : "Persiapan notifikasi belum berhasil."
+        }</p>}
 
 
         {pushSupportMessage() && <p role="note">{pushSupportMessage()}</p>}
@@ -104,7 +115,7 @@ export function ParentPushSettings() {
           : preparing ? "Menyiapkan…"
           : enabled
             ? "Nonaktifkan"
-            : !ready ? "Coba Lagi Persiapan" : "Aktifkan notifikasi"}
+            : !ready ? "Coba Lagi Persiapan" : permission === "granted" ? "Hubungkan Notifikasi" : "Aktifkan notifikasi"}
       </button>}
     </section>
   );

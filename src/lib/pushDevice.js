@@ -12,6 +12,24 @@ export function prefersPushDevice(kind, id) {
   return localStorage.getItem(OPT_IN_KEY(kind,id)) !== "0";
 }
 export const PUSH_DEVICE_EVENT = "mutabaah-parent-push-updated";
+const reconnecting = new Map();
+// Izin OS adalah satu izin per PWA. Langganan akun tetap terpisah:
+// setelah login berganti, mendaftarkan ulang tanpa meminta izin OS lagi.
+// Deduplikasi ini mencegah gate awal dan halaman Profil melakukan subscribe
+// bersamaan pada PushManager yang sama.
+export function reconnectPushDevice(kind,id,prepared) {
+  if (!id || !prefersPushDevice(kind,id)) return Promise.resolve(false);
+  const key = kind+":"+id;
+  if (reconnecting.has(key)) return reconnecting.get(key);
+  const task = enablePushDevice(kind,id,prepared).then(()=>true).finally(()=>{
+    if(reconnecting.get(key)===task)reconnecting.delete(key);
+  });
+  reconnecting.set(key,task);
+  return task;
+}
+export function pushPermissionState() {
+  return typeof Notification === "undefined" ? "unsupported" : Notification.permission;
+}
 let queue = Promise.resolve();
 const base = (import.meta.env.BASE_URL || "/").replace(/\/?$/, "/");
 
