@@ -4,13 +4,11 @@ import LiveDashboardCharts from "../components/LiveDashboardCharts";
 
 import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import { supabase } from "../lib/supabase";
-import { listenStudentDataChanges } from "../lib/studentDataUpdates";
 import useDisplayPage from "../lib/useDisplayPage";
 import Pagination from "../components/Pagination";
 import { fetchAll } from "../lib/pagination";
 import { signOut } from "../lib/auth";
 import usePanelHistory from "../hooks/usePanelHistory";
-import useNotificationPulse from "../hooks/useNotificationPulse";
 const MonthlyReports = lazy(() => import("./MonthlyReports"));
 const ReportCards = lazy(() => import("./ReportCards"));
 const ActivationBatch = lazy(() => import("./ActivationBatch"));
@@ -142,10 +140,6 @@ export default function HomeroomTeacherDashboard({
   const [error, setError] = useState("");
   const [loggingOut, setLoggingOut] = useState(false);
   const [refresh, setRefresh] = useState(0);
-  useNotificationPulse(() => setRefresh((n) => n + 1), Boolean(classId) && !loggingOut);
-  useEffect(() => listenStudentDataChanges(() => {
-    if (!document.hidden && !loggingOut) setRefresh((value) => value + 1);
-  }), [loggingOut]);
   const { push: pushPage } = usePanelHistory("homeroom", "daily", (page) => {
     if (TABS.some((item) => item.id === page)) { setActiveTab(page); setError(""); if (page === "daily") setRefresh((n) => n + 1); }
   });
