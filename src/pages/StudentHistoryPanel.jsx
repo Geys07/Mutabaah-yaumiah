@@ -221,7 +221,7 @@ export default function StudentHistoryPanel() {
                 <span>{items.length} siswa</span>
               </header>
               <div className="sh-class-list">
-                {items.map(entry=>(
+                {items.map((entry,index)=>(
                   <button type="button" key={entry.id}
                     onClick={()=>void openHistory(entry.id)}
                     className={student?.id===entry.id?"is-selected":""}>
