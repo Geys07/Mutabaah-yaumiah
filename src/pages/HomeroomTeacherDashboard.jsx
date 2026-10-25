@@ -1,5 +1,6 @@
 import InstallAppSettings from "../components/InstallAppSettings";
 import EmptyState from "../components/EmptyState";
+import LiveDashboardCharts from "../components/LiveDashboardCharts";
 
 import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import { supabase } from "../lib/supabase";
@@ -454,62 +455,22 @@ export default function HomeroomTeacherDashboard({
             </label>
           </div>
 
-          {!loadingClasses &&
-            !loadingReport &&
-            students.length > 0 && (
-              <div
-                className="staff-kpis"
-                style={{ marginTop: 18 }}
-              >
-                <StaffKpi
-                  label="Siswa"
-                  value={students.length}
-                />
-
-                <StaffKpi
-                  label="Sudah final"
-                  value={statusSummary.finalized}
-                  detail={`${
-                    Math.round(
-                      (statusSummary.finalized /
-                        students.length) *
-                        100
-                    )
-                  }% hari ini`}
-                />
-
-                <StaffKpi
-                  label="Draf"
-                  value={statusSummary.draft}
-                />
-
-                <StaffKpi
-                  label="Belum diisi"
-                  value={statusSummary.unfilled}
-                />
-              </div>
-            )}
-
-          {!loadingClasses &&
-            !loadingReport &&
-            students.length > 0 && (
-              <div
-                className="staff-card"
-                style={{ marginBottom: 18 }}
-              >
-                <div className="staff-card-head">
-                  <h3>Progres kelas</h3>
-                  <span className="staff-muted">
-                    {formatDate(selectedDate)}
-                  </span>
-                </div>
-
-                <StaffMeter
-                  value={statusSummary.finalized}
-                  total={students.length}
-                />
-              </div>
-            )}
+          {!loadingClasses && !loadingReport && classId && (
+            <LiveDashboardCharts
+              classRows={[{
+                class_id: classId,
+                class_name: currentClass?.class_name || "Kelas Saya",
+                total: students.length,
+                finalized: statusSummary.finalized,
+                draft: statusSummary.draft,
+                unfilled: statusSummary.unfilled,
+                failed: false,
+              }]}
+              date={selectedDate}
+              refreshKey={refresh}
+              mode="class"
+            />
+          )}
 
           {error && (
             <p className="teacher-error" role="alert">
