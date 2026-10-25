@@ -10,6 +10,7 @@ import { readNotification, notificationGroup } from "../lib/notificationRead";
 import useNotificationRead from "../hooks/useNotificationRead";
 import Pagination from "../components/Pagination";
 import EmptyState from "../components/EmptyState";
+import AppConfirmDialog from "../components/AppConfirmDialog";
 import "./AdminNotifications.css";
 
 const STATUS_TEXT = {
@@ -203,14 +204,14 @@ export default function AdminNotifications({
     setBusyId(id);
     setError("");
     setMessage("");
+    let savedByServer = false;
 
     try {
       const result = await invokeAction(
         id,
         decision
       );
-
-      setConfirmation(null);
+      savedByServer = true;
 
       if (
         decision === "approve" ||
@@ -248,10 +249,13 @@ export default function AdminNotifications({
         );
       }
 
+      // Only dismiss after server confirmed success. Refresh failures are
+      // displayed separately; never invite a duplicate approval/reissue.
+      setConfirmation(null);
       await loadRequests({ force: true, replace: true });
       onPendingCountChange?.();
     } catch (processError) {
-      setConfirmation(null);
+      if (savedByServer) setConfirmation(null);
 
       setError(
         processError.message ||
@@ -545,73 +549,28 @@ export default function AdminNotifications({
       {total !== null && <Pagination page={page} total={total} loading={loading || Boolean(busyId)} onChange={setPage} />}
 
       {confirmation && (
-        <div className="notification-modal-backdrop">
-          <section
-            className="notification-modal"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="notification-confirm-title"
-          >
-            <h3 id="notification-confirm-title">
-              {DECISION_TEXT[
-                confirmation.decision
-              ] || "Konfirmasi"}
-            </h3>
-
-            <p>{confirmation.name}</p>
-
-            {confirmation.decision === "approve" && (
-              <p className="notification-verification-note">
-                Pastikan identitas pemohon
-                sudah diverifikasi sebelum
-                permintaan disetujui.
-              </p>
-            )}
-
-            {confirmation.decision === "reissue" && (
-              <p className="notification-verification-note">
-                Kode lama langsung dibatalkan.
-                Pastikan kode baru diberikan
-                kepada pemilik akun yang benar.
-              </p>
-            )}
-
-            {confirmation.decision === "cancel_stuck" && (
-              <p className="notification-verification-note">
-                Pastikan sudah memeriksa apakah
-                pengguna berhasil mengganti kata sandi.
-                Menutup proses ini tidak mengembalikan
-                kata sandi lama. Permintaan hanya
-                dapat ditutup jika sudah berlangsung
-                lebih dari lima menit.
-              </p>
-            )}
-
-            <div className="notification-modal-actions">
-              <button
-                type="button"
-                className="notification-outline-button"
-                disabled={Boolean(busyId)}
-                onClick={() =>
-                  setConfirmation(null)
-                }
-              >
-                Batal
-              </button>
-
-              <button
-                type="button"
-                className="notification-approve-button"
-                disabled={Boolean(busyId)}
-                onClick={processDecision}
-              >
-                {busyId
-                  ? "Memproses..."
-                  : "Konfirmasi"}
-              </button>
-            </div>
-          </section>
-        </div>
+        <AppConfirmDialog
+          title={DECISION_TEXT[confirmation.decision] || "Konfirmasi"}
+          description={
+            confirmation.name + "\\n\\n" +
+            (confirmation.decision === "approve"
+              ? "Pastikan identitas pemohon telah diverifikasi sebelum menyetujui."
+              : confirmation.decision === "reissue"
+                ? "Kode sebelumnya langsung dibatalkan. Pastikan kode baru diberikan kepada pemilik akun."
+                : confirmation.decision === "cancel_stuck"
+                  ? "Periksa lebih dahulu apakah pengguna berhasil mengganti kata sandi. Menutup proses ini tidak mengembalikan kata sandi lama."
+                  : confirmation.decision === "revoke"
+                    ? "Kode pemulihan yang masih berlaku akan dicabut."
+                    : "Pemohon akan menerima keputusan penolakan."
+            )
+          }
+          danger={["reject","revoke","cancel_stuck"].includes(confirmation.decision)}
+          confirmLabel="Ya, Konfirmasi"
+          busy={Boolean(busyId)}
+          error={error}
+          onCancel={()=>{setConfirmation(null);setError("");}}
+          onConfirm={()=>void processDecision()}
+        />
       )}
 
       {issuedCode && (
