@@ -182,7 +182,7 @@ export default function TeacherAccounts({ role = "homeroom_teacher" }) {
             </label>
             {modal === "create" && (
               <p className="teacher-accounts-initial-password" role="note">
-                Kata sandi awal otomatis: <strong>123456</strong>. Wajib diganti saat pertama masuk.
+                Kata sandi awal otomatis: <strong>123456</strong>. Demi keamanan, segera ganti setelah masuk pertama.
               </p>
             )}
             {modal === "edit" && <label className="teacher-accounts-check">
