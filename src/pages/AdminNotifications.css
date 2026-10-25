@@ -307,3 +307,41 @@
     border-radius: 18px 18px 0 0;
   }
 }
+/* Empat suasana WIB: hilangkan blok putih/hijau tetap yang tidak
+   serasi saat tema siang, senja dan malam. */
+.staff-app .admin-notifications{
+  background:var(--sa-card,#fff);
+  border-color:var(--sa-line,#e2e9e3);
+  color:var(--sa-ink,#243f30);
+  padding:clamp(14px,2.5vw,24px);
+}
+.staff-app .admin-notifications-heading h2{color:var(--sa-ink,#203b2e)}
+.staff-app .admin-notifications-heading span{color:var(--sa-muted,#7a897d)}
+.staff-app .admin-notifications :is(
+ .notification-filter-button,.notification-outline-button
+){background:var(--sa-card,#fff);border-color:var(--sa-line,#dce6df);color:var(--sa-ink,#243f30)}
+.staff-app .admin-notifications :is(
+ .notification-filter-button.is-active,.notification-approve-button
+){background:var(--sa-accent,#17533b);border-color:var(--sa-accent,#17533b);color:#fff}
+.staff-app .admin-notifications :is(.notification-card,.notification-modal){
+  background:var(--sa-card,#fff);border-color:var(--sa-line,#e2eae4);
+  color:var(--sa-ink,#243f30)
+}
+.staff-app .notification-modal-backdrop{
+ position:fixed;inset:0;z-index:1700;
+ max-height:100dvh;overflow-y:auto;
+ padding:max(14px,env(safe-area-inset-top)) 12px max(14px,env(safe-area-inset-bottom));
+ background:rgba(14,33,37,.53)
+}
+.staff-app .notification-modal{
+ width:min(100%,430px);max-height:calc(100dvh - 32px);
+ overflow-y:auto;overscroll-behavior:contain
+}
+.staff-app .notification-issued-code{
+ color:var(--sa-accent,#17533b);background:var(--sa-soft,#f3faf5);
+ border-color:var(--sa-line,#a4c8ad)
+}
+@media(max-width:620px){
+ .staff-app .admin-notifications{padding:14px 10px}
+ .staff-app .notification-modal{padding:18px 15px}
+}
