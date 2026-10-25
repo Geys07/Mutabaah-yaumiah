@@ -77,6 +77,7 @@ export default function StudentFamily({ student, onClose }) {
   const [savedContacts, setSavedContacts] = useState(
     emptyContacts
   );
+  const [linkedAccounts, setLinkedAccounts] = useState({});
   const [codes, setCodes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -93,7 +94,7 @@ export default function StudentFamily({ student, onClose }) {
 
     async function fetchData() {
       try {
-        const [contactResult, codeResult] = await Promise.all([
+        const [contactResult, codeResult, linkResult] = await Promise.all([
           supabase
             .from("student_family_contacts")
             .select("relationship, full_name, phone")
@@ -105,12 +106,18 @@ export default function StudentFamily({ student, onClose }) {
               "relationship, phone, code, expires_at, used_at"
             )
             .eq("student_id", student.id),
+
+          // Diperlukan juga ketika editor dibuka dari Data Siswa, bukan
+          // hanya dari daftar Orang Tua yang sudah memuat status akun.
+          supabase.from("student_guardians")
+            .select("relationship,profiles!student_guardians_guardian_id_fkey(phone,account_status)")
+            .eq("student_id",student.id),
         ]);
 
         if (cancelled) return;
 
         const queryError =
-          contactResult.error || codeResult.error;
+          contactResult.error || codeResult.error || linkResult.error;
 
         if (queryError) {
           throw queryError;
@@ -127,8 +134,18 @@ export default function StudentFamily({ student, onClose }) {
           }
         }
 
+        const links = {};
+        for (const row of linkResult.data || []) {
+          const profile = row.profiles;
+          const phone = normalizePhone(next[row.relationship]?.phone);
+          if (phone && normalizePhone(profile?.phone) === phone &&
+              profile?.account_status === "active") {
+            links[row.relationship] = true;
+          }
+        }
         setContacts(next);
         setSavedContacts(next);
+        setLinkedAccounts(links);
         setCodes(prepareCodes(codeResult.data));
       } catch (fetchError) {
         if (!cancelled) {
@@ -332,7 +349,7 @@ export default function StudentFamily({ student, onClose }) {
     }else{
       setApprovedFamilyPhones(approvals);
       setFamilyConfirmation(null);
-      setSuccess("Satu keluarga telah dikonfirmasi. Tekan Simpan untuk menghubungkan akun.");
+      setSuccess("Hubungan keluarga telah dikonfirmasi. Simpan data wali untuk menerapkan perubahan secara otomatis.");
     }
   }
 
@@ -491,7 +508,7 @@ export default function StudentFamily({ student, onClose }) {
                     item.relationship === type.id
                 );
 
-                const isLinked = Boolean(student.linkedContacts?.[type.id]?.account_linked);
+                const isLinked = Boolean(linkedAccounts[type.id]);
 
                 const validCode = Boolean(
                   code?.is_active &&
