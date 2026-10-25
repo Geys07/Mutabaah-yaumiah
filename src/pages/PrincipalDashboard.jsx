@@ -1,4 +1,5 @@
 import InstallAppSettings from "../components/InstallAppSettings";
+import LiveDashboardCharts from "../components/LiveDashboardCharts";
 import EmptyState from "../components/EmptyState";
 
 import { lazy, Suspense, useEffect, useMemo, useState } from "react";
@@ -14,9 +15,7 @@ import useJakartaClock from "../hooks/useJakartaClock";
 const MonthlyReports = lazy(() => import("./MonthlyReports"));
 const ReportCards = lazy(() => import("./ReportCards"));
 import AccountSecurity from "./AccountSecurity";
-import StaffWorkspace, {
-  StaffKpi,
-} from "../components/StaffWorkspace";
+import StaffWorkspace from "../components/StaffWorkspace";
 
 import "./PrincipalDashboard.css";
 
@@ -106,10 +105,6 @@ function summarizeStatuses(rows) {
   }
 
   return count;
-}
-
-function percent(part, total) {
-  return total ? Math.round((100 * part) / total) : 0;
 }
 
 async function fetchClassSummaries(
@@ -562,111 +557,18 @@ export default function PrincipalDashboard({
             </p>
           )}
 
-          {loadingClasses ||
-          (shownClasses.length > 0 && loadingSummary) ? (
-            <p className="principal-info" role="status">
-              Memuat rekap kelas...
-            </p>
+          {loadingClasses || (shownClasses.length > 0 && loadingSummary) ? (
+            <p className="principal-info" role="status">Memuat rekap kelas…</p>
+          ) : shownClasses.length === 0 ? (
+            <EmptyState kind="school" illustration="class" title="Belum ada data kelas" description="Kelas dan ketercapaian akan muncul saat tersedia." />
           ) : (
-            <>
-              <div className="staff-kpis">
-                <StaffKpi
-                  label="Kelas terbaca"
-                  value={`${total.classes}/${shownClasses.length}`}
-                />
-                <StaffKpi
-                  label="Jumlah siswa"
-                  value={total.students}
-                />
-                <StaffKpi
-                  label="Sudah final"
-                  value={total.finalized}
-                  detail={`${
-                    percent(total.finalized, total.students)
-                  }% dari siswa`}
-                />
-                <StaffKpi
-                  label="Belum final"
-                  value={total.draft + total.unfilled}
-                  detail={
-                    `${total.draft} draf · ` +
-                    `${total.unfilled} belum diisi`
-                  }
-                />
-              </div>
-
-              {total.students > 0 && (
-                <p className="principal-completion">
-                  Sudah final:{" "}
-                  <strong>
-                    {percent(
-                      total.finalized,
-                      total.students
-                    )}%
-                  </strong>{" "}
-                  dari siswa yang tercatat pada tanggal{" "}
-                  {prettyDate(date)}.
-                </p>
-              )}
-
-              <div className="principal-table-scroll">
-                <table className="principal-table">
-                  <thead>
-                    <tr>
-                      <th>Kelas</th>
-                      <th>Jumlah Siswa</th>
-                      <th>Final</th>
-                      <th>Draf</th>
-                      <th>Belum diisi</th>
-                      <th></th>
-                    </tr>
-                  </thead>
-
-                  <tbody>
-                    {summaries.map((item) => (
-                      <tr key={item.class_id}>
-                        <td>
-                          <strong>{item.class_name}</strong>
-                        </td>
-
-                        {item.failed ? (
-                          <td
-                            colSpan="4"
-                            className="principal-muted"
-                          >
-                            Gagal membaca data kelas
-                          </td>
-                        ) : (
-                          <>
-                            <td>{item.total}</td>
-                            <td>{item.finalized}</td>
-                            <td>{item.draft}</td>
-                            <td>{item.unfilled}</td>
-                          </>
-                        )}
-
-                        <td>
-                          <button
-                            type="button"
-                            className="principal-detail-button"
-                            disabled={item.failed}
-                            onClick={() =>
-                              selectClass(item.class_id)
-                            }
-                          >
-                            Lihat siswa
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-
-              {summaries.length === 0 && (
-                <EmptyState kind="school" illustration="class" title="Belum ada data kelas" description="Belum ada kelas atau data untuk periode ini." />
-              )}
-            </>
+            <LiveDashboardCharts
+              classRows={summaries}
+              date={date}
+              refreshKey={reload}
+              mode="school"
+              onSelectClass={selectClass}
+            />
           )}
 
           {selectedClassId && selectedClass && (

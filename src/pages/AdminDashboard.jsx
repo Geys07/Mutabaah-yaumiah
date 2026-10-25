@@ -1,4 +1,4 @@
-import EmptyState from "../components/EmptyState";
+import LiveDashboardCharts from "../components/LiveDashboardCharts";
 import InstallAppSettings from "../components/InstallAppSettings";
 
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
@@ -11,10 +11,7 @@ import { listenStudentDataChanges } from "../lib/studentDataUpdates";
 import { signOut } from "../lib/auth";
 import usePanelHistory from "../hooks/usePanelHistory";
 import useJakartaClock from "../hooks/useJakartaClock";
-import StaffWorkspace, {
-  StaffKpi,
-  StaffMeter,
-} from "../components/StaffWorkspace";
+import StaffWorkspace from "../components/StaffWorkspace";
 
 import AcademicYears from "./AcademicYears";
 import Classes from "./Classes";
@@ -127,7 +124,6 @@ function errorMessage(error) {
 
 function DashboardHome({ account, onNavigate, pendingCount }) {
   const clock = useJakartaClock();
-
   const [rows, setRows] = useState([]);
   const [busy, setBusy] = useState(true);
   const [warning, setWarning] = useState("");
@@ -141,72 +137,46 @@ function DashboardHome({ account, onNavigate, pendingCount }) {
     let active = true;
 
     async function load() {
+      setBusy(true);
       try {
-        const {
-          data: classes,
-          error,
-        } = await fetchAll(() => supabase.rpc("get_mutabaah_accessible_classes").order("academic_year", { ascending: false }).order("grade").order("class_name"), ["class_id"]);
-
+        const { data: classes, error } = await fetchAll(
+          () => supabase.rpc("get_mutabaah_accessible_classes")
+            .order("academic_year", { ascending: false })
+            .order("grade")
+            .order("class_name"),
+          ["class_id"]
+        );
         if (error) throw error;
 
         const all = Array.isArray(classes) ? classes : [];
         const newestYear = all[0]?.academic_year;
-        const list = all.filter(
-          (item) => item.academic_year === newestYear
-        );
-
+        const list = all.filter((item) => item.academic_year === newestYear);
         const result = [];
 
         for (let i = 0; i < list.length; i += 4) {
-          const batch = await Promise.all(
-            list.slice(i, i + 4).map(async (item) => {
-              try {
-                const {
-                  data,
-                  error: queryError,
-                } = await supabase.rpc(
-                  "get_mutabaah_class_day_status",
-                  {
-                    p_class_id: item.class_id,
-                    p_date: clock.date,
-                  }
-                );
-
-                if (queryError) throw queryError;
-
-                const statuses = Array.isArray(data) ? data : [];
-
-                return {
-                  ...item,
-                  total: statuses.length,
-                  finalized: statuses.filter(
-                    (x) => x.status === "finalized"
-                  ).length,
-                  draft: statuses.filter(
-                    (x) => x.status === "draft"
-                  ).length,
-                  unfilled: statuses.filter(
-                    (x) =>
-                      x.status !== "finalized" &&
-                      x.status !== "draft"
-                  ).length,
-                  failed: false,
-                };
-              } catch {
-                return {
-                  ...item,
-                  failed: true,
-                  total: 0,
-                  finalized: 0,
-                  draft: 0,
-                  unfilled: 0,
-                };
-              }
-            })
-          );
-
+          const batch = await Promise.all(list.slice(i, i + 4).map(async (item) => {
+            try {
+              const { data, error: queryError } = await supabase.rpc(
+                "get_mutabaah_class_day_status",
+                { p_class_id: item.class_id, p_date: clock.date }
+              );
+              if (queryError) throw queryError;
+              const statuses = Array.isArray(data) ? data : [];
+              const finalized = statuses.filter((row) => row.status === "finalized").length;
+              const draft = statuses.filter((row) => row.status === "draft").length;
+              return {
+                ...item,
+                total: statuses.length,
+                finalized,
+                draft,
+                unfilled: statuses.length - finalized - draft,
+                failed: false,
+              };
+            } catch {
+              return { ...item, failed: true, total: 0, finalized: 0, draft: 0, unfilled: 0 };
+            }
+          }));
           result.push(...batch);
-
           if (!active) return;
         }
 
@@ -217,10 +187,7 @@ function DashboardHome({ account, onNavigate, pendingCount }) {
       } catch (caught) {
         if (active) {
           setRows([]);
-          setWarning(
-            caught?.message ||
-              "Rekap sekolah belum dapat dimuat."
-          );
+          setWarning(caught?.message || "Rekap sekolah belum dapat dimuat.");
         }
       } finally {
         if (active) setBusy(false);
@@ -228,177 +195,66 @@ function DashboardHome({ account, onNavigate, pendingCount }) {
     }
 
     void load();
-
-    return () => {
-      active = false;
-    };
+    return () => { active = false; };
   }, [clock.date, revision]);
 
   const valid = rows.filter((row) => !row.failed);
-
-  const sum = (key) =>
-    valid.reduce((count, row) => count + row[key], 0);
-
-  const total = sum("total");
-  const done = sum("finalized");
-  const draft = sum("draft");
-  const missing = sum("unfilled");
   const failed = rows.filter((row) => row.failed).length;
 
   return (
-    <div>
+    <div className="admin-dashboard-home">
       <div className="staff-page-intro">
         <div>
-          <h2>
-            Assalamu'alaikum, {account?.name || "Administrator"}
-          </h2>
-          <p>
-            Ringkasan Mutabaah, {clock.date}.
-          </p>
+          <h2>Assalamu'alaikum, {account?.name || "Administrator"}</h2>
+          <p>Ringkasan Mutabaah · {clock.date}</p>
         </div>
-
         <button
           type="button"
           className="staff-soft-button"
           disabled={busy}
-          onClick={() => {
-            setBusy(true);
-            setRevision((n) => n + 1);
-          }}
+          onClick={() => setRevision((value) => value + 1)}
         >
-          Perbarui
+          {busy ? "Memuat…" : "Perbarui"}
         </button>
       </div>
 
-      {warning && (
-        <p className="staff-alert" role="alert">
-          {warning}
-        </p>
-      )}
-
+      {warning && <p className="staff-alert" role="alert">{warning}</p>}
       {failed > 0 && (
         <p className="staff-alert" role="alert">
-          Data {failed} kelas gagal dimuat dan tidak termasuk
-          angka ringkasan.
+          Data {failed} kelas gagal dimuat dan tidak ikut dihitung.
         </p>
       )}
 
-      <div className="staff-kpis">
-        <StaffKpi
-          label="Jumlah siswa"
-          value={busy ? "…" : total}
-          detail="Terdaftar pada kelas terbaca"
+      {busy && rows.length === 0 ? (
+        <div className="staff-card live-dashboard-loading" role="status">Memuat ringkasan langsung…</div>
+      ) : (
+        <LiveDashboardCharts
+          classRows={valid}
+          date={clock.date}
+          refreshKey={revision}
+          mode="admin"
+          onSelectClass={() => onNavigate("reports")}
         />
+      )}
 
-        <StaffKpi
-          label="Sudah final"
-          value={busy ? "…" : done}
-          detail={
-            total
-              ? `${Math.round((done / total) * 100)}% dari siswa`
-              : "Hari ini"
-          }
-        />
-
-        <StaffKpi
-          label="Masih draf"
-          value={busy ? "…" : draft}
-        />
-
-        <StaffKpi
-          label="Belum diisi"
-          value={busy ? "…" : missing}
-        />
-      </div>
-
-      <div className="staff-grid">
-        <section className="staff-card">
-          <div className="staff-card-head">
-            <h3>Pengisian per kelas</h3>
-            <button
-              type="button"
-              className="staff-plain-link"
-              onClick={() => onNavigate("reports")}
-            >
-              Lihat laporan ›
-            </button>
+      <section className="staff-card admin-dashboard-attention">
+        <div className="staff-card-head">
+          <h3>Perlu perhatian</h3>
+          <button className="staff-plain-link" type="button" onClick={() => onNavigate("notifications")}>
+            Buka notifikasi ›
+          </button>
+        </div>
+        <div className="staff-attention">
+          <div>
+            <strong>{pendingCount} permintaan akun menunggu</strong>
+            <span>Permintaan pemulihan kata sandi.</span>
           </div>
-
-          <div className="staff-table-wrap">
-            <table className="staff-simple-table">
-              <thead>
-                <tr>
-                  <th>Kelas</th>
-                  <th>Siswa</th>
-                  <th>Final</th>
-                  <th>Progres</th>
-                </tr>
-              </thead>
-              <tbody>
-                {valid.map((row) => (
-                  <tr key={row.class_id}>
-                    <td>{row.class_name}</td>
-                    <td>{row.total}</td>
-                    <td>{row.finalized}</td>
-                    <td>
-                      <StaffMeter
-                        value={row.finalized}
-                        total={row.total}
-                      />
-                    </td>
-                  </tr>
-                ))}
-
-                {valid.length === 0 && (
-                  <tr>
-                    <td colSpan="4" className="staff-muted">
-                      {busy ? "Memuat rekap…" : (
-                        <EmptyState kind="school" illustration="class" title="Belum ada kelas aktif" description="Kelas aktif akan muncul dalam rekap pengisian." />
-                      )}
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+          <div>
+            <strong>{busy ? "Memuat…" : `${valid.reduce((sum, row) => sum + row.draft + row.unfilled, 0)} siswa belum disubmit`}</strong>
+            <span>Draf juga dihitung sebagai belum disubmit.</span>
           </div>
-        </section>
-
-        <section className="staff-card">
-          <div className="staff-card-head">
-            <h3>Perlu perhatian</h3>
-          </div>
-
-          <div className="staff-attention">
-            <div>
-              <strong>
-                {pendingCount} permintaan akun menunggu
-              </strong>
-              <span>Permintaan pemulihan kata sandi.</span>
-              <button
-                className="staff-plain-link"
-                type="button"
-                onClick={() => onNavigate("notifications")}
-              >
-                Buka notifikasi ›
-              </button>
-            </div>
-
-            <div>
-              <strong>
-                {busy
-                  ? "Memuat…"
-                  : `${draft + missing} siswa belum final`}
-              </strong>
-            </div>
-
-            <div>
-              <strong>
-                {rows.length} kelas pada tahun ajaran terbaru
-              </strong>
-            </div>
-          </div>
-        </section>
-      </div>
+        </div>
+      </section>
     </div>
   );
 }
