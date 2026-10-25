@@ -217,7 +217,7 @@ export default function StudentFamily({ student, onClose }) {
         handleEscape
       );
     };
-  }, [saving, generating, familyConfirmation, onClose]);
+  }, [saving, generating, confirmingFamily, familyConfirmation, onClose]);
 
   function changeField(type, field, value) {
     previewVersion.current += 1;
@@ -282,7 +282,6 @@ export default function StudentFamily({ student, onClose }) {
   // Konfirmasi awal disimpan sampai tombol Simpan ditekan.
   async function checkSharedPhone(type, phoneValue = contacts[type]?.phone) {
     if(saving||generating||confirmingFamily||familyConfirmation||loading)return;
-    const current=contacts[type];
     const phone=normalizePhone(phoneValue);
     if(!/^08\d{8,11}$/.test(phone))return;
     // Periksa ulang daftar saudara dari server; mungkin ada saudara baru.
