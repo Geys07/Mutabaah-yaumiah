@@ -1,10 +1,13 @@
 import { useEffect, useState } from "react";
 import { PAGE_SIZE } from "./pagination";
+import { useLiveDataRevision } from "./studentDataUpdates";
 // Debounce filters, cancel superseded reads, and discard incomplete results.
 export default function usePagedQuery(load, page, setPage, delay = 200, refreshMs = 0, reload = 0) {
+  const liveRevision = useLiveDataRevision();
   const [result, setResult] = useState({ data: [], total: 0, loading: true, error: "", scope: null, reload: null });
   useEffect(() => {
     void reload;
+    void liveRevision;
     let alive = true;
     let controller;
     async function run() {
@@ -28,7 +31,7 @@ export default function usePagedQuery(load, page, setPage, delay = 200, refreshM
     const timer = setTimeout(run, delay);
     const poll = refreshMs ? setInterval(() => { if (!document.hidden) void run(); }, refreshMs) : null;
     return () => { alive = false; clearTimeout(timer); clearInterval(poll); controller?.abort(); };
-  }, [load, page, setPage, delay, refreshMs, reload]);
+  }, [load, page, setPage, delay, refreshMs, reload, liveRevision]);
   const pending = result.scope !== load || result.reload !== reload;
   return { ...result, data: pending ? [] : result.data, loading: pending || result.loading };
 }
