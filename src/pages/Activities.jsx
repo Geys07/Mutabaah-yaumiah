@@ -1060,7 +1060,6 @@ export default function Activities() {
                       <table>
                         <thead>
                           <tr>
-                            <th>Urutan</th>
                             <th>Kegiatan</th>
                             <th>Jenis</th>
                             <th>Hari berlaku</th>
@@ -1076,10 +1075,6 @@ export default function Activities() {
                               <tr
                                 key={activity.id}
                               >
-                                <td>
-                                  {activity.sort_order}
-                                </td>
-
                                 <td className="activities-name">
                                   {activity.title}
                                 </td>
