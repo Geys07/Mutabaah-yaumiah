@@ -195,7 +195,7 @@ export default function LiveDashboardCharts({
         },
         {
           label: "Belum disubmit",
-          data: rows.map((row) => Math.max(0, (Number(row.total) || 0) - (Number(row.finalized) || 0)),
+          data: rows.map((row) => Math.max(0, (Number(row.total) || 0) - (Number(row.finalized) || 0))),
           backgroundColor: PENDING_COLOR,
           borderRadius: 6,
           borderSkipped: false,
@@ -221,7 +221,7 @@ export default function LiveDashboardCharts({
       },
     },
     plugins: {
-      legend: { display: !isClass },
+      legend: { display: false },
       tooltip: {
         callbacks: {
           label: (context) => `${context.dataset.label}: ${Number(context.raw || 0).toLocaleString("id-ID")} siswa`,
@@ -316,7 +316,7 @@ export default function LiveDashboardCharts({
       },
     },
     plugins: {
-      legend: { display: true },
+      legend: { display: false },
       tooltip: {
         callbacks: {
           title: (items) => items[0]?.label || "",
