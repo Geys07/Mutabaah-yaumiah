@@ -225,7 +225,7 @@ export default function StudentHistoryPanel() {
                   <button type="button" key={entry.id}
                     onClick={()=>void openHistory(entry.id)}
                     className={student?.id===entry.id?"is-selected":""}>
-                    <strong>{entry.name}</strong>
+                    <strong><span className="sh-row-number">{index+1}.</span> {entry.name}</strong>
                     <small>NIS: {entry.nis||"—"} · {STATUS[entry.status]||entry.status}</small>
                   </button>
                 ))}
