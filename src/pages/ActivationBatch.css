@@ -59,7 +59,11 @@
  color:var(--sa-accent,#178166);font:inherit;font-size:13px;font-weight:750;cursor:pointer
 }
 .activation-batch-toggle small{font-size:11px;font-weight:450;color:var(--sa-muted,#718079)}
-.activation-batch-chevron{margin-left:auto;font-size:19px;line-height:1}
+.activation-batch-toggle-title{display:inline-flex;align-items:center;gap:9px}
+.activation-batch-toggle-title svg{flex:none}
+.activation-batch-toggle-action{margin-left:auto;font-size:11px;font-weight:700;padding:5px 10px;
+ border:1px solid var(--sa-line,#dfe9e4);border-radius:999px;
+ background:var(--sa-card,#fff);color:var(--sa-accent,#178166)}
 .activation-batch-class-heading th{
  background:var(--sa-soft,#e9f6ee)!important;
  color:var(--sa-accent,#178166)!important;font-size:12px!important;
@@ -99,6 +103,4 @@
  .activation-batch-toggle small{flex-basis:80%;order:3}
 }
 
-.activation-batch-chevron{width:20px;height:20px;flex-shrink:0;transition:transform .18s ease}
-.activation-batch-chevron.is-open{transform:rotate(180deg)}
 .activation-batch-toggle:focus-visible{outline:2px solid var(--sa-accent,#178166);outline-offset:2px}
