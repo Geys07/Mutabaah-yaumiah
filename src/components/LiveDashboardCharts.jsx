@@ -1,6 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "../lib/supabase";
+import DashboardBarChart from "./DashboardBarChart";
 import "./LiveDashboardCharts.css";
+
+const SUBMITTED_COLOR = "#27865b";
+const PENDING_COLOR = "#d3a13c";
+const MUTED_COLOR = "#748176";
 
 function daysBefore(value, count) {
   const date = new Date(`${value}T12:00:00Z`);
@@ -45,26 +50,26 @@ export default function LiveDashboardCharts({
   mode = "school",
   onSelectClass,
 }) {
+  const [periodDays, setPeriodDays] = useState(7);
   const [history, setHistory] = useState([]);
-  const [historyLoading, setHistoryLoading] = useState(false);
+  const [historyWindow, setHistoryWindow] = useState(0);
   const [historyNotice, setHistoryNotice] = useState("");
 
-  const rowsSignature = useMemo(
-    () => classRows.map((row) => [
-      row.class_id,
-      row.class_name,
-      row.total,
-      row.finalized,
-      row.draft,
-      row.unfilled,
-      row.failed ? 1 : 0,
-    ].join(":")).join("|"),
-    [classRows]
-  );
+  const rowsSignature = classRows.map((row) => [
+    row.class_id,
+    row.class_name,
+    row.total,
+    row.finalized,
+    row.draft,
+    row.unfilled,
+    row.failed ? 1 : 0,
+  ].join(":")).join("|");
 
   const rows = useMemo(
     () => classRows.filter((row) => row && row.class_id && !row.failed),
-    [classRows]
+    // rowsSignature represents all fields used by this filter and chart data.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [rowsSignature]
   );
 
   const summary = useMemo(() => rows.reduce((total, row) => {
@@ -88,38 +93,30 @@ export default function LiveDashboardCharts({
     if (!date || rows.length === 0) return undefined;
 
     let cancelled = false;
-    const dateList = Array.from({ length: 7 }, (_, index) =>
-      daysBefore(date, 6 - index)
+    const dateList = Array.from({ length: periodDays }, (_, index) =>
+      daysBefore(date, periodDays - index - 1)
     );
-    const requests = [];
     const results = new Map(dateList.map((day) => [
       day,
       { date: day, submitted: 0, notSubmitted: 0, total: 0, complete: true },
     ]));
+    const requests = [];
 
     for (const day of dateList) {
-      for (const row of rows) {
-        if (day === date) {
-          const target = results.get(day);
-          target.submitted += Number(row.finalized) || 0;
-          target.total += Number(row.total) || 0;
-          target.notSubmitted += Math.max(
-            0,
-            (Number(row.total) || 0) - (Number(row.finalized) || 0)
-          );
-        } else {
-          requests.push({ day, row });
-        }
+      const target = results.get(day);
+      if (day === date) {
+        target.submitted = rows.reduce((sum, row) => sum + (Number(row.finalized) || 0), 0);
+        target.total = rows.reduce((sum, row) => sum + (Number(row.total) || 0), 0);
+        target.notSubmitted = Math.max(0, target.total - target.submitted);
+      } else {
+        for (const row of rows) requests.push({ day, row });
       }
     }
 
     async function loadHistory() {
-      setHistoryLoading(true);
       setHistoryNotice("");
-      setHistory([]);
-
-      for (let offset = 0; offset < requests.length; offset += 4) {
-        const batch = requests.slice(offset, offset + 4);
+      for (let offset = 0; offset < requests.length; offset += 6) {
+        const batch = requests.slice(offset, offset + 6);
         const responses = await Promise.all(batch.map(async ({ day, row }) => {
           try {
             const { data, error } = await supabase.rpc(
@@ -135,7 +132,6 @@ export default function LiveDashboardCharts({
         }));
 
         if (cancelled) return;
-
         for (const response of responses) {
           const target = results.get(response.day);
           if (response.failed) {
@@ -151,35 +147,193 @@ export default function LiveDashboardCharts({
       if (cancelled) return;
       const all = [...results.values()];
       setHistory(all);
+      setHistoryWindow(periodDays);
       setHistoryNotice(
         all.some((item) => !item.complete)
-          ? "Sebagian riwayat tidak berhasil dimuat; hari tersebut ditandai tanpa angka."
+          ? "Sebagian riwayat gagal dimuat; tanggal tersebut dibiarkan kosong."
           : ""
       );
-      setHistoryLoading(false);
     }
 
     void loadHistory();
     return () => { cancelled = true; };
-  }, [date, refreshKey, rowsSignature, rows]);
+  }, [date, periodDays, refreshKey, rows]);
 
-  const validHistory = history.filter((item) => item.complete);
-  const historyMax = Math.max(
-    1,
-    ...validHistory.flatMap((item) => [item.submitted, item.notSubmitted])
+  const sortedRows = useMemo(
+    () => [...rows].sort((a, b) => {
+      const aPercent = a.total ? a.finalized / a.total : 0;
+      const bPercent = b.total ? b.finalized / b.total : 0;
+      return aPercent - bPercent || String(a.class_name).localeCompare(String(b.class_name), "id");
+    }),
+    [rows]
   );
-  const axisMid = Math.ceil(historyMax / 2);
-  const sortedRows = [...rows].sort((a, b) => {
-    const aPercent = a.total ? a.finalized / a.total : 0;
-    const bPercent = b.total ? b.finalized / b.total : 0;
-    return aPercent - bPercent || String(a.class_name).localeCompare(String(b.class_name), "id");
-  });
+
+  const comparisonData = useMemo(() => {
+    if (isClass) {
+      return {
+        labels: ["Sudah disubmit", "Belum disubmit"],
+        datasets: [{
+          label: "Jumlah siswa",
+          data: [summary.submitted, notSubmitted],
+          backgroundColor: [SUBMITTED_COLOR, PENDING_COLOR],
+          borderRadius: 7,
+          borderSkipped: false,
+          barThickness: 26,
+        }],
+      };
+    }
+    return {
+      labels: rows.map((row) => row.class_name || "Kelas"),
+      datasets: [
+        {
+          label: "Sudah disubmit",
+          data: rows.map((row) => Number(row.finalized) || 0),
+          backgroundColor: SUBMITTED_COLOR,
+          borderRadius: 6,
+          borderSkipped: false,
+          barThickness: 17,
+        },
+        {
+          label: "Belum disubmit",
+          data: rows.map((row) => Math.max(0, (Number(row.total) || 0) - (Number(row.finalized) || 0)),
+          backgroundColor: PENDING_COLOR,
+          borderRadius: 6,
+          borderSkipped: false,
+          barThickness: 17,
+        },
+      ],
+    };
+  }, [isClass, rows, summary.submitted, notSubmitted]);
+
+  const comparisonOptions = useMemo(() => ({
+    indexAxis: "y",
+    scales: {
+      x: {
+        beginAtZero: true,
+        stacked: !isClass,
+        ticks: { precision: 0, color: MUTED_COLOR, font: { size: 10 } },
+        grid: { color: "rgba(116,129,118,0.14)", drawBorder: false },
+      },
+      y: {
+        stacked: !isClass,
+        ticks: { color: MUTED_COLOR, font: { size: 11 } },
+        grid: { display: false, drawBorder: false },
+      },
+    },
+    plugins: {
+      legend: { display: !isClass },
+      tooltip: {
+        callbacks: {
+          label: (context) => `${context.dataset.label}: ${Number(context.raw || 0).toLocaleString("id-ID")} siswa`,
+        },
+      },
+    },
+  }), [isClass]);
+
+  const progressData = useMemo(() => ({
+    labels: sortedRows.map((row) => row.class_name || "Kelas"),
+    datasets: [{
+      label: "Ketercapaian",
+      data: sortedRows.map((row) => row.total
+        ? Math.round((Number(row.finalized || 0) / Number(row.total)) * 100)
+        : 0),
+      backgroundColor: "#398f62",
+      borderRadius: 7,
+      borderSkipped: false,
+      barThickness: 15,
+    }],
+  }), [sortedRows]);
+
+  const progressOptions = useMemo(() => ({
+    indexAxis: "y",
+    scales: {
+      x: {
+        beginAtZero: true,
+        max: 100,
+        ticks: { color: MUTED_COLOR, callback: (value) => `${value}%`, font: { size: 10 } },
+        grid: { color: "rgba(116,129,118,0.14)", drawBorder: false },
+      },
+      y: {
+        ticks: { color: MUTED_COLOR, font: { size: 11 } },
+        grid: { display: false, drawBorder: false },
+      },
+    },
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: {
+          label: (context) => `${context.raw}% ketercapaian`,
+        },
+      },
+    },
+  }), []);
+
+  const historyData = useMemo(() => {
+    const completeHistory = historyWindow === periodDays ? history : [];
+    return {
+      labels: completeHistory.map((item) => dateLabel(item.date, { day: "numeric", month: "short" })),
+      datasets: [
+        {
+          label: "Sudah disubmit",
+          data: completeHistory.map((item) => item.complete ? item.submitted : null),
+          backgroundColor: SUBMITTED_COLOR,
+          borderRadius: 5,
+          borderSkipped: false,
+          barPercentage: 0.78,
+          categoryPercentage: 0.72,
+        },
+        {
+          label: "Belum disubmit",
+          data: completeHistory.map((item) => item.complete ? item.notSubmitted : null),
+          backgroundColor: PENDING_COLOR,
+          borderRadius: 5,
+          borderSkipped: false,
+          barPercentage: 0.78,
+          categoryPercentage: 0.72,
+        },
+      ],
+    };
+  }, [history, historyWindow, periodDays]);
+
+  const historyOptions = useMemo(() => ({
+    scales: {
+      x: {
+        stacked: true,
+        ticks: {
+          color: MUTED_COLOR,
+          maxRotation: 0,
+          autoSkip: true,
+          maxTicksLimit: periodDays === 30 ? 10 : 7,
+          font: { size: 10 },
+        },
+        grid: { display: false, drawBorder: false },
+      },
+      y: {
+        stacked: true,
+        beginAtZero: true,
+        ticks: { precision: 0, color: MUTED_COLOR, font: { size: 10 } },
+        grid: { color: "rgba(116,129,118,0.14)", drawBorder: false },
+      },
+    },
+    plugins: {
+      legend: { display: true },
+      tooltip: {
+        callbacks: {
+          title: (items) => items[0]?.label || "",
+          label: (context) => `${context.dataset.label}: ${Number(context.raw || 0).toLocaleString("id-ID")} siswa`,
+        },
+      },
+    },
+  }), [periodDays]);
+
+  const historyReady = historyWindow === periodDays && history.length === periodDays;
+  const validHistoryCount = historyReady ? history.filter((item) => item.complete).length : 0;
 
   return (
     <div className={`live-dashboard live-dashboard-${mode}`}>
       <section className="live-dashboard-hero" aria-label="Ketercapaian pengisian">
         <div className="live-dashboard-hero-copy">
-          <span className="live-dashboard-eyebrow"><span className="live-live-dot" /> PEMANTAUAN LANGSUNG</span>
+          <span className="live-dashboard-eyebrow">RINGKASAN MUTABAAH</span>
           <h3>{title}</h3>
           <div className="live-dashboard-percent">{completion}<span>%</span></div>
           <div className="live-dashboard-progress" role="progressbar" aria-label={title} aria-valuemin={0} aria-valuemax={100} aria-valuenow={completion}>
@@ -205,44 +359,20 @@ export default function LiveDashboardCharts({
           <div className="live-chart-heading">
             <div>
               <h3>{isClass ? "Status pengisian kelas" : "Perbandingan pengisian per kelas"}</h3>
-              <p>Ketuk kelas untuk membuka rincian jika tersedia.</p>
+              <p>{isClass ? "Jumlah siswa menurut status submit." : "Pilih kelas untuk membuka rincian jika tersedia."}</p>
             </div>
-            <span className="live-chart-icon" aria-hidden="true">↔</span>
           </div>
           <Legend />
           {rows.length === 0 ? (
-            <EmptyChart>Belum ada data kelas untuk ditampilkan.</EmptyChart>
+            <EmptyChart>Belum ada data untuk ditampilkan.</EmptyChart>
           ) : (
-            <div className="live-class-bars">
-              {rows.map((row) => {
-                const total = Number(row.total) || 0;
-                const submitted = Number(row.finalized) || 0;
-                const pending = Math.max(0, total - submitted);
-                const submitWidth = total ? (submitted / total) * 100 : 0;
-                const pendingWidth = total ? (pending / total) * 100 : 0;
-                const content = (
-                  <>
-                    <span className="live-class-bar-label">{row.class_name || "Kelas"}</span>
-                    <span className="live-class-bar-track" title={`Sudah disubmit: ${submitted}; belum disubmit: ${pending}`}>
-                      <span className="live-bar-submitted" style={{ width: `${submitWidth}%` }} />
-                      <span className="live-bar-pending" style={{ width: `${pendingWidth}%` }} />
-                    </span>
-                    <span className="live-class-bar-count">{submitted}/{total}</span>
-                  </>
-                );
-                return onSelectClass ? (
-                  <button
-                    type="button"
-                    className="live-class-bar-row is-action"
-                    key={row.class_id}
-                    onClick={() => onSelectClass(row.class_id)}
-                    aria-label={`Buka rincian kelas ${row.class_name}, ${submitted} dari ${total} sudah disubmit`}
-                  >{content}</button>
-                ) : (
-                  <div className="live-class-bar-row" key={row.class_id}>{content}</div>
-                );
-              })}
-            </div>
+            <DashboardBarChart
+              data={comparisonData}
+              options={comparisonOptions}
+              height={Math.max(145, rows.length * 37)}
+              label={isClass ? "Grafik status pengisian kelas" : "Grafik perbandingan pengisian per kelas"}
+              onItemClick={isClass ? undefined : (index) => onSelectClass?.(rows[index]?.class_id)}
+            />
           )}
         </section>
 
@@ -251,72 +381,46 @@ export default function LiveDashboardCharts({
             <div className="live-chart-heading">
               <div>
                 <h3>Progres ketercapaian kelas</h3>
-                <p>Urutan dari kelas dengan progres terendah.</p>
+                <p>Urutan dari ketercapaian terendah.</p>
               </div>
-              <span className="live-chart-icon" aria-hidden="true">%</span>
             </div>
             {sortedRows.length === 0 ? (
               <EmptyChart>Progres kelas akan muncul setelah data tersedia.</EmptyChart>
             ) : (
-              <div className="live-progress-list">
-                {sortedRows.map((row) => {
-                  const total = Number(row.total) || 0;
-                  const submitted = Number(row.finalized) || 0;
-                  const value = total ? Math.round((submitted / total) * 100) : 0;
-                  const content = (
-                    <>
-                      <span>{row.class_name || "Kelas"}</span>
-                      <strong>{value}%</strong>
-                      <span className="live-progress-track"><span style={{ width: `${value}%` }} /></span>
-                      <small>{submitted} dari {total} siswa</small>
-                    </>
-                  );
-                  return onSelectClass ? (
-                    <button type="button" className="live-progress-row is-action" key={row.class_id} onClick={() => onSelectClass(row.class_id)}>{content}</button>
-                  ) : (
-                    <div className="live-progress-row" key={row.class_id}>{content}</div>
-                  );
-                })}
-              </div>
+              <DashboardBarChart
+                data={progressData}
+                options={progressOptions}
+                height={Math.max(145, sortedRows.length * 36)}
+                label="Grafik progres ketercapaian kelas"
+                onItemClick={(index) => onSelectClass?.(sortedRows[index]?.class_id)}
+              />
             )}
           </section>
         )}
 
         <section className="live-chart-panel live-chart-history-panel">
-          <div className="live-chart-heading">
+          <div className="live-chart-heading live-history-heading">
             <div>
-              <h3>Riwayat pengisian 7 hari</h3>
+              <h3>Riwayat pengisian</h3>
               <p>Jumlah siswa per hari berdasarkan status sebenarnya.</p>
             </div>
-            <span className="live-chart-icon" aria-hidden="true">7d</span>
+            <div className="live-period-toggle" role="group" aria-label="Periode riwayat pengisian">
+              <button type="button" aria-pressed={periodDays === 7} className={periodDays === 7 ? "is-active" : ""} onClick={() => setPeriodDays(7)}>7 hari</button>
+              <button type="button" aria-pressed={periodDays === 30} className={periodDays === 30 ? "is-active" : ""} onClick={() => setPeriodDays(30)}>1 bulan</button>
+            </div>
           </div>
           <Legend />
-          {historyLoading ? (
+          {!historyReady ? (
             <EmptyChart>Memuat riwayat pengisian…</EmptyChart>
-          ) : validHistory.length === 0 ? (
-            <EmptyChart>Riwayat belum tersedia. Grafik tidak menggunakan data simulasi.</EmptyChart>
+          ) : validHistoryCount === 0 ? (
+            <EmptyChart>Riwayat tidak tersedia untuk periode ini. Grafik tidak menggunakan data simulasi.</EmptyChart>
           ) : (
-            <div className="live-history-chart">
-              <div className="live-history-axis" aria-hidden="true">
-                <span>{historyMax}</span>
-                <span>{axisMid}</span>
-                <span>0</span>
-              </div>
-              <div className="live-history-plot">
-                <div className="live-history-grid" aria-hidden="true"><i /><i /><i /></div>
-                {history.map((item) => (
-                  <div className={`live-history-day${item.complete ? "" : " is-incomplete"}`} key={item.date} title={item.complete ? `${dateLabel(item.date, { day: "numeric", month: "long" })}: ${item.submitted} sudah, ${item.notSubmitted} belum` : "Data hari ini tidak lengkap"}>
-                    {item.complete ? (
-                      <div className="live-history-bars">
-                        <span className="live-history-submitted" style={{ height: `${(item.submitted / historyMax) * 100}%` }} />
-                        <span className="live-history-pending" style={{ height: `${(item.notSubmitted / historyMax) * 100}%` }} />
-                      </div>
-                    ) : <span className="live-history-gap">—</span>}
-                    <small>{dateLabel(item.date, { day: "numeric", month: "short" })}</small>
-                  </div>
-                ))}
-              </div>
-            </div>
+            <DashboardBarChart
+              data={historyData}
+              options={historyOptions}
+              height={periodDays === 30 ? 260 : 220}
+              label={`Grafik riwayat pengisian ${periodDays === 30 ? "satu bulan" : "tujuh hari"}`}
+            />
           )}
           {historyNotice && <p className="live-chart-note" role="status">{historyNotice}</p>}
         </section>
