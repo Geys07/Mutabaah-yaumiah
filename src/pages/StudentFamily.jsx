@@ -55,6 +55,7 @@ export default function StudentFamily({ student, onClose }) {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [generating, setGenerating] = useState("");
+  const [linking, setLinking] = useState("");
   const [codeReadFailed, setCodeReadFailed] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -328,7 +329,33 @@ export default function StudentFamily({ student, onClose }) {
     }
   }
 
-  const busy = saving || Boolean(generating);
+  async function linkExistingAccount(relationship) {
+    if (saving || generating || linking) return;
+    const contact=savedContacts[relationship];
+    const draft=contacts[relationship];
+    if(!contact?.full_name || !contact?.phone) {
+      setError("Simpan nama dan nomor HP wali terlebih dahulu.");return;
+    }
+    if (draft.full_name.trim() !== contact.full_name ||
+        normalizePhone(draft.phone) !== contact.phone) {
+      setError("Simpan perubahan kontak terlebih dahulu.");return;
+    }
+    setLinking(relationship);
+    setError("");
+    try {
+      const {data,error:problem}=await supabase.rpc("admin_link_existing_parent",{
+        p_student_id:student.id,p_relationship:relationship
+      });
+      if(problem)throw problem;
+      if(data?.success !== true) throw new Error("Belum ada konfirmasi server.");
+      announceStudentDataChange();
+      onClose(); // Satu tindakan selesai, popup ditutup pada keberhasilan.
+    }catch(problem) {
+      setError(problem.message || "Belum dapat menghubungkan anak ke akun wali.");
+    }finally {setLinking("");}
+  }
+
+  const busy = saving || Boolean(generating) || Boolean(linking);
 
   return (
     <div
@@ -386,6 +413,8 @@ export default function StudentFamily({ student, onClose }) {
                     item.relationship === type.id
                 );
 
+                const isLinked = Boolean(student.linkedContacts?.[type.id]?.account_linked);
+
                 const validCode = Boolean(
                   code?.is_active &&
                   code.phone === saved.phone
@@ -441,7 +470,9 @@ export default function StudentFamily({ student, onClose }) {
                     {saved.full_name && saved.phone && (
                       <div className="family-activation">
                         <div className="family-activation-info">
-                          {validCode ? (
+                          {isLinked ? (
+                            <span className="family-linked-note">Akun terhubung</span>
+                          ) : validCode ? (
                             <>
                               <strong className="family-code">
                                 {code.code}
@@ -461,7 +492,7 @@ export default function StudentFamily({ student, onClose }) {
                           )}
                         </div>
 
-                        <button
+                        {!isLinked && <button
                           type="button"
                           className="family-secondary"
                           disabled={busy}
@@ -476,7 +507,12 @@ export default function StudentFamily({ student, onClose }) {
                               : validCode
                                 ? "Kode Baru"
                                 : "Buat Kode"}
-                        </button>
+                        </button>}
+                        {!isLinked && <button
+                          type="button" className="family-secondary family-link-account"
+                          disabled={busy} onClick={()=>void linkExistingAccount(type.id)}>
+                          {linking===type.id?"Menghubungkan…":"Hubungkan ke Akun"}
+                        </button>}
                       </div>
                     )}
                   </section>
