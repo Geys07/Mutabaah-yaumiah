@@ -110,7 +110,6 @@ export function checkPushDevice(kind, id, refresh = false) {
       if (await currentId() !== id) return false;
       localStorage.setItem(OWNER_KEY, JSON.stringify({ kind, id }));
       localStorage.setItem(OPT_IN_KEY(kind,id), "1");
-      localStorage.setItem(OPT_IN_KEY(kind,id), "1");
     }
     return true;
   });
