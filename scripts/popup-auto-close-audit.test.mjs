@@ -115,3 +115,20 @@ test("dialog a11y and rapor interface use four time theme without changing print
   assert.match(report,/\.mut-rapor-page \{ background:var\(--sa-card/);
   assert.match(report,/\.mut-rapor-page h2 .*var\(--sa-accent/);
 });
+
+test("confirmation descriptions render actual line breaks, not visible backslash-n codes",async()=>{
+ for(const path of [
+   "src/pages/PromotionManager.jsx",
+   "src/pages/SemesterBoundaryManager.jsx",
+   "src/pages/AdminNotifications.jsx",
+   "src/pages/ReportCards.jsx",
+ ]){
+   const file=await read(path);
+   const start=file.indexOf("<AppConfirmDialog");
+   const end=file.indexOf("/>",start);
+   assert.ok(start>=0 && end>start,path);
+   const dialog=file.slice(start,end);
+   assert.equal(dialog.includes(String.raw\`\\n\`),false,path+" must not print literal escapes");
+   assert.ok(dialog.includes(String.raw\`\n\`),path+" includes a purposeful line break");
+ }
+});
