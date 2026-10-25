@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabase";
+import { useLiveDataRevision } from "../lib/studentDataUpdates";
 import "./ParentPhoneChange.css";
 
 const phonePattern = /^08\d{8,11}$/;
@@ -11,6 +12,7 @@ export default function ParentPhoneChange({ account }) {
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const liveRevision = useLiveDataRevision(Boolean(account?.id));
 
   async function refresh() {
     const { data, error: problem } = await supabase
@@ -35,7 +37,7 @@ export default function ParentPhoneChange({ account }) {
         .then(({ data }) => { if (active) setRequests(data || []); });
     }, 0);
     return () => { active = false; window.clearTimeout(start); };
-  }, [account?.id]);
+  }, [account?.id, liveRevision]);
 
   async function submit(event) {
     event.preventDefault();

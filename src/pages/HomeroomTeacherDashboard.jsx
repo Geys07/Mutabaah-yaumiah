@@ -3,6 +3,7 @@ import EmptyState from "../components/EmptyState";
 
 import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import { supabase } from "../lib/supabase";
+import { listenStudentDataChanges } from "../lib/studentDataUpdates";
 import useDisplayPage from "../lib/useDisplayPage";
 import Pagination from "../components/Pagination";
 import { fetchAll } from "../lib/pagination";
@@ -144,6 +145,9 @@ export default function HomeroomTeacherDashboard({
   const [loggingOut, setLoggingOut] = useState(false);
   const [refresh, setRefresh] = useState(0);
   useNotificationPulse(() => setRefresh((n) => n + 1), Boolean(classId) && !loggingOut);
+  useEffect(() => listenStudentDataChanges(() => {
+    if (!document.hidden && !loggingOut) setRefresh((value) => value + 1);
+  }), [loggingOut]);
   const { push: pushPage } = usePanelHistory("homeroom", "daily", (page) => {
     if (TABS.some((item) => item.id === page)) { setActiveTab(page); setError(""); if (page === "daily") setRefresh((n) => n + 1); }
   });
@@ -188,7 +192,7 @@ export default function HomeroomTeacherDashboard({
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [refresh]);
 
   useEffect(() => {
     if (

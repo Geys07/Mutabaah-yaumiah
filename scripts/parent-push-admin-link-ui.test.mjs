@@ -27,7 +27,7 @@ test("existing child claims are moved from parent panel into Admin contacts with
  ]);
  assert.doesNotMatch(parent,/claim-parent|openLink\(|linkChild\(|pd-link-modal|Hubungkan Anak/);
  assert.match(parent,/Hubungi Admin madrasah/);
- assert.match(parent,/setChildrenRevision\(\(n\) => n \+ 1\)/);
+ assert.match(parent,/useLiveDataRevision/);
  assert.match(admin,/linkedContacts:student\.contacts/);
  assert.match(contacts,/admin_preview_parent_family/);
  assert.match(contacts,/admin_save_parent_family/);

@@ -1,6 +1,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "../lib/supabase";
+import { listenStudentDataChanges } from "../lib/studentDataUpdates";
 import AppConfirmDialog from "../components/AppConfirmDialog";
 import "./PromotionManager.css";
 
@@ -19,6 +20,11 @@ export default function PromotionManager() {
   const [expanded, setExpanded] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const [liveRevision, setLiveRevision] = useState(0);
+
+  useEffect(() => listenStudentDataChanges(() => {
+    if (!document.hidden) setLiveRevision((value) => value + 1);
+  }), []);
 
   useEffect(() => {
     let mounted = true;
@@ -39,7 +45,10 @@ export default function PromotionManager() {
         );
 
         setYears(list);
-        setYear(String(list[0] ?? ""));
+        setYear((previous) => list.includes(Number(previous))
+          ? previous
+          : String(list[0] ?? "")
+        );
       }
     }
 
@@ -48,7 +57,7 @@ export default function PromotionManager() {
     return () => {
       mounted = false;
     };
-  }, []);
+  }, [liveRevision]);
 
   useEffect(() => {
     if (!confirmOpen) return undefined;

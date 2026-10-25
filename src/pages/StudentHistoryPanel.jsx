@@ -2,6 +2,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "../lib/supabase";
 import { PAGE_SIZE } from "../lib/pagination";
+import { useLiveDataRevision } from "../lib/studentDataUpdates";
 import Pagination from "../components/Pagination";
 import "./StudentHistoryPanel.css";
 
@@ -37,6 +38,8 @@ export default function StudentHistoryPanel() {
   const [searching, setSearching] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const liveRevision = useLiveDataRevision();
+  const liveHistoryRef = useRef({ selectedId: "", page: 0, openHistory: null });
 
   async function findStudent(event) {
     event.preventDefault();
@@ -154,6 +157,17 @@ export default function StudentHistoryPanel() {
       }
     }
   }
+
+  useEffect(() => {
+    liveHistoryRef.current = { selectedId, page, openHistory };
+  });
+
+  useEffect(() => {
+    const current = liveHistoryRef.current;
+    if (current.selectedId && current.openHistory) {
+      void current.openHistory(current.selectedId, current.page);
+    }
+  }, [liveRevision]);
 
   const groupedResults=useMemo(()=>{
     const map=new Map();

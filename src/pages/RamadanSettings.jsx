@@ -1,6 +1,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "../lib/supabase";
+import { listenStudentDataChanges } from "../lib/studentDataUpdates";
 import "./RamadanSettings.css";
 
 const DEFAULTS = [
@@ -56,6 +57,10 @@ export default function RamadanSettings() {
     // Tidak memanggil setState langsung di dalam effect.
     void Promise.resolve().then(refresh);
   }, [refresh]);
+
+  useEffect(() => listenStudentDataChanges(() => {
+    if (!document.hidden) void refresh();
+  }), [refresh]);
 
   function choosePeriod(item) {
     setStartsOn(item.starts_on);

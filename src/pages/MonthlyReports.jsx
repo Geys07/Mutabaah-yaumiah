@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 
 
 import { supabase } from "../lib/supabase";
+import { listenStudentDataChanges } from "../lib/studentDataUpdates";
 import useStudentSearch from "../lib/useStudentSearch";
 import useDisplayPage from "../lib/useDisplayPage";
 import Pagination from "../components/Pagination";
@@ -130,6 +131,10 @@ export default function MonthlyReports() {
   const [error, setError] = useState("");
   const [refresh, setRefresh] = useState(0);
 
+  useEffect(() => listenStudentDataChanges(() => {
+    if (!document.hidden) setRefresh((value) => value + 1);
+  }), []);
+
   useEffect(() => {
     let cancelled = false;
 
@@ -185,7 +190,7 @@ export default function MonthlyReports() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [refresh]);
 
   useEffect(() => {
     if (!classId || !month) {

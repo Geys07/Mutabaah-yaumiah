@@ -7,6 +7,7 @@ import { fetchAll } from "../lib/pagination";
 import { readNotification, notificationGroup } from "../lib/notificationRead";
 import useNotificationRead from "../hooks/useNotificationRead";
 import { announceNotificationChange } from "../lib/notificationUpdates";
+import { listenStudentDataChanges } from "../lib/studentDataUpdates";
 import { signOut } from "../lib/auth";
 import usePanelHistory from "../hooks/usePanelHistory";
 import useJakartaClock from "../hooks/useJakartaClock";
@@ -131,6 +132,10 @@ function DashboardHome({ account, onNavigate, pendingCount }) {
   const [busy, setBusy] = useState(true);
   const [warning, setWarning] = useState("");
   const [revision, setRevision] = useState(0);
+
+  useEffect(() => listenStudentDataChanges(() => {
+    if (!document.hidden) setRevision((value) => value + 1);
+  }), []);
 
   useEffect(() => {
     let active = true;

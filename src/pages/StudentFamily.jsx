@@ -27,6 +27,32 @@ function normalizePhone(value) {
     : digits;
 }
 
+function cleanName(value) {
+  return String(value || "").trim().replace(/\s+/g, " ");
+}
+
+function existingContactName(issue) {
+  const registeredName = cleanName(issue?.registered_name);
+  if (registeredName) return registeredName;
+
+  const contacts = (issue?.students || [])
+    .map((item) => ({
+      name: cleanName(item.contact_name),
+      relationship: item.relationship,
+    }))
+    .filter((item) => item.name);
+  const sameRelationship = contacts.filter(
+    (item) => item.relationship === issue?.relationship
+  );
+  const candidates = sameRelationship.length ? sameRelationship : contacts;
+  const counts = new Map();
+  for (const item of candidates) {
+    counts.set(item.name, (counts.get(item.name) || 0) + 1);
+  }
+  return [...counts.entries()]
+    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], "id"))[0]?.[0] || "";
+}
+
 function formatExpiry(date) {
   return new Intl.DateTimeFormat("id-ID", {
     day: "numeric",
@@ -84,6 +110,7 @@ export default function StudentFamily({ student, onClose }) {
   const [generating, setGenerating] = useState("");
   const [familyConfirmation, setFamilyConfirmation] = useState(null);
   const [approvedFamilyPhones, setApprovedFamilyPhones] = useState([]);
+  const [autoFilledNames, setAutoFilledNames] = useState({});
   const previewVersion = useRef(0);
   const [codeReadFailed, setCodeReadFailed] = useState(false);
   const [error, setError] = useState("");
@@ -188,6 +215,7 @@ export default function StudentFamily({ student, onClose }) {
 
   function changeField(type, field, value) {
     previewVersion.current += 1;
+    setAutoFilledNames((previous) => ({ ...previous, [type]: false }));
     if(field==="phone"){
       setApprovedFamilyPhones((previous)=>previous.filter(item=>
         item.relationship!==type || item.phone===normalizePhone(value)
@@ -226,12 +254,6 @@ export default function StudentFamily({ student, onClose }) {
         );
       }
 
-      if (!name && phone) {
-        throw new Error(
-          `Nama ${type.label} harus diisi.`
-        );
-      }
-
       if (
         phone &&
         !/^08\d{8,11}$/.test(phone)
@@ -256,7 +278,7 @@ export default function StudentFamily({ student, onClose }) {
     if(saving||generating||familyConfirmation||loading)return;
     const current=contacts[type];
     const phone=normalizePhone(current?.phone);
-    if(!/^08\d{8,11}$/.test(phone)||!current?.full_name?.trim())return;
+    if(!/^08\d{8,11}$/.test(phone))return;
     // Periksa ulang daftar saudara dari server; mungkin ada saudara baru.
     const version=++previewVersion.current;
     const payload=Object.fromEntries(TYPES.map(item=>[
@@ -271,6 +293,11 @@ export default function StudentFamily({ student, onClose }) {
       if(previewVersion.current!==version)return;
       const matches=(Array.isArray(data)?data:[])
         .filter(item=>item.relationship===type && item.phone===phone);
+      const canonicalName=matches.map(existingContactName).find(Boolean);
+      if(canonicalName && cleanName(contacts[type]?.full_name)!==canonicalName){
+        setContacts(previous=>({...previous,[type]:{...previous[type],full_name:canonicalName}}));
+        setAutoFilledNames(previous=>({...previous,[type]:true}));
+      }
       const unconfirmed=matches.filter(item=>!approvedFamilyPhones.some(approved=>
         approvalCoversIssue(approved,item)
       ));
@@ -324,14 +351,35 @@ export default function StudentFamily({ student, onClose }) {
       );
       if(previewError)throw previewError;
       if(!Array.isArray(data))throw new Error("Konfirmasi keluarga tidak dapat diperiksa.");
+
+      const resolvedPayload={...payload};
+      const filled={};
+      for(const type of TYPES){
+        const current=resolvedPayload[type.id];
+        if(!current.phone)continue;
+        const issue=data.find(item=>item.relationship===type.id&&item.phone===current.phone);
+        const canonicalName=issue?existingContactName(issue):"";
+        if(canonicalName){
+          resolvedPayload[type.id]={...current,full_name:canonicalName};
+          filled[type.id]=true;
+        }
+        if(!resolvedPayload[type.id].full_name){
+          throw new Error(`Nama ${type.label} harus diisi. Nomor ini belum memiliki nama wali yang dapat diambil otomatis.`);
+        }
+      }
+      setContacts(previous=>Object.fromEntries(TYPES.map(type=>[
+        type.id,{...previous[type.id],full_name:resolvedPayload[type.id].full_name}
+      ])));
+      setAutoFilledNames(previous=>({...previous,...filled}));
+
       const remaining=data.filter(item=>!approvedFamilyPhones.some(approval=>
         approvalCoversIssue(approval,item)
       ));
       if(remaining.length){
-        setFamilyConfirmation({payload,matches:remaining,saveAfter:true});
+        setFamilyConfirmation({payload:resolvedPayload,matches:remaining,saveAfter:true});
         return;
       }
-      await persistContacts(payload,approvedFamilyPhones);
+      await persistContacts(resolvedPayload,approvedFamilyPhones);
     }catch(problem){
       setError(problem.message||"Pemeriksaan nomor HP gagal. Tidak ada perubahan tersimpan.");
     }finally{
@@ -357,10 +405,15 @@ export default function StudentFamily({ student, onClose }) {
     const label=TYPES.find(type=>type.id===item.relationship)?.label||"Wali";
     const students=(item.students||[])
       .map(other=>`${other.name} (${other.class_name})`).join(", ");
+    const contactName=cleanName(item.registered_name) ||
+      cleanName((item.students||[]).find(other=>other.contact_name)?.contact_name);
     const info=students
-      ? `Nomor ini sudah tercatat pada siswa ${students}.`
-      : "Nomor ini sudah digunakan oleh akun orang tua yang aktif.";
-    return `${label} — ${item.phone}\n${info}\nApakah ${student.full_name} satu keluarga dengan siswa/akun tersebut?`;
+      ? `Nomor ini sudah tercatat atas nama ${contactName||label} pada siswa ${students}.`
+      : `Nomor ini sudah digunakan oleh akun orang tua yang aktif${contactName?` atas nama ${contactName}`:""}.`;
+    const question=students
+      ? `Apakah ${student.full_name} satu keluarga dengan ${students}?`
+      : `Apakah nomor ini milik wali yang sama untuk ${student.full_name}?`;
+    return `${label} — ${item.phone}\n${info}\n${question}`;
   }).join("\n\n")||"";
 
   async function retryReadCodes() {
@@ -539,6 +592,11 @@ export default function StudentFamily({ student, onClose }) {
                             )
                           }
                         />
+                        {autoFilledNames[type.id] && (
+                          <small className="family-autofill-note">
+                            Nama terisi otomatis dari data wali yang sudah ada.
+                          </small>
+                        )}
                       </label>
 
                       <label>

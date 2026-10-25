@@ -2,6 +2,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "../lib/supabase";
 import { fetchAll } from "../lib/pagination";
+import { listenStudentDataChanges } from "../lib/studentDataUpdates";
 import "./Activities.css";
 import "./ActivitiesDynamic.css";
 import RamadanSettings from "./RamadanSettings";
@@ -132,6 +133,10 @@ export default function Activities() {
   const [activities, setActivities] = useState([]);
   const [loading, setLoading] = useState(true);
   const [revision, setRevision] = useState(0);
+
+  useEffect(() => listenStudentDataChanges(() => {
+    if (!document.hidden) setRevision((value) => value + 1);
+  }), []);
 
   const [form, setForm] = useState(null);
   const [saving, setSaving] = useState(false);

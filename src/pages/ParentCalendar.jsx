@@ -5,6 +5,7 @@ import {
   useState,
 } from "react";
 import { supabase } from "../lib/supabase";
+import { listenStudentDataChanges } from "../lib/studentDataUpdates";
 import "./ParentCalendar.css";
 
 const WEEKDAYS = [
@@ -255,8 +256,10 @@ export default function ParentCalendar({
       "mutabaah:saved",
       refreshCalendar
     );
+    const stopListening = listenStudentDataChanges(refreshCalendar);
 
     return () => {
+      stopListening();
       window.removeEventListener(
         "focus",
         refreshCalendar

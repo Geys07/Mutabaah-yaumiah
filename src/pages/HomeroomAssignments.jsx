@@ -3,6 +3,7 @@ import EmptyState from "../components/EmptyState";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "../lib/supabase";
 import { fetchAll } from "../lib/pagination";
+import { listenStudentDataChanges } from "../lib/studentDataUpdates";
 import TeacherAccounts from "./TeacherAccounts";
 import "./HomeroomAssignments.css";
 
@@ -24,6 +25,10 @@ export default function HomeroomAssignments() {
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const [refresh, setRefresh] = useState(0);
+
+  useEffect(() => listenStudentDataChanges(() => {
+    if (!document.hidden) setRefresh((value) => value + 1);
+  }), []);
 
   useEffect(() => {
     if (activeTab !== "assignments") {

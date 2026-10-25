@@ -3,6 +3,7 @@ import EmptyState from "../components/EmptyState";
 
 import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import { supabase } from "../lib/supabase";
+import { listenStudentDataChanges } from "../lib/studentDataUpdates";
 import useDisplayPage from "../lib/useDisplayPage";
 import Pagination from "../components/Pagination";
 import { fetchAll } from "../lib/pagination";
@@ -197,6 +198,9 @@ export default function PrincipalDashboard({
   const [error, setError] = useState("");
   const [detailError, setDetailError] = useState("");
   const [loggingOut, setLoggingOut] = useState(false);
+  useEffect(() => listenStudentDataChanges(() => {
+    if (!document.hidden && !loggingOut) setReload((value) => value + 1);
+  }), [loggingOut]);
   useNotificationPulse(() => setReload((n) => n + 1), Boolean(year) && !loggingOut);
   const [logoutError, setLogoutError] = useState("");
   const { push: pushPage } = usePanelHistory("principal", "overview", (page) => {
@@ -263,7 +267,11 @@ export default function PrincipalDashboard({
         const items = Array.isArray(data) ? data : [];
 
         setClasses(items);
-        setYear(items[0]?.academic_year || "");
+        setYear((previous) =>
+          items.some((item) => item.academic_year === previous)
+            ? previous
+            : items[0]?.academic_year || ""
+        );
         setLoadingSummary(items.length > 0);
         setError("");
       } catch (caught) {
@@ -282,7 +290,7 @@ export default function PrincipalDashboard({
     return () => {
       active = false;
     };
-  }, []);
+  }, [reload]);
 
   useEffect(() => {
     if (
