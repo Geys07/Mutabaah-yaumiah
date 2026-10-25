@@ -160,6 +160,7 @@ export async function enablePushDevice(kind, id, prepared) {
       await invokePush(kind, "subscribe", { subscription: sub.toJSON() });
       await assertAccount(id);
       localStorage.setItem(OWNER_KEY, JSON.stringify({ kind, id }));
+      localStorage.setItem(OPT_IN_KEY(kind,id), "1");
     } catch (error) {
       await sub.unsubscribe().catch(() => {});
       if (owner()?.id === id && owner()?.kind === kind) localStorage.removeItem(OWNER_KEY);
