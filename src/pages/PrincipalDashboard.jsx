@@ -186,10 +186,6 @@ export default function PrincipalDashboard({
   const [date, setDate] = useState(() => clock.date);
   const [reload, setReload] = useState(0);
 
-  useEffect(() => listenStudentDataChanges(() => {
-    if (!document.hidden && !loggingOut) setReload((value) => value + 1);
-  }), [loggingOut]);
-
   const [loadingClasses, setLoadingClasses] = useState(true);
   const [loadingSummary, setLoadingSummary] = useState(false);
   const [summaries, setSummaries] = useState([]);
@@ -202,6 +198,9 @@ export default function PrincipalDashboard({
   const [error, setError] = useState("");
   const [detailError, setDetailError] = useState("");
   const [loggingOut, setLoggingOut] = useState(false);
+  useEffect(() => listenStudentDataChanges(() => {
+    if (!document.hidden && !loggingOut) setReload((value) => value + 1);
+  }), [loggingOut]);
   useNotificationPulse(() => setReload((n) => n + 1), Boolean(year) && !loggingOut);
   const [logoutError, setLogoutError] = useState("");
   const { push: pushPage } = usePanelHistory("principal", "overview", (page) => {
