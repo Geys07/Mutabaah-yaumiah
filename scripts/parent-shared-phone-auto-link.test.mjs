@@ -9,8 +9,12 @@ test("Admin family editor removes manual linking and confirms shared phone befor
  ]);
  assert.doesNotMatch(ui,/Hubungkan ke Akun|linkExistingAccount|admin_link_existing_parent/);
  assert.match(ui,/admin_preview_parent_family/);
- assert.match(ui,/async function checkSharedPhone\(type\)/);
- assert.match(ui,/onBlur=\{\(\) => void checkSharedPhone\(type\.id\)\}/);
+ assert.match(ui,/async function checkSharedPhone\(type, phoneValue/);
+ assert.match(ui,/scheduleSharedPhoneCheck\(type\.id, value\)/);
+ assert.match(ui,/onBlur=\{\(\) => \{/);
+ assert.match(ui,/async function autofillSiblingContacts\(matches, basePayload\)/);
+ assert.match(ui,/\.in\("student_id", siblingIds\)/);
+ assert.match(ui,/Kontak saudara yang cocok sudah diisi otomatis/);
  assert.match(ui,/approvedFamilyPhones/);
  assert.match(ui,/previewVersion\.current/);
  assert.match(ui,/saveAfter:false/);
@@ -175,8 +179,10 @@ test("all 20 student avatar assets exist and use the same avatar frame and crop"
   assert.match(component, /parent-student-avatar-image/);
   assert.match(component, /loading="lazy"/);
   assert.match(css, /\.parent-student-avatar-image/);
-  assert.match(css, /object-position:center 45%/);
-  assert.match(css, /transform:scale\(1\.06\)/);
+  assert.match(css, /object-fit:contain/);
+  assert.match(css, /object-position:center/);
+  assert.match(css, /transform:none/);
+  assert.match(css, /border:0;background:transparent/);
   for (const gender of ["siswa", "siswi"]) {
     for (let index = 1; index <= 10; index += 1) {
       const filename = `${gender}-${String(index).padStart(2, "0")}.webp`;
