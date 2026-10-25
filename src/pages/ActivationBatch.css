@@ -104,3 +104,13 @@
 }
 
 .activation-batch-toggle:focus-visible{outline:2px solid var(--sa-accent,#178166);outline-offset:2px}
+
+/* Kontak/teks pada card aktivasi tidak berhimpit dengan bingkai. */
+.activation-batch-table th {padding:14px 16px;}
+.activation-batch-table td {padding:15px 16px;line-height:1.6;}
+.activation-batch-summary>div {padding:16px 18px;row-gap:6px;}
+@media(max-width:650px){
+  .activation-batch-summary>div {padding:14px;}
+  .activation-batch-table th {padding:13px 15px;}
+  .activation-batch-table td {padding:14px 15px;}
+}
