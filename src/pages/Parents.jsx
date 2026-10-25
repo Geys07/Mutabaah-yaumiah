@@ -140,7 +140,7 @@ export default function Parents() {
                       return (
                         <tr key={student.id}>
                           <td className="parents-number">{index+1}</td>
-                          <td className="parents-student-name">{student.student_name}</td>
+                          <td className="parents-student-name" data-number={index+1}>{student.student_name}</td>
                           <td><ContactCell contact={student.contacts.father}/></td>
                           <td><ContactCell contact={student.contacts.mother}/></td>
                           <td><ContactCell contact={student.contacts.guardian}/></td>
