@@ -512,7 +512,6 @@ export default function StudentFamily({ student, onClose }) {
                                 ? "Kode Baru"
                                 : "Buat Kode"}
                         </button>}
-}
                       </div>
                     )}
                   </section>
