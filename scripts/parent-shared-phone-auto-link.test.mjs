@@ -71,3 +71,20 @@ test("Parent class card has breathing room in desktop and narrow phone layouts",
  assert.match(css,/\.parents-class-heading\{padding:13px 16px\}/);
  assert.match(css,/var\(--sa-(accent|ink)/);
 });
+
+test("newly discovered siblings require a fresh explicit confirmation, never blanket phone approval",async()=>{
+ const [ui,sql]=await Promise.all([
+   read("src/pages/StudentFamily.jsx"),
+   read("supabase/migrations/20261025123800_family_approval_exact_siblings.sql")
+ ]);
+ assert.match(ui,/function issueApproval\(item\)/);
+ assert.match(ui,/students:\(item\.students\|\|\[\]\)\.map\(other=>\(\{id:other\.id,relationship:other\.relationship\}\)\)/);
+ assert.match(ui,/function approvalCoversIssue\(approval,item\)/);
+ assert.match(ui,/\.every\(other=>\(approval\.students\|\|\[\]\)\.some/);
+ assert.match(ui,/function combineApprovals\(previous,additional\)/);
+ assert.match(sql,/v_expected_students jsonb/);
+ assert.match(sql,/FROM pg_catalog\.jsonb_array_elements\(v_issue\.value->'students'\) AS x\(value\)/);
+ assert.match(sql,/'students',v_expected_students/);
+ assert.match(sql,/p_approved_matches @> pg_catalog\.jsonb_build_array/);
+ assert.match(sql,/REVOKE ALL ON FUNCTION public\.admin_save_parent_family/);
+});
