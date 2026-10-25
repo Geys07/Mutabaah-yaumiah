@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabase";
 import { fetchAll } from "../lib/pagination";
+import { listenStudentDataChanges } from "../lib/studentDataUpdates";
 import AppConfirmDialog from "../components/AppConfirmDialog";
 import "./SemesterBoundaryManager.css";
 
@@ -27,6 +28,11 @@ export default function SemesterBoundaryManager() {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [liveRevision, setLiveRevision] = useState(0);
+
+  useEffect(() => listenStudentDataChanges(() => {
+    if (!document.hidden) setLiveRevision((value) => value + 1);
+  }), []);
 
   async function loadData() {
     const [yearsResult, termsResult] =
@@ -101,7 +107,11 @@ export default function SemesterBoundaryManager() {
 
         setYears(list);
         setTerms(sm.data || []);
-        setYearId(list[0]?.id || "");
+        setYearId((previous) =>
+          list.some((item) => item.id === previous)
+            ? previous
+            : list[0]?.id || ""
+        );
       } catch (caught) {
         if (mounted) {
           setError(
@@ -119,7 +129,7 @@ export default function SemesterBoundaryManager() {
     return () => {
       mounted = false;
     };
-  }, []);
+  }, [liveRevision]);
 
   const year = years.find(
     (item) => item.id === yearId
