@@ -324,6 +324,7 @@ export default function StudentImport({
 
     setImporting(true);
     setError("");
+    let importedOnServer = false;
 
     try {
       const payload = rows.map((row) => ({
@@ -349,16 +350,17 @@ export default function StudentImport({
         throw importError;
       }
 
+      // Komit database telah berhasil. Jika callback penyegaran parent
+      // bermasalah, jangan menyatakan impor gagal atau mengundang impor ulang.
+      importedOnServer = true;
       setResult({
         total: Number(data),
       });
-
       onImported();
     } catch (importError) {
-      setError(
-        importError.message ||
-          "Impor gagal. Tidak ada data dari file ini yang disimpan."
-      );
+      setError(importedOnServer
+        ? "Seluruh siswa sudah diimpor, tetapi daftar belum dapat diperbarui. Tutup dan muat ulang Data Siswa."
+        : importError.message || "Impor gagal. Data siswa tidak berubah.");
     } finally {
       setImporting(false);
     }

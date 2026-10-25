@@ -162,10 +162,9 @@ export default function AdminPhoneRequests({ onChanged }) {
                   </div>
                   <small>Diajukan {formatRequestDate(item.created_at)} WIB</small>
                 </div>
-                {error && <p className="phone-error" role="alert">{error}</p>}
             <div className="phone-actions">
-                  <button type="button" disabled={Boolean(busy)} onClick={() => setDialog({ ...item, approve: false })}>Tolak</button>
-                  <button type="button" disabled={Boolean(busy)} onClick={() => setDialog({ ...item, approve: true })}>Setujui</button>
+                  <button type="button" disabled={Boolean(busy)} onClick={() => {setError("");setDialog({ ...item, approve: false });}}>Tolak</button>
+                  <button type="button" disabled={Boolean(busy)} onClick={() => {setError("");setDialog({ ...item, approve: true });}}>Setujui</button>
                 </div>
               </article>
             );
@@ -176,7 +175,7 @@ export default function AdminPhoneRequests({ onChanged }) {
       <Pagination page={page} total={phonePage.total} loading={phonePage.loading || Boolean(busy)} onChange={setPage} />
       {phonePage.error && <p role="alert" className="phone-error">{phonePage.error}</p>}
       {message && <p role="status" className="phone-success">{message}</p>}
-      {error && <p role="alert" className="phone-error">{error}</p>}
+      {error && !dialog && <p role="alert" className="phone-error">{error}</p>}
 
       {dialog && (
         <div className="phone-overlay">
@@ -195,8 +194,9 @@ export default function AdminPhoneRequests({ onChanged }) {
                 Pastikan identitas wali dan siswa sesuai sebelum nomor login diganti.
               </p>
             )}
+            {error && <p role="alert" className="phone-error">{error}</p>}
             <div className="phone-actions">
-              <button type="button" disabled={Boolean(busy)} onClick={() => setDialog(null)}>Batal</button>
+              <button type="button" disabled={Boolean(busy)} onClick={() => {setDialog(null);setError("");}}>Batal</button>
               <button type="button" autoFocus disabled={Boolean(busy)} onClick={() => void decide()}>
                 {busy ? "Memproses…" : "Ya, Konfirmasi"}
               </button>

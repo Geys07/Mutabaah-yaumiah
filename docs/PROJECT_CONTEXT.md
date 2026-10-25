@@ -422,3 +422,19 @@ Untuk pekerjaan berikutnya: gunakan revisi terbaru repository, pertahankan Admin
 - Rapor Word: setelah `fillStudentPage`, helper `removeSignatureBorders` mengatur `w:tblBorders` dan `w:tcBorders` menjadi `nil` **hanya di tabel terakhir (tanda tangan)** dalam dokumen yang dibentuk. Tabel capaian, catatan, watermark, kop, serta paginasi tetap. Arsip DOCX yang telah dicetak sebelum perubahan tidak direvisi otomatis; harus membuat file baru.
 - Popup tambah kegiatan memakai form isi bergulir dengan header/tombol tetap terlihat, memperhatikan safe area HP. Popup Admin lainnya menggunakan `AppConfirmDialog` dan pola berhasil → tutup; gagal → error di popup (sudah ada dari PR terdahulu). Detail kode pemulihan yang hanya dapat dilihat sekali dan draft autosave sengaja tidak otomatis hilang.
 - Tes tambahan `scripts/notification-staff-rapor-cleanup.test.mjs` di CI. Pengujian nyata izin/notifikasi Android dan hasil cetak DOCX pada Word tetap dibutuhkan; jangan menyatakan hasil fisik terverifikasi sebelum diuji.
+
+## 25 Oktober 2026 — Audit lanjutan popup semua panel & kebersihan tema
+
+Permintaan: perbaiki dalam satu rangkaian sisa masalah lintas Admin, Wali Kelas, Kepala Madrasah, dan Orang Tua. Tetap gunakan 4 tema WIB; setiap tindakan penyimpanan dengan popup menutup **hanya setelah server mengonfirmasi berhasil**. Jika gagal, modal tetap terbuka menampilkan error; popup informasi yang menampilkan kode/hasil tidak otomatis ditutup sampai informasinya dilihat.
+
+**Sudah benar pada main, dipertahankan:** StudentsBase, TeacherAccounts, Activities, StudentFamily save, ParentDashboard klaim anak, ParentDaily finalisasi (autosave draf tidak menutup), PromotionManager, SemesterBoundaryManager, AdminNoticeInbox, AdminReminderSettings, AdminNotifications request confirmation, ActivationBatch pembuatan massal, AdminPhoneRequests approval, pengaturan status siswa dan hapus arsip. Jangan merevisi fungsi yang sudah benar hanya agar modal ditutup tanpa konfirmasi.
+
+**Perbaikan tambahan rangkaian ini:**
+- AdminRecoveryChats: dialog Setujui/Tolak memakai AppConfirmDialog bersama, responsif dan tema waktu yang sama seperti Hapus Chat/Terbit Ulang. Setelah backend menyimpan keputusan atau menerbitkan kode baru, dialog ditutup langsung. Penyegaran chat/daftar terjadi terpisah sehingga gangguan koneksi setelah commit tidak memunculkan dialog lagi.
+- StudentFamily: setelah kode aktivasi benar-benar dibuat, bila baca ulang kode gagal, jangan menganggap RPC penerbitan gagal atau menyarankan membuat kode lagi (RPC lawas bisa mengganti kode). Tombol menjadi **Muat Ulang Kode** sampai kode berhasil dibaca; kode tetap dapat dilihat dalam dialog. Penyimpanan kontak wali tetap menutup form setelah RPC berhasil.
+- StudentImport: pisahkan keberhasilan impor atomik server dari error callback pembaruan antarmuka; jangan melaporkan “impor gagal” ketika siswa sudah tersimpan.
+- AdminPhoneRequests: error persetujuan/penolakan muncul sekali di dalam popup, bukan berulang pada semua kartu permohonan; popup tetap ada saat gagal.
+- Parents.css: hapus border/kartu pembungkus tambahan; card per kelas tetap jelas dan tema, satu siswa hanya satu baris (PR sebelumnya).
+- AdminNotifications.css / AdminRecoveryChats.css: ganti bagian latar putih/warna hijau tetap menjadi CSS vars --sa-* agar mengikuti tema WIB. Popup kode yang tidak dapat dibuka ulang tetap memerlukan penutupan manual setelah Admin membacanya, bukan auto-dismiss.
+- Tests: scripts/popup-audit-followup-20261025.test.mjs ditambahkan ke CI. Perubahan **hanya frontend dan tes**, tidak mengubah tabel Supabase/RLS/data siswa/notifikasi.
+- Batas pengujian: pengujian otomatis source/build tidak membuktikan perilaku fisik semua form dengan jaringan offline atau tema di setiap resolusi. Perlu QA HP dan desktop tanpa mengubah data produksi.

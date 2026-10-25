@@ -177,9 +177,10 @@ export default function AdminRecoveryChats() {
     setBusy("reissue");setError("");
     try{
       const result=await callChat({action:"admin_reissue",ticket_id:selected});
+      // Komit backend berhasil: dialog harus langsung menutup.
       setConfirmReissue(false);
       setNotice(result.warning||"Kode baru berhasil dikirim melalui chat.");
-      await Promise.all([loadDetail(selected),loadList()]);
+      void Promise.allSettled([loadDetail(selected),loadList()]);
     }catch(problem){setError(problem.message||"Gagal menerbitkan kode baru.");}
     finally{setBusy("");}
   }
@@ -191,7 +192,9 @@ export default function AdminRecoveryChats() {
       const result=await callChat({action:"admin_review",ticket_id:selected,decision});
       setNotice(result.warning|| (decision==="approve"?"Permintaan disetujui. Kode dikirim ke chat.":"Permintaan telah ditolak."));
       setDecision("");
-      await Promise.all([loadDetail(selected),loadList()]);
+      // Jangan membuka kembali konfirmasi bila permintaan refresh setelah
+      // keputusan berhasil mengalami gangguan jaringan.
+      void Promise.allSettled([loadDetail(selected),loadList()]);
     }catch(problem){setError(problem.message || "Keputusan gagal disimpan.");}
     finally{setBusy("");}
   }
@@ -326,23 +329,17 @@ export default function AdminRecoveryChats() {
         onCancel={()=>{setConfirmReissue(false);setError("")}}
         onConfirm={()=>void reissueCode()}
       />}
-      {decision&&(
-        <div className="arc-dialog-backdrop" role="presentation">
-          <div className="arc-dialog" role="dialog" aria-modal="true" aria-labelledby="arc-dialog-title">
-            <h3 id="arc-dialog-title">{decision==="approve"?"Setujui Pemulihan Kata Sandi?":"Tolak Permintaan?"}</h3>
-            <p>{decision==="approve"
-              ?"Pastikan identitas pemohon telah diperiksa. Sistem akan menerbitkan kode empat huruf dan mengirimnya melalui chat."
-              :"Pemohon akan menerima pesan penolakan otomatis melalui chat."}</p>
-            <div className="arc-dialog-buttons">
-              <button type="button" onClick={()=>setDecision("")} disabled={Boolean(busy)}>Batal</button>
-              <button type="button" className={decision==="approve"?"arc-approve":"arc-reject"}
-                disabled={Boolean(busy)} onClick={()=>void confirmDecision()}>
-                {busy?"Memproses...":decision==="approve"?"Setujui & Kirim":"Ya, Tolak"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {decision&&<AppConfirmDialog
+        title={decision==="approve"?"Setujui Pemulihan Kata Sandi?":"Tolak Permintaan?"}
+        description={decision==="approve"
+          ?"Pastikan identitas pemohon sudah diperiksa. Kode pemulihan empat huruf akan dikirim melalui chat."
+          :"Pemohon akan menerima pemberitahuan penolakan di chat."}
+        danger={decision==="reject"}
+        confirmLabel={decision==="approve"?"Setujui & Kirim":"Ya, Tolak"}
+        busy={Boolean(busy)} error={error}
+        onCancel={()=>{setDecision("");setError("");}}
+        onConfirm={()=>void confirmDecision()}
+      />}
     </section>
   );
 }

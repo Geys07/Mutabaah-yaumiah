@@ -26,8 +26,10 @@ test("admin phone requests identify the guardian and linked students without cha
   assert.match(source, /\.abortSignal\(signal\)/);
   assert.match(source, /functions\.invoke\("parent-phone-change"/);
   assert.match(source, /action: "review", request_id: dialog\.id, approve: dialog\.approve/);
-  assert.match(source, /onClick=\{\(\) => setDialog\(\{ \.\.\.item, approve: true \}\)\}/);
-  assert.match(source, /onClick=\{\(\) => setDialog\(\{ \.\.\.item, approve: false \}\)\}/);
+  assert.match(source, /onClick=\{\(\) => \{setError\(""\);setDialog\(\{ \.\.\.item, approve: true \}\);\}\}/);
+  assert.match(source, /onClick=\{\(\) => \{setError\(""\);setDialog\(\{ \.\.\.item, approve: false \}\);\}\}/);
+  assert.match(source, /\{error && !dialog && <p role="alert"/);
+  assert.match(source, /\{error && <p role="alert" className="phone-error">\{error\}<\/p>\}/);
 });
 
 test("request identity presentation stays responsive and does not affect parent phone form", async () => {

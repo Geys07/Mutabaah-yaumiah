@@ -213,3 +213,22 @@
   .arc-room-head {gap:7px;padding:8px 10px}
   .arc-room-head .arc-delete-chat {font-size:10px;min-height:34px;padding:6px 8px}
 }
+/* Panel chat mengikuti empat palet WIB, tanpa latar putih paksa di mode malam. */
+.staff-app .arc-root :is(.arc-layout,.arc-list,.arc-contact,.arc-composer,.arc-closed,.arc-message.is-user,.arc-message.is-code,.arc-filters button,.arc-page-title button){
+  background:var(--sa-card,#fff)
+}
+.staff-app .arc-root :is(.arc-room,.arc-composer input,.arc-list-header input){
+  background:var(--sa-bg,#f5f8f7);
+  color:var(--sa-ink,#253c36)
+}
+.staff-app .arc-root .arc-contact.is-selected,
+.staff-app .arc-root .arc-contact:hover{
+  background:var(--sa-soft,#e9f6ee)
+}
+.staff-app .arc-root .arc-room-head{
+  background:var(--sa-card,#fff);
+  color:var(--sa-ink,#253c36)
+}
+.staff-app .arc-root :is(.arc-message.is-admin,.arc-filters button.is-active){
+  background:var(--sa-soft,#e9f6ee)
+}
