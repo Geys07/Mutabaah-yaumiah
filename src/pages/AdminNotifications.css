@@ -318,12 +318,12 @@
 .staff-app .admin-notifications-heading h2{color:var(--sa-ink,#203b2e)}
 .staff-app .admin-notifications-heading span{color:var(--sa-muted,#7a897d)}
 .staff-app .admin-notifications :is(
- .notification-filter-button,.notification-outline-button
+ .notification-filters button,.notification-outline-button
 ){background:var(--sa-card,#fff);border-color:var(--sa-line,#dce6df);color:var(--sa-ink,#243f30)}
 .staff-app .admin-notifications :is(
- .notification-filter-button.is-active,.notification-approve-button
+ .notification-filters button.active,.notification-approve-button
 ){background:var(--sa-accent,#17533b);border-color:var(--sa-accent,#17533b);color:#fff}
-.staff-app .admin-notifications :is(.notification-card,.notification-modal){
+.staff-app .admin-notifications :is(.notification-item,.notification-modal){
   background:var(--sa-card,#fff);border-color:var(--sa-line,#e2eae4);
   color:var(--sa-ink,#243f30)
 }
