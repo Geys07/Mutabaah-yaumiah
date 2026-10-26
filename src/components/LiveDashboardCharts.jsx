@@ -191,7 +191,10 @@ export default function LiveDashboardCharts({
           backgroundColor: SUBMITTED_COLOR,
           borderRadius: 6,
           borderSkipped: false,
-          barThickness: 17,
+          barThickness: 13,
+          maxBarThickness: 16,
+          categoryPercentage: 0.68,
+          barPercentage: 0.76,
         },
         {
           label: "Belum disubmit",
@@ -199,7 +202,10 @@ export default function LiveDashboardCharts({
           backgroundColor: PENDING_COLOR,
           borderRadius: 6,
           borderSkipped: false,
-          barThickness: 17,
+          barThickness: 13,
+          maxBarThickness: 16,
+          categoryPercentage: 0.68,
+          barPercentage: 0.76,
         },
       ],
     };
@@ -240,7 +246,10 @@ export default function LiveDashboardCharts({
       backgroundColor: "#398f62",
       borderRadius: 7,
       borderSkipped: false,
-      barThickness: 15,
+      barThickness: 13,
+      maxBarThickness: 16,
+      categoryPercentage: 0.66,
+      barPercentage: 0.74,
     }],
   }), [sortedRows]);
 
@@ -279,8 +288,9 @@ export default function LiveDashboardCharts({
           backgroundColor: SUBMITTED_COLOR,
           borderRadius: 5,
           borderSkipped: false,
-          barPercentage: 0.78,
-          categoryPercentage: 0.72,
+          barPercentage: 0.68,
+          categoryPercentage: 0.66,
+          maxBarThickness: 10,
         },
         {
           label: "Belum disubmit",
@@ -288,8 +298,9 @@ export default function LiveDashboardCharts({
           backgroundColor: PENDING_COLOR,
           borderRadius: 5,
           borderSkipped: false,
-          barPercentage: 0.78,
-          categoryPercentage: 0.72,
+          barPercentage: 0.68,
+          categoryPercentage: 0.66,
+          maxBarThickness: 10,
         },
       ],
     };
@@ -369,7 +380,7 @@ export default function LiveDashboardCharts({
             <DashboardBarChart
               data={comparisonData}
               options={comparisonOptions}
-              height={Math.max(145, rows.length * 37)}
+              height={Math.max(isClass ? 160 : 180, rows.length * (isClass ? 42 : 44))}
               label={isClass ? "Grafik status pengisian kelas" : "Grafik perbandingan pengisian per kelas"}
               onItemClick={isClass ? undefined : (index) => onSelectClass?.(rows[index]?.class_id)}
             />
@@ -390,7 +401,7 @@ export default function LiveDashboardCharts({
               <DashboardBarChart
                 data={progressData}
                 options={progressOptions}
-                height={Math.max(145, sortedRows.length * 36)}
+                height={Math.max(180, sortedRows.length * 40)}
                 label="Grafik progres ketercapaian kelas"
                 onItemClick={(index) => onSelectClass?.(sortedRows[index]?.class_id)}
               />

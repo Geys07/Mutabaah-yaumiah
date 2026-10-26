@@ -174,6 +174,7 @@ export default function PrincipalDashboard({
   const clock = useJakartaClock();
 
   const [tab, setTab] = useState("overview");
+  const [filtersOpen, setFiltersOpen] = useState(false);
   const [classes, setClasses] = useState([]);
   const [year, setYear] = useState("");
   const [date, setDate] = useState(() => clock.date);
@@ -491,19 +492,34 @@ export default function PrincipalDashboard({
           <div className="principal-section-head">
             <div>
               <h2>Rekap Mutabaah Sekolah</h2>
+              <p className="principal-period-summary">
+                Tahun ajaran {year || "—"} · {date ? prettyDate(date) : "Tanggal belum dipilih"}
+              </p>
             </div>
 
-            <button
-              type="button"
-              className="principal-refresh"
-              onClick={refresh}
-              disabled={loadingClasses || loadingSummary}
-            >
-              Muat ulang
-            </button>
+            <div className="principal-section-actions">
+              <button
+                type="button"
+                className="principal-filter-toggle"
+                aria-expanded={filtersOpen}
+                aria-controls="principal-period-filters"
+                onClick={() => setFiltersOpen((open) => !open)}
+              >
+                {filtersOpen ? "Tutup filter" : "Atur periode"}
+              </button>
+              <button
+                type="button"
+                className="principal-refresh"
+                onClick={refresh}
+                disabled={loadingClasses || loadingSummary}
+              >
+                Muat ulang
+              </button>
+            </div>
           </div>
 
-          <div className="principal-filters">
+          {filtersOpen && (
+          <div className="principal-filters" id="principal-period-filters">
             <label>
               Tahun ajaran
               <select
@@ -536,6 +552,7 @@ export default function PrincipalDashboard({
               />
             </label>
           </div>
+          )}
 
           {error && (
             <p className="principal-alert" role="alert">
