@@ -1,5 +1,6 @@
 import LiveDashboardCharts from "../components/LiveDashboardCharts";
 import InstallAppSettings from "../components/InstallAppSettings";
+import MutabaahCalculationSettings from "../components/MutabaahCalculationSettings";
 
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { supabase } from "../lib/supabase";
@@ -87,6 +88,11 @@ const GROUPS = [
   {
     label: "Pengaturan",
     items: [
+      {
+        id: "calculation",
+        label: "Mulai Perhitungan",
+        icon: "calendar",
+      },
       {
         id: "identity",
         label: "Identitas Sekolah",
@@ -854,6 +860,8 @@ export default function AdminDashboard({
       {activeMenu === "identity" && (
         <IdentityPage onSaved={onSchoolUpdated} />
       )}
+
+      {activeMenu === "calculation" && <MutabaahCalculationSettings />}
 
       {activeMenu === "academic" && <AcademicYears />}
       {activeMenu === "classes" && <Classes />}
