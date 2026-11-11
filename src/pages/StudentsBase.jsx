@@ -37,6 +37,7 @@ export default function Students() {
   const [refreshKey, setRefreshKey] = useState(0);
   const [search, setSearch] = useState("");
   const [classFilter, setClassFilter] = useState("");
+  const [collapsedClasses, setCollapsedClasses] = useState({});
   const [form, setForm] = useState(null);
   const [familyStudent, setFamilyStudent] = useState(null);
   const [error, setError] = useState("");
@@ -338,11 +339,26 @@ export default function Students() {
                 className="students-class-group"
               >
                 <div className="students-class-heading">
-                  <h3>{group.name}</h3>
-                  <span>{group.students.length} siswa</span>
+                  <div className="students-class-heading-info">
+                    <h3>{group.name}</h3>
+                    <span>{group.students.length} siswa</span>
+                  </div>
+                  <button
+                    type="button"
+                    className="students-class-toggle"
+                    aria-expanded={!collapsedClasses[group.id]}
+                    aria-controls={`students-table-${group.id}`}
+                    onClick={() => setCollapsedClasses((previous) => ({
+                      ...previous,
+                      [group.id]: !previous[group.id],
+                    }))}
+                  >
+                    {collapsedClasses[group.id] ? "Tampilkan" : "Sembunyikan"}
+                    <span aria-hidden="true">{collapsedClasses[group.id] ? "⌄" : "⌃"}</span>
+                  </button>
                 </div>
 
-                <div className="students-table-wrap">
+                {!collapsedClasses[group.id] && <div className="students-table-wrap" id={`students-table-${group.id}`}>
                   <table className="students-table" aria-label={`Daftar siswa ${group.name}`}>
                     <thead>
                       <tr>
@@ -400,7 +416,7 @@ export default function Students() {
                       ))}
                     </tbody>
                   </table>
-                </div>
+                </div>}
               </section>
             ))}
           </div>
