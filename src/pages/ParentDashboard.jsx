@@ -60,6 +60,12 @@ function Icon({ name, size = 21 }) {
         <path d="M12 11v5M12 7h.01" />
       </>
     ),
+    clock: (
+      <>
+        <circle cx="12" cy="12" r="10" />
+        <path d="M12 6v6l4 2" />
+      </>
+    ),
     sun: (
       <>
         <circle cx="12" cy="12" r="4" />
@@ -1519,13 +1525,13 @@ const [loggingOut, setLoggingOut] =
               ) : calculationAccessStatus === "error" ? (
                 <>
                   <h2 id="pd-calculation-notice-title">Belum Dapat Memeriksa</h2>
-                  <p>Status periode perhitungan belum dapat diperiksa. Silakan coba kembali.</p>
-                  <button type="button" className="pd-calculation-notice-button" onClick={() => setCalculationRetry((value) => value + 1)}>Coba Lagi</button>
+                  <p>Status periode belum dapat diverifikasi. Demi keamanan, formulir tidak dibuka. Silakan coba kembali.</p>
+                  <button type="button" className="pd-calculation-notice-button" onClick={() => { setCalculationAccess({ scope: calculationScope, status: "checking" }); setCalculationRetry((value) => value + 1); }}>Coba Lagi</button>
                 </>
               ) : (
                 <>
                   <h2 id="pd-calculation-notice-title">Pengisian Belum Tersedia</h2>
-                  <p>Pengisian Mutabaah belum dapat dilakukan karena periode perhitungan belum dimulai. Silakan menunggu informasi dari pihak madrasah.</p>
+                  <p>Pengisian Mutabaah untuk tanggal ini belum tersedia. Pengisian hanya dapat dilakukan setelah periode perhitungan dimulai. Silakan menunggu informasi dari pihak madrasah.</p>
                   <button type="button" className="pd-calculation-notice-button" onClick={closeOverlay}>Mengerti</button>
                 </>
               )}
