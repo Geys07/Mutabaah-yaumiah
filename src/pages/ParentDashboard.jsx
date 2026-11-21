@@ -343,7 +343,10 @@ const [loggingOut, setLoggingOut] =
     let cancelled = false;
     const scope = `${studentId}:${selectedDate}`;
 
-    supabase.rpc("mutabaah_calculation_start_date")
+    supabase.rpc("parent_mutabaah_calculation_is_open", {
+      p_student_id: studentId,
+      p_date: selectedDate,
+    })
       .then(({ data, error: accessError }) => {
         if (cancelled) return;
         if (accessError) {
@@ -352,7 +355,7 @@ const [loggingOut, setLoggingOut] =
         }
         setCalculationAccess({
           scope,
-          status: data && selectedDate >= data ? "available" : "blocked",
+          status: data === true ? "available" : "blocked",
         });
       })
       .catch(() => {
