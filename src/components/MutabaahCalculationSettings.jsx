@@ -57,8 +57,35 @@ export default function MutabaahCalculationSettings() {
   }, []);
 
   useEffect(() => {
-    void loadStatus();
-  }, [loadStatus]);
+    let active = true;
+
+    async function loadInitialStatus() {
+      try {
+        const { data, error: queryError } = await supabase
+          .from("app_settings")
+          .select("key, value")
+          .in("key", [SETTING_KEY, PAUSE_SETTING_KEY]);
+        if (queryError) throw queryError;
+
+        const startSetting = data?.find((item) => item.key === SETTING_KEY)?.value || null;
+        const pauseSetting = data?.find((item) => item.key === PAUSE_SETTING_KEY)?.value || null;
+        if (active) {
+          setStatus({
+            ...(startSetting || {}),
+            paused: pauseSetting?.paused === true,
+            pause_updated_at: pauseSetting?.updated_at || null,
+          });
+        }
+      } catch (caught) {
+        if (active) setError(caught?.message || "Status perhitungan belum dapat dimuat.");
+      } finally {
+        if (active) setLoading(false);
+      }
+    }
+
+    void loadInitialStatus();
+    return () => { active = false; };
+  }, []);
 
   async function startCalculation() {
     if (starting || status?.started_on) return;
