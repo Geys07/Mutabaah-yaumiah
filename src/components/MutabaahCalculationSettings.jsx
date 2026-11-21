@@ -49,8 +49,27 @@ export default function MutabaahCalculationSettings() {
   }, []);
 
   useEffect(() => {
-    void loadStatus();
-  }, [loadStatus]);
+    let active = true;
+
+    async function loadInitialStatus() {
+      try {
+        const { data, error: queryError } = await supabase
+          .from("app_settings")
+          .select("value")
+          .eq("key", SETTING_KEY)
+          .maybeSingle();
+        if (queryError) throw queryError;
+        if (active) setStatus(data?.value || null);
+      } catch (caught) {
+        if (active) setError(caught?.message || "Status perhitungan belum dapat dimuat.");
+      } finally {
+        if (active) setLoading(false);
+      }
+    }
+
+    void loadInitialStatus();
+    return () => { active = false; };
+  }, []);
 
   async function startCalculation() {
     if (starting || status?.started_on) return;
@@ -102,7 +121,7 @@ export default function MutabaahCalculationSettings() {
         <div style={{ marginTop: 20, padding: 16, border: "1px solid var(--sa-line, #dce8df)", borderRadius: 10 }}>
           <strong style={{ display: "block", color: "var(--sa-ink, #253d31)" }}>Perhitungan belum dimulai</strong>
           <p style={{ margin: "8px 0 14px", color: "var(--sa-muted, #687970)", fontSize: 13, lineHeight: 1.65 }}>
-            Pengisian yang dilakukan sebelum tanggal mulai tidak akan masuk rekap dan rapor. Orang tua dan petugas tetap dapat mengisi data sebagai persiapan.
+            Pengisian orang tua baru dibuka setelah perhitungan dimulai. Petugas madrasah tetap dapat menyiapkan atau mengoreksi data melalui panel petugas.
           </p>
           <button type="button" className="admin-primary-button" disabled={starting} onClick={() => void startCalculation()}>
             {starting ? "Memulai…" : "Mulai Perhitungan"}
