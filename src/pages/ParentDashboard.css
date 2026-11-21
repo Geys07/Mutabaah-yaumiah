@@ -870,3 +870,51 @@
   .pd-no-child { flex-wrap: wrap; }
   .pd-no-child .my-empty-state { flex-basis: 100%; }
 }
+
+
+/* Pemberitahuan periode perhitungan mengikuti palet tema empat waktu. */
+.pd-calculation-notice {
+  width: min(100%, 430px);
+  padding: 30px 25px;
+  text-align: center;
+  background: var(--pd-surface-solid, #fff);
+  color: var(--pd-text, #24435a);
+  border-color: var(--pd-border, #e2efea);
+}
+.pd-calculation-notice-mark {
+  display: grid;
+  place-items: center;
+  width: 58px;
+  height: 58px;
+  margin: 0 auto 17px;
+  border-radius: 18px;
+  color: var(--pd-accent, #078b63);
+  background: var(--pd-accent-soft, #e8f5ed);
+}
+.pd-calculation-notice h2 {
+  margin: 0 0 9px;
+  color: var(--pd-text, #24435a);
+  font-size: 19px;
+  line-height: 1.35;
+}
+.pd-calculation-notice p {
+  margin: 0 auto 20px;
+  max-width: 340px;
+  color: var(--pd-muted, #698197);
+  font-size: 13px;
+  line-height: 1.7;
+}
+.pd-calculation-notice-button {
+  min-width: 125px;
+  min-height: 43px;
+  padding: 10px 19px;
+  border: 0;
+  border-radius: 11px;
+  color: #fff;
+  background: var(--pd-accent, #078b63);
+  font-size: 13px !important;
+  font-weight: 800 !important;
+}
+.pd-calculation-notice-button:hover {
+  filter: brightness(.94);
+}
