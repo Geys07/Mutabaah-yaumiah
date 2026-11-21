@@ -187,10 +187,12 @@ function DailyEditor({
   // repeatedly reload the editor or discard in-progress answers.
   useEffect(() => {
     let active = true;
+    let requestVersion = 0;
     async function refreshActivities() {
       if (!active || !alive.current) return;
+      const currentRequest = ++requestVersion;
       const result = await loadParentActivities(selectedDate);
-      if (!active || !alive.current || result.error) return;
+      if (!active || !alive.current || currentRequest !== requestVersion || result.error) return;
       const nextActivities = result.data || [];
       setActivities(nextActivities);
       if (draft.current) {
