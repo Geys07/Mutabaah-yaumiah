@@ -1,5 +1,36 @@
 -- Prevent parent draft/finalization writes before the calculation period starts.
 -- Historical records are retained; only new parent submissions are blocked.
+
+-- Parents use an ownership-checked read, not direct access to staff-only app_settings.
+CREATE OR REPLACE FUNCTION public.parent_mutabaah_calculation_is_open(
+  p_student_id uuid,
+  p_date date
+)
+RETURNS boolean
+LANGUAGE plpgsql
+STABLE
+SECURITY DEFINER
+SET search_path TO ''
+AS $function$
+DECLARE v_start date;
+BEGIN
+  IF auth.uid() IS NULL OR NOT EXISTS (
+    SELECT 1 FROM public.student_guardians sg
+    JOIN public.profiles p ON p.user_id = sg.guardian_id
+    WHERE sg.student_id = p_student_id
+      AND sg.guardian_id = auth.uid()
+      AND p.account_status = 'active'
+  ) THEN
+    RAISE EXCEPTION 'Akses orang tua ditolak';
+  END IF;
+  v_start := public.mutabaah_calculation_start_date();
+  RETURN v_start IS NOT NULL AND p_date IS NOT NULL AND p_date >= v_start;
+END;
+$function$;
+
+REVOKE ALL ON FUNCTION public.parent_mutabaah_calculation_is_open(uuid,date) FROM PUBLIC, anon;
+GRANT EXECUTE ON FUNCTION public.parent_mutabaah_calculation_is_open(uuid,date) TO authenticated;
+
 DO $migration$
 DECLARE
   v_definition text;
