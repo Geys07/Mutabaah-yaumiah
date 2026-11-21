@@ -21,6 +21,15 @@ BEGIN
   );
   EXECUTE v_definition;
 
+  v_old := $old$if auth.uid() is null or not exists(select 1 from public.student_guardians sg join public.profiles p on p.user_id=sg.guardian_id and p.account_status='active' where sg.student_id=p_student_id and sg.guardian_id=auth.uid()) then raise exception 'Akses orang tua ditolak'; end if;$old$;
+  SELECT pg_get_functiondef('public.set_parent_mutabaah_haid(uuid,date,boolean)'::regprocedure)
+  INTO v_definition;
+  IF position(v_old IN v_definition) = 0 THEN
+    RAISE EXCEPTION 'Guard anchor set_parent_mutabaah_haid tidak ditemukan; migration dibatalkan.';
+  END IF;
+  v_definition := replace(v_definition, v_old, v_old || v_guard);
+  EXECUTE v_definition;
+
   v_old := $old$if auth.uid() is null or not exists(select 1 from public.student_guardians sg join public.profiles p on p.user_id=sg.guardian_id where sg.student_id=p_student_id and sg.guardian_id=auth.uid() and p.account_status='active') then raise exception 'Akses orang tua ditolak'; end if;$old$;
   SELECT pg_get_functiondef('public.save_parent_mutabaah_day(uuid,date,boolean,jsonb)'::regprocedure)
   INTO v_definition;
