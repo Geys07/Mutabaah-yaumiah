@@ -304,7 +304,7 @@ const [loggingOut, setLoggingOut] =
   const { push: pushPage, replace: replacePage } = usePanelHistory("parent", "today", (page) => {
     setDailyOpen(false);
     setChooserOpen(false);
-    if (page.startsWith("daily:")) { setSelectedDate(page.slice(6)); setDailyOpen(true); }
+    if (page.startsWith("daily:")) { const date = page.slice(6); setCalculationAccess({ scope: `${studentId}:${date}`, status: "checking" }); setSelectedDate(date); setDailyOpen(true); }
     else if (page === "chooser") setChooserOpen(true);
     else if (MENU.some((item) => item.id === page) || page === "install-app") setTab(page);
   });
@@ -342,7 +342,6 @@ const [loggingOut, setLoggingOut] =
     if (!dailyOpen || !studentId || !selectedDate) return undefined;
     let cancelled = false;
     const scope = `${studentId}:${selectedDate}`;
-    setCalculationAccess({ scope, status: "checking" });
 
     supabase.rpc("mutabaah_calculation_start_date")
       .then(({ data, error: accessError }) => {
@@ -806,6 +805,7 @@ const [loggingOut, setLoggingOut] =
     }
 
     pushPage(`daily:${date}`);
+    setCalculationAccess({ scope: `${studentId}:${date}`, status: "checking" });
     setSelectedDate(date);
     setDailyOpen(true);
   }
