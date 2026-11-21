@@ -74,7 +74,7 @@ export default function MutabaahCalculationSettings() {
   async function startCalculation() {
     if (starting || status?.started_on) return;
     const confirmed = window.confirm(
-      "Mulai perhitungan dari tanggal hari ini? Data sebelum tanggal ini tidak akan dihitung dalam rekap dan rapor. Pengisian data tetap dapat dilakukan."
+      "Mulai perhitungan dari tanggal hari ini? Data sebelum tanggal ini tidak akan dihitung dalam rekap dan rapor. Orang tua baru dapat mengisi setelah periode dimulai; petugas madrasah tetap dapat menyiapkan dan mengoreksi data."
     );
     if (!confirmed) return;
 
