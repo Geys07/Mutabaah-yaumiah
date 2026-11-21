@@ -326,6 +326,44 @@ export default function ReportTargetSettings() {
         
       </header>
 
+      <div
+        role="note"
+        style={{
+          margin: "12px 0 20px",
+          padding: "13px 15px",
+          border: "1px solid var(--sa-line, #e1e9e3)",
+          borderRadius: 9,
+          background: "var(--sa-soft, #f5f8f6)",
+          color: "var(--sa-ink, #344b3d)",
+          fontSize: 12,
+          lineHeight: 1.65,
+        }}
+      >
+        <strong style={{ display: "block", marginBottom: 5 }}>
+          Apa fungsi Target Kegiatan?
+        </strong>
+        <p style={{ margin: "0 0 7px" }}>
+          Target (%) adalah batas capaian minimal yang diharapkan untuk setiap
+          kegiatan selama periode rapor. Sistem membandingkan persentase capaian
+          aktual (jumlah terlaksana dibandingkan jumlah kesempatan yang berlaku)
+          dengan target yang ditetapkan.
+        </p>
+        <p style={{ margin: "0 0 7px" }}>
+          <strong>Hubungannya dengan rapor:</strong> kolom Target menunjukkan
+          batas yang diharapkan, sedangkan kolom Capaian menunjukkan hasil
+          aktual. Jika capaian di bawah target, kolom Keterangan akan menampilkan
+          “Perlu ditingkatkan” dan kegiatan tersebut masuk ringkasan kegiatan
+          yang perlu ditingkatkan. Jika target tercapai, keterangannya mengikuti
+          grade capaian.
+        </p>
+        <p style={{ margin: 0 }}>
+          <strong>Target tidak menentukan huruf Grade.</strong> Grade A, B, C,
+          atau D dihitung tersendiri dari persentase capaian berdasarkan batas
+          pada menu Nilai dan Grade Rapor. KKM digunakan untuk menentukan
+          ketuntasan, bukan untuk mengubah huruf Grade.
+        </p>
+      </div>
+
       <form onSubmit={handleSave}>
         <div
           style={{
