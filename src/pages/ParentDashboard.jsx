@@ -268,6 +268,8 @@ export default function ParentDashboard({
     useState(clock.date);
 
   const [dailyOpen, setDailyOpen] = useState(false);
+  const [calculationAccess, setCalculationAccess] = useState({ scope: "", status: "checking" });
+  const [calculationRetry, setCalculationRetry] = useState(0);
   const [children, setChildren] = useState([]);
   const [studentId, setStudentId] = useState("");
   const [loadingChildren, setLoadingChildren] =
@@ -302,7 +304,7 @@ const [loggingOut, setLoggingOut] =
   const { push: pushPage, replace: replacePage } = usePanelHistory("parent", "today", (page) => {
     setDailyOpen(false);
     setChooserOpen(false);
-    if (page.startsWith("daily:")) { setSelectedDate(page.slice(6)); setDailyOpen(true); }
+    if (page.startsWith("daily:")) { const date = page.slice(6); setCalculationAccess({ scope: `${studentId}:${date}`, status: "checking" }); setSelectedDate(date); setDailyOpen(true); }
     else if (page === "chooser") setChooserOpen(true);
     else if (MENU.some((item) => item.id === page) || page === "install-app") setTab(page);
   });
@@ -329,6 +331,40 @@ const [loggingOut, setLoggingOut] =
     currentAccount?.user_id ||
     "";
   const liveRevision = useLiveDataRevision(Boolean(accountId));
+
+  const calculationScope = `${studentId}:${selectedDate}`;
+  const calculationAccessStatus =
+    calculationAccess.scope === calculationScope
+      ? calculationAccess.status
+      : "checking";
+
+  useEffect(() => {
+    if (!dailyOpen || !studentId || !selectedDate) return undefined;
+    let cancelled = false;
+    const scope = `${studentId}:${selectedDate}`;
+
+    supabase.rpc("parent_mutabaah_calculation_is_open", {
+      p_student_id: studentId,
+      p_date: selectedDate,
+    })
+      .then(({ data, error: accessError }) => {
+        if (cancelled) return;
+        if (accessError) {
+          setCalculationAccess({ scope, status: "error" });
+          return;
+        }
+        setCalculationAccess({
+          scope,
+          status: data === true ? "available" : "blocked",
+        });
+      })
+      .catch(() => {
+        if (!cancelled) setCalculationAccess({ scope, status: "error" });
+      });
+
+    return () => { cancelled = true; };
+  }, [dailyOpen, studentId, selectedDate, calculationRetry]);
+
   useEffect(() => {
     if (!accountId) return undefined;
     let active = true;
@@ -772,6 +808,7 @@ const [loggingOut, setLoggingOut] =
     }
 
     pushPage(`daily:${date}`);
+    setCalculationAccess({ scope: `${studentId}:${date}`, status: "checking" });
     setSelectedDate(date);
     setDailyOpen(true);
   }
@@ -1432,56 +1469,69 @@ const [loggingOut, setLoggingOut] =
             }
           }}
         >
-          <section
-            className="pd-modal pd-daily-modal"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="pd-form-title"
-          >
-            <header className="pd-daily-header">
-              <button
-                type="button"
-                className="pd-modal-close"
-                aria-label="Tutup formulir"
-                onClick={closeOverlay}
-              >
-                <Icon name="close" />
-              </button>
-
-              <h2 id="pd-form-title">
-                Mutabaah Harian
-              </h2>
-
-              <small>{fullDate(selectedDate)}</small>
-
-              <div className="pd-modal-child">
-                <StudentAvatar
-                  student={selectedChild}
-                  variant={avatarOf(selectedChild)}
-                />
-
-                <div>
-                  <strong>{selectedChild.full_name}</strong>
-                  <small>
-                    {selectedChild.className
-                      ? `Kelas ${selectedChild.className}`
-                      : "Kelas belum tersedia"}
-                  </small>
+          {calculationAccessStatus === "available" ? (
+            <section
+              className="pd-modal pd-daily-modal"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="pd-form-title"
+            >
+              <header className="pd-daily-header">
+                <button type="button" className="pd-modal-close" aria-label="Tutup formulir" onClick={closeOverlay}>
+                  <Icon name="close" />
+                </button>
+                <h2 id="pd-form-title">Mutabaah Harian</h2>
+                <small>{fullDate(selectedDate)}</small>
+                <div className="pd-modal-child">
+                  <StudentAvatar student={selectedChild} variant={avatarOf(selectedChild)} />
+                  <div>
+                    <strong>{selectedChild.full_name}</strong>
+                    <small>{selectedChild.className ? `Kelas ${selectedChild.className}` : "Kelas belum tersedia"}</small>
+                  </div>
                 </div>
+              </header>
+              <div className="pd-daily-scroll">
+                <ParentDaily
+                  key={`${studentId}-${selectedDate}`}
+                  studentId={studentId}
+                  selectedDate={selectedDate}
+                  maxDate={today}
+                  onSaved={() => announceNotificationChange()}
+                  onFinalized={closeOverlay}
+                />
               </div>
-            </header>
+            </section>
+          ) : (
+            <section
+              className="pd-modal pd-calculation-notice"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="pd-calculation-notice-title"
+            >
+              <div className="pd-calculation-notice-mark" aria-hidden="true">
+                <Icon name={calculationAccessStatus === "checking" ? "clock" : "info"} size={27} />
+              </div>
+              {calculationAccessStatus === "checking" ? (
+                <>
+                  <h2 id="pd-calculation-notice-title">Memeriksa Periode</h2>
+                  <p>Mohon tunggu, kami sedang memeriksa ketersediaan pengisian Mutabaah.</p>
+                </>
+              ) : calculationAccessStatus === "error" ? (
+                <>
+                  <h2 id="pd-calculation-notice-title">Belum Dapat Memeriksa</h2>
+                  <p>Status periode perhitungan belum dapat diperiksa. Silakan coba kembali.</p>
+                  <button type="button" className="pd-calculation-notice-button" onClick={() => setCalculationRetry((value) => value + 1)}>Coba Lagi</button>
+                </>
+              ) : (
+                <>
+                  <h2 id="pd-calculation-notice-title">Pengisian Belum Tersedia</h2>
+                  <p>Pengisian Mutabaah belum dapat dilakukan karena periode perhitungan belum dimulai. Silakan menunggu informasi dari pihak madrasah.</p>
+                  <button type="button" className="pd-calculation-notice-button" onClick={closeOverlay}>Mengerti</button>
+                </>
+              )}
+            </section>
+          )}
 
-            <div className="pd-daily-scroll">
-              <ParentDaily
-                key={`${studentId}-${selectedDate}`}
-                studentId={studentId}
-                selectedDate={selectedDate}
-                maxDate={today}
-                onSaved={() => announceNotificationChange()}
-                onFinalized={closeOverlay}
-              />
-            </div>
-          </section>
         </div>
       )}
 

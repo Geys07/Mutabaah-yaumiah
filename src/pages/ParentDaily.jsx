@@ -182,6 +182,46 @@ function DailyEditor({
 
   useEffect(() => { callbacks.current = { onSaved, onFinalized }; }, [onSaved, onFinalized]);
 
+  // Keep the open parent form synchronized with activity catalog changes.
+  // Only activity-related tables are observed so autosave events do not
+  // repeatedly reload the editor or discard in-progress answers.
+  useEffect(() => {
+    let active = true;
+    let requestVersion = 0;
+    async function refreshActivities() {
+      if (!active || !alive.current) return;
+      const currentRequest = ++requestVersion;
+      const result = await loadParentActivities(selectedDate);
+      if (!active || !alive.current || currentRequest !== requestVersion || result.error) return;
+      const nextActivities = result.data || [];
+      setActivities(nextActivities);
+      if (draft.current) {
+        draft.current = {
+          ...draft.current,
+          activities: nextActivities,
+          answers: { ...draft.current.answers },
+        };
+      }
+    }
+
+    const channel = supabase
+      .channel(`parent-daily-activities-${studentId}-${selectedDate}`)
+      .on("postgres_changes", { event: "*", schema: "public", table: "mutabaah_activities" }, refreshActivities)
+      .on("postgres_changes", { event: "*", schema: "public", table: "mutabaah_ramadan_periods" }, refreshActivities)
+      .on("postgres_changes", { event: "*", schema: "public", table: "mutabaah_ramadan_activity_links" }, refreshActivities)
+      .subscribe();
+
+    const onFocus = () => { void refreshActivities(); };
+    window.addEventListener("focus", onFocus);
+
+    return () => {
+      active = false;
+      window.removeEventListener("focus", onFocus);
+      void supabase.removeChannel(channel);
+    };
+  }, [studentId, selectedDate]);
+
+
 
   useEffect(() => subscribeParentDaySession(() => {
     requestId.current += 1;
